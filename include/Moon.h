@@ -562,7 +562,7 @@ extern unsigned int MoonHash(char* text);
 * 使用方法 
 * _Bool alpha = MoonKeyState(MOON_KEY_SPACE);
 */
-extern _Bool MoonKeyState(int Key);					//获取按键的值
+extern _Bool MoonKeyState(unsigned int Key);					//获取按键的值
 
 /*
 * 函數 MoonKeyReal
@@ -571,7 +571,7 @@ extern _Bool MoonKeyState(int Key);					//获取按键的值
 * 使用方法 
 * _Bool alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
 */
-extern _Bool MoonKeyReal(unsigned char Key);					//获取按键的值
+extern _Bool MoonKeyReal(unsigned int Key);					//获取按键的值
 
 /*
 * 函數 Lerp

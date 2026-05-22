@@ -1,0 +1,143 @@
+[简易文档]
+最后一次更新日期 : 2026.5.22
+
+[1]
+	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
+	而不是传统图形库的中心原点,Y轴为正
+
+[2]
+	如果要使用这个引擎,有几个概念您得先搞懂
+	实体系统是重中之重,几乎所有核心内容都需要实体系统传递,包括多文件下您自身的变量与结构体
+	引擎主画布类似于屏幕的后缓冲区,是一张纹理图层,用于规范绘制,防止直接操作后缓冲区造成混乱,以及适配可能不同的绘图后端
+
+	引擎内部提供的实体有以下这些
+	帧率			ProjectFPS					int
+	鼠标坐标		ProjectMouseCoord			MOON_POINT2D
+	引擎主画布	ProjectBitmap				MOON_IMAGE
+	纯色着色器	ProjectShader_SolidColor	unsigned int
+	纹理着色器	ProjectShader_Texture		unsigned int
+
+	您可以通通过类似于
+	static MOON_IMAGE* engineback;
+	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, engineback_2);
+	engineback = engineback_2;
+	的方法来获取实体系统的资源
+
+[3]
+	[3.1]
+	引擎内部总是维护两个内部函数,用于逻辑与绘制线程
+	这两个函数通过指针切换特定签名的函数来实现模块的切换
+	最好只在单线程操作单类型的消息
+
+	例如
+	逻辑线程可以发送绘制消息
+	但是绝不能逻辑线程绘制线程都发送绘制消息
+
+	逻辑线程与绘制线程可以发送属性消息
+	但是绝不能逻辑线程绘制线程都发送属性消息
+
+	总结
+	禁止多个线程操作同一类消息,否则容易造成并发问题
+	一类消息最好只由一个线程发送
+	不属于本线程的消息类,可能造成问题
+	最佳实践是
+	绘制消息 ----------- 绘制线程
+	逻辑消息,属性消息 --- 逻辑线程
+	或者
+	绘制消息,属性消息 --- 绘制线程
+	逻辑消息 ----------- 逻辑线程
+	比如绘制线程的消息完全由逻辑线程发送会导致频闪
+	请注意,这个频闪不是由于即时模式的那种没有双缓冲导致的
+	恰恰是由双缓冲本身导致的
+	具体原因是因为线程的异步导致消息队列的异步
+	间隔帧会存在黑屏导致的频闪
+	
+	[3.2]
+	如要切换模块[示例]
+
+	逻辑线程
+		MOON_METADATA metadata;
+		metadata.function = GameLogicAll;
+		MoonProjectSendMessage(MOON_MESSAGE_LOGIC_SETLOGIC, metadata);
+	
+	绘制线程
+		MOON_METADATA metadata;
+		metadata.function = GameDrawAll;
+		int alpha = MoonProjectSendMessage(MOON_MESSAGE_DRAW_SETDRAW, metadata);
+	
+		MOON_IMAGE的实际功能更偏向于图层,配套函数也是基于图层的逻辑来写的
+	
+[4]
+		引擎固定的用于输出的纹理渲染器unifrom变量是moon_utexture,
+		如果您需要自行编写着色器并使用消息
+			MOON_DRAW_IMAGE
+			MOON_DRAW_IMAGE_UV
+			MOON_DRAW_IMAGE_PIG
+		渲染
+		那么请参考此条目
+
+[5]
+		如果您需要使用更强大的MOON_METADATA功能
+		请务查看以下案例
+		[案例]
+			[5.1]
+					MoonDrawAreaRound(&enginebackalpha, image_dd, 400, 300, .5f, .5f, image_dd->image_size.w, image_dd->image_size.h, 45);
+					MOON_METADATA metadata;
+					metadata.draw.shader = shader2;
+					metadata.draw.image_goal = engineback;
+					metadata.draw.image.image_resources = &enginebackalpha;
+					metadata.draw.image.x = 0;
+					metadata.draw.image.y = 0;
+					metadata.draw.image.width = enginebackalpha.image_size.w;
+					metadata.draw.image.height = enginebackalpha.image_size.h;
+					MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
+			[5.2]		
+					MoonDrawAreaRound(&enginebackalpha, image_dd, 400, 300, .5f, .5f, image_dd->image_size.w, image_dd->image_size.h, 45);
+					MOON_METADATA metadata = { MOON_NULL };
+					metadata.draw.shader = shader2;
+					metadata.draw.image_goal = engineback;
+					metadata.draw.image.image_resources = &enginebackalpha;
+					metadata.draw.image.deg = 0;
+					metadata.draw.image.x = 0;
+					metadata.draw.image.y = 0;
+					metadata.draw.image.width = enginebackalpha.image_size.w;
+					metadata.draw.image.height = enginebackalpha.image_size.h;
+					MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
+			[5.3]		
+					MoonDrawAreaRound(&enginebackalpha, image_dd, 400, 300, .5f, .5f, image_dd->image_size.w, image_dd->image_size.h, 45);
+					MOON_METADATA metadata;
+					metadata.draw.shader = shader2;
+					metadata.draw.image_goal = engineback;
+					metadata.draw.image.image_resources = &enginebackalpha;
+					metadata.draw.image.deg = 0;
+					metadata.draw.image.apx = 0;
+					metadata.draw.image.apy = 0;
+					metadata.draw.image.uv_w = 1.f;
+					metadata.draw.image.uv_h = 1.f;
+					metadata.draw.image.x = 0;
+					metadata.draw.image.y = 0;
+					metadata.draw.image.width = enginebackalpha.image_size.w;
+					metadata.draw.image.height = enginebackalpha.image_size.h;
+					MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
+
+			请注意,[5.1]可能不是您想要的效果,因为没有像[5.2]与[5.3]那样完全初始化,可能有状态残留
+			尤其是可能出现顶点紊乱,方向错误,黑屏,奇怪的旋转等等
+			实际使用时,请务必注意是否初始化
+
+[6]
+			如果要嵌入自定义消息队列
+			请使用消息
+				MOON_MESSAGE_LOGIC_OPEN
+				MOON_MESSAGE_ATTR_OPEN
+				MOON_MESSAGE_DRAW_OPEN
+			并发送到
+			metadata.function_open中
+			请注意,function_open相当于注入队列的一个小型主循环
+			主要功能是用于补全一些缺失的功能,比如即时绘图模式或者其他功能
+			如果在其中使用消息式绘图,SendMessage几乎一定会返回MOON_MESSAGE_THREAD_TYPE_BUSY
+
+[7]
+			关于MoonDrawtextFont
+			由于目前的技术力,暂时还不打算接受任意长度的字符串数据
+			因此请您注意是否超出MOON_MESSAGE_TEXT_MAX
+			或者说您可以自行切割字符串以支持任意长度

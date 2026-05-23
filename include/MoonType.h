@@ -31,8 +31,8 @@ typedef GLFWwindow MOON_HWND;
 #define MOON_ON				MOON_TRUE
 #define MOON_OFF			MOON_FALSE
 #define MOON_Pi				(3.1415926f)		//Pi
-#define MOON_VERTICES_MAX	(65536)				//��������
-#define MOON_MESSAGE_TEXT_MAX 32				//������Ϣ����ַ���
+#define MOON_VERTICES_MAX	(65536)				//顶点上限
+#define MOON_MESSAGE_TEXT_MAX 32				//单条消息最大字符数
 
 enum
 {
@@ -41,10 +41,10 @@ enum
 	MOON_MODULE_ATTR,
 };
 
-//�����̺߳����ؼ���
+//创建线程函数关键字
 typedef int SDLCALL  MOON_THREAD;
 
-//��ʱ��
+//定时器
 typedef struct
 {
 	unsigned int time1;
@@ -53,16 +53,16 @@ typedef struct
 	_Bool timeswitch;
 }MOON_TIMELOAD;
 
-//����
+//对象
 typedef struct
 {
 	char* nameid;
 	char* type_name;
 	int length;
 	void* entityindex;
-}MOON_ENTITYINDEX;					//ʵ��
+}MOON_ENTITYINDEX;					//实体
 
-//��ṹ��
+//点结构体
 typedef struct
 {
 	float x, y, z;
@@ -78,26 +78,26 @@ typedef struct
 	};
 }MOON_POINT2D;
 
-//˫�����ͼ
+//双缓冲绘图
 typedef struct
 {
 	unsigned int texture, fbo;
 }MOON_DOUBLEBUFFER;
 
-//ͼƬ
+//图片
 typedef struct
 {
-	MOON_POINT2D image_size;		//�����ߴ�
-	MOON_DOUBLEBUFFER image;		//ͼƬ
+	MOON_POINT2D image_size;		//物理尺寸
+	MOON_DOUBLEBUFFER image;		//图片
 }MOON_IMAGE;
 
-//�����ṹ��
+//动画结构体
 typedef struct
 {
-	MOON_IMAGE* sequenceframes;		//����֡����
-	long long int number;			//��ǰ����֡
-	int totalnumber;				//����֡����
-	MOON_TIMELOAD timeload;			//��ʱ��
+	MOON_IMAGE* sequenceframes;		//序列帧数组
+	long long int number;			//当前序列帧
+	int totalnumber;				//序列帧总数
+	MOON_TIMELOAD timeload;			//定时器
 }MOON_ANIME;
 
 typedef struct
@@ -106,36 +106,36 @@ typedef struct
 	{
 		struct
 		{
-			MOON_IMAGE* image_goal;					//Ŀ������
+			MOON_IMAGE* image_goal;					//目标纹理
 			unsigned int
-				shader,								//��ɫ��
-				color;								//��ɫ
+				shader,								//着色器
+				color;								//颜色
 			union
 			{
 				struct
 				{
-					MOON_IMAGE* image_resources;						//Դ������Դ
+					MOON_IMAGE* image_resources;						//源纹理资源
 					int x, y, width, height, deg;
 					float
-						apx, apy,					//ê��
-						uv_w, uv_h;					//uv���п���
-				}image;													//����
+						apx, apy,					//锚点
+						uv_w, uv_h;					//uv裁切宽度
+				}image;													//纹理
 				struct
 				{
 					int x1, y1, x2, y2, x3, y3;
-				}graphic;												//��ͼ
+				}graphic;												//绘图
 				struct
 				{
-					MOON_IMAGE* image_resources;	//Դ������Դ
-					MOON_POINT2D point[4];			//����
-				}image_pig;												//����ӳ��
+					MOON_IMAGE* image_resources;	//源纹理资源
+					MOON_POINT2D point[4];			//顶点
+				}image_pig;												//纹理映射
 
 				struct
 				{
-					MOON_POINT2D coord;						//����
+					MOON_POINT2D coord;						//坐标
 					float size_w, size_h;
 					char text[MOON_MESSAGE_TEXT_MAX];
-				}text;													//����
+				}text;													//纹理
 			};
 		}draw;
 		struct
@@ -146,11 +146,11 @@ typedef struct
 				int fps;
 				int dead;
 			};
-		} attr;															//����
+		} attr;															//属性
 		union
 		{
-			int (*function)(struct MOON_PROJECTGOD*);					//�л�ģ��
-			void(*function_open)(struct MOON_PROJECTGOD*);				//�Զ�����Ϣ����
+			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
+			void(*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
 
 		};
 	};
@@ -158,8 +158,8 @@ typedef struct
 
 typedef struct MOON_MESSAGE_SPECIFIC
 {
-	unsigned int message;				//��Ϣ����
-	MOON_METADATA metadata;				//����Ԫ
+	unsigned int message;				//消息类型
+	MOON_METADATA metadata;				//数据元
 }MOON_MESSAGE_SPECIFIC;
 
 typedef struct
@@ -180,24 +180,24 @@ typedef enum
 typedef enum
 {
 	/*
-	��ע��
-	�󲿷��������������ʹ��_END����Ϣ,������Զ�����
-	����ʹ��������Ҫ�ǳ�С��,���ܻ���������ڲ��Զ���ʧЧ
-	����ֻ��֤һ���̶ȵ��ȶ���
-	�������̷߳�����ϢʱҪ�ǳ�С�Ĳ�������
-	������ǲ�������
-	���ĺ���ָ�����ϢҲ�����������
+	请注意
+	大部分情况下您都不必使用_END类消息,引擎会自动处理
+	而且使用它们需要非常小心,可能会造成引擎内部自动锁失效
+	核心只保证一定程度的稳定性
+	向属性线程发送消息时要非常小心并发问题
+	如果不是并发问题
+	更改函数指针的消息也不会独立出来
 	MOON_MESSAGE_ATTR_SETLOGIC
 	MOON_MESSAGE_ATTR_SETDRAW
 
-	����������趨�Ĺ��̹淶
-	ֻ���ɵ�һ�߳�
-	һ�����߼��߳������������̵߳���Ϣ
+	如果按照我设定的工程规范
+	只能由单一线程
+	一般是逻辑线程来发送属性线程的消息
 
 	*/
 	MOON_MESSAGE_NULL = MOON_FALSE,
 	
-	MOON_MESSAGE_DRAW_START,//��ʼ��,����������
+	MOON_MESSAGE_DRAW_START,//起始符,无其他含义
 	MOON_MESSAGE_DRAW_SETDRAW,
 	MOON_MESSAGE_DRAW_OPEN,
 	MOON_MESSAGE_DRAW_IMAGE,
@@ -211,34 +211,34 @@ typedef enum
 	//MOON_MESSAGE_DRAW_BOX,
 	//MOON_MESSAGE_DRAW_BOX_FULL,
 	MOON_MESSAGE_DRAW_TRI_FULL,
-	MOON_MESSAGE_DRAW_TEXT,		//Ĭ������
-	MOON_MESSAGE_DRAW_ANIME_RUN,
-	MOON_MESSAGE_DRAW_ANIME_MODE,
+	MOON_MESSAGE_DRAW_TEXT,		//默认字体
+	//MOON_MESSAGE_DRAW_ANIME_RUN,
+	//MOON_MESSAGE_DRAW_ANIME_MODE,
 	//MOON_MESSAGE_DRAW_ANIME_DELETE,
-	MOON_MESSAGE_DRAW_END,//��ֹ��,��ǰ���ض���,��ǰ����,��Ҫ��С�ĵ�ʹ��,���ֻ�ڱ��߳�ʹ��,ֻ�ڻ����߳�ʹ��,��Ϊ�Ǵ���,����ǰ����,����û����,�����߳�ʹ�ÿ��ܻ��ƻ��Զ���
+	MOON_MESSAGE_DRAW_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 
-	MOON_MESSAGE_ATTR_START,//��ʼ��,����������
+	MOON_MESSAGE_ATTR_START,//起始符,无其他含义
 	MOON_MESSAGE_ATTR_DEAD,
 	MOON_MESSAGE_ATTR_POWER,
 	MOON_MESSAGE_ATTR_SETFPS,
 	MOON_MESSAGE_ATTR_OPEN,
-	MOON_MESSAGE_ATTR_END,//��ֹ��,��ǰ���ض���,��ǰ����,��Ҫ��С�ĵ�ʹ��,���ֻ�ڱ��߳�ʹ��,ֻ�ڻ����߳�ʹ��,��Ϊ�Ǵ���,����ǰ����,����û����,�����߳�ʹ�ÿ��ܻ��ƻ��Զ���
+	MOON_MESSAGE_ATTR_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 
-	MOON_MESSAGE_LOGIC_START,//��ʼ��,����������
+	MOON_MESSAGE_LOGIC_START,//起始符,无其他含义
 	MOON_MESSAGE_LOGIC_SETLOGIC,
 	MOON_MESSAGE_LOGIC_OPEN,
-	MOON_MESSAGE_LOGIC_END,//��ֹ��,��ǰ���ض���,��ǰ����,��Ҫ��С�ĵ�ʹ��,���ֻ�ڱ��߳�ʹ��,ֻ�ڻ����߳�ʹ��,��Ϊ�Ǵ���,����ǰ����,����û����,�����߳�ʹ�ÿ��ܻ��ƻ��Զ���
+	MOON_MESSAGE_LOGIC_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 }MOON_MESSAGE;
 
-//�I�P����a
+//鍵盤掃描碼
 
 enum
 {
-	//���
+	//鼠标
 	MOON_KEY_MOUSE_LEFT = GLFW_MOUSE_BUTTON_LEFT,
 	MOON_KEY_MOUSE_RIGHT = GLFW_MOUSE_BUTTON_RIGHT,
 
-	// ��ĸ��
+	// 字母键
 	MOON_KEY_A = GLFW_KEY_A,          // 65
 	MOON_KEY_B = GLFW_KEY_B,          // 66
 	MOON_KEY_C = GLFW_KEY_C,          // 67
@@ -266,7 +266,7 @@ enum
 	MOON_KEY_Y = GLFW_KEY_Y,          // 89
 	MOON_KEY_Z = GLFW_KEY_Z,          // 90
 
-	// ���ּ�
+	// 数字键
 	MOON_KEY_0 = GLFW_KEY_0,          // 48
 	MOON_KEY_1 = GLFW_KEY_1,          // 49
 	MOON_KEY_2 = GLFW_KEY_2,          // 50
@@ -278,7 +278,7 @@ enum
 	MOON_KEY_8 = GLFW_KEY_8,          // 56
 	MOON_KEY_9 = GLFW_KEY_9,          // 57
 
-	// ���ܼ�
+	// 功能键
 	MOON_KEY_ESCAPE = GLFW_KEY_ESCAPE,        // 256
 	MOON_KEY_RETURN = GLFW_KEY_ENTER,         // 257
 	MOON_KEY_TAB = GLFW_KEY_TAB,              // 258
@@ -299,7 +299,7 @@ enum
 	MOON_KEY_SNAPSHOT = GLFW_KEY_PRINT_SCREEN, // 283 (Print Screen)
 	MOON_KEY_PAUSE = GLFW_KEY_PAUSE,          // 284
 
-	// F���ܼ�
+	// F功能键
 	MOON_KEY_F1 = GLFW_KEY_F1,     // 290
 	MOON_KEY_F2 = GLFW_KEY_F2,     // 291
 	MOON_KEY_F3 = GLFW_KEY_F3,     // 292
@@ -325,7 +325,7 @@ enum
 	MOON_KEY_F23 = GLFW_KEY_F23,   // 312
 	MOON_KEY_F24 = GLFW_KEY_F24,   // 313
 
-	// С����
+	// 小键盘
 	MOON_KEY_NUMPAD0 = GLFW_KEY_KP_0,        // 320
 	MOON_KEY_NUMPAD1 = GLFW_KEY_KP_1,        // 321
 	MOON_KEY_NUMPAD2 = GLFW_KEY_KP_2,        // 322
@@ -341,10 +341,10 @@ enum
 	MOON_KEY_MULTIPLY = GLFW_KEY_KP_MULTIPLY, // 332 (*)
 	MOON_KEY_SUBTRACT = GLFW_KEY_KP_SUBTRACT, // 333 (-)
 	MOON_KEY_ADD = GLFW_KEY_KP_ADD,          // 334 (+)
-	MOON_KEY_SEPARATOR = GLFW_KEY_KP_ENTER,  // 335 (Enter ��С�����ϵĶ�Ӧ)
+	MOON_KEY_SEPARATOR = GLFW_KEY_KP_ENTER,  // 335 (Enter 在小键盘上的对应)
 	MOON_KEY_OEM_PLUS = GLFW_KEY_KP_EQUAL,   // 336 (=)
 
-	// ���μ�
+	// 修饰键
 	MOON_KEY_LSHIFT = GLFW_KEY_LEFT_SHIFT,      // 340
 	MOON_KEY_LCONTROL = GLFW_KEY_LEFT_CONTROL,  // 341
 	MOON_KEY_LMENU = GLFW_KEY_LEFT_ALT,         // 342 (Left Alt)
@@ -355,7 +355,7 @@ enum
 	MOON_KEY_RWIN = GLFW_KEY_RIGHT_SUPER,       // 347 (Right Windows)
 	MOON_KEY_APPS = GLFW_KEY_MENU,              // 348 (Menu / Apps)
 
-	// ���ż�
+	// 符号键
 	MOON_KEY_SPACE = GLFW_KEY_SPACE,                    // 32
 	MOON_KEY_OEM_7 = GLFW_KEY_APOSTROPHE,               // 39 (')
 	MOON_KEY_OEM_COMMA = GLFW_KEY_COMMA,                // 44 (,)

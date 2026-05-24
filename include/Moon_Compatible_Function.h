@@ -84,3 +84,4 @@
 #define MoonDeleteImage MoonImageDelete
 #define MoonCreateImage MoonImageCreate
 #define MoonRANGE MoonRange
+#define MoonSETMOUSECOORD glfwSetCursorPos

@@ -1,8 +1,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include"MoonCore.h"
-//ä¸ºäº†æ–¹ä¾¿å’Œé˜²æ­¢å†²çª,æ‰€ä»¥æ”¹å
+//ÎªÁË·½±ãºÍ·ÀÖ¹³åÍ»,ËùÒÔ¸ÄÃû
 #include"Moon_stb_image.h"
 #include"MoonFontttf.h"
+
+//ÁÙÊ±±¸ÍüÂ¼,·¢²¼Ê±ĞèÒªÉ¾³ı
+//ĞèÒªÌá¹©Ò»¸öÖ±½Ó²Ù×÷uniformµÄAPI
 
 static unsigned int solid_color_shader, texture_shader;
 static MOON_IMAGE* moon_engineback;
@@ -17,7 +20,7 @@ static MOON_IMAGE moon_simple_font;
 
 extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 {
-	//è·å–å¼•æ“æ ¸å¿ƒç€è‰²å™¨
+	//»ñÈ¡ÒıÇæºËĞÄ×ÅÉ«Æ÷
 	MoonHashFindEntity(project, "ProjectShader_SolidColor", GLuint, shader_program_1);
 	MoonHashFindEntity(project, "ProjectShader_Texture", GLuint, shader_program_2);
 	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, engineback_2);
@@ -64,9 +67,9 @@ extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	//åŠ è½½é»˜è®¤çº¹ç†
+	//¼ÓÔØÄ¬ÈÏÎÆÀí
 	{
-		//åˆ›å»ºå†…éƒ¨å­—ä½“
+		//´´½¨ÄÚ²¿×ÖÌå
 
 		glad_glGenTextures(1, &moon_simple_font.image.texture);
 		glad_glBindTexture(GL_TEXTURE_2D, moon_simple_font.image.texture);
@@ -105,7 +108,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 {
 	GLint success;
 
-	//ç·¨è­¯é ‚é»è‘—è‰²å™¨
+	//¾×gí”ücÖøÉ«Æ÷
 	GLuint vertex_shader_uint = glad_glCreateShader(GL_VERTEX_SHADER);
 	glad_glShaderSource(vertex_shader_uint, 1, vertex_shader, MOON_NULL);
 	glad_glCompileShader(vertex_shader_uint);
@@ -115,16 +118,16 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetShaderInfoLog(vertex_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]å‡½æ•°é”™è¯¯,é¡¶ç‚¹ç€è‰²å™¨ç¼–è¯‘å¤±è´¥!");
+		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êı´íÎó,¶¥µã×ÅÉ«Æ÷±àÒëÊ§°Ü!");
 		MOON_METADATA metadata;
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;
-	MoonPrompt("é¡¶ç‚¹ç€è‰²å™¨ç¼–è¯‘å®Œæˆ");
+	MoonPrompt("¶¥µã×ÅÉ«Æ÷±àÒëÍê³É");
 
-	//ç·¨è­¯åƒç´ è‘—è‰²å™¨
+	//¾×gÏñËØÖøÉ«Æ÷
 	GLuint pixel_shader_uint = glad_glCreateShader(GL_FRAGMENT_SHADER);
 	glad_glShaderSource(pixel_shader_uint, 1, pixel_shader, MOON_NULL);
 	glad_glCompileShader(pixel_shader_uint);
@@ -134,17 +137,17 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetShaderInfoLog(pixel_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]å‡½æ•°é”™è¯¯,åƒç´ ç€è‰²å™¨ç¼–è¯‘å¤±è´¥!");
+		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êı´íÎó,ÏñËØ×ÅÉ«Æ÷±àÒëÊ§°Ü!");
 		MOON_METADATA metadata;
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;
-	MoonPrompt("åƒç´ ç€è‰²å™¨ç¼–è¯‘å®Œæˆ");
+	MoonPrompt("ÏñËØ×ÅÉ«Æ÷±àÒëÍê³É");
 
 
-	//çµ„åˆè‘—è‰²å™¨
+	//½MºÏÖøÉ«Æ÷
 	if (*shader_program)
 		glad_glDeleteProgram(*shader_program);
 	*shader_program = glad_glCreateProgram();
@@ -157,17 +160,17 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetProgramInfoLog(*shader_program, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]å‡½æ•°é”™è¯¯,ç€è‰²å™¨éˆæ¥å¤±è´¥!");
+		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êı´íÎó,×ÅÉ«Æ÷æœ½ÓÊ§°Ü!");
 		MOON_METADATA metadata;
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;
-	MoonPrompt("ç€è‰²å™¨é“¾æ¥å®Œæˆ");
+	MoonPrompt("×ÅÉ«Æ÷Á´½ÓÍê³É");
 
 
-	//åˆªé™¤è‘—è‰²å™¨å°è±¡
+	//„h³ıÖøÉ«Æ÷Œ¦Ïó
 	glad_glDeleteShader(vertex_shader_uint);
 	glad_glDeleteShader(pixel_shader_uint);
 }
@@ -357,7 +360,7 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	int len = strlen(text);
 	if (len >= MOON_MESSAGE_TEXT_MAX)
 	{
-		MoonPrompt("å•æ¬¡æ¶ˆæ¯è¶…è¿‡æœ€å¤§å­—ç¬¦æ•°");
+		MoonPrompt("µ¥´ÎÏûÏ¢³¬¹ı×î´ó×Ö·ûÊı");
 		return;
 	}
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
@@ -392,14 +395,14 @@ extern void MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmp
 	image->image_size.h = bmpheight;
 
 	char text[255];
-	snprintf(text, 255, "åˆ›å»ºäº†ä¸€ä¸ªçº¹ç†,å€¼ä¸º%d", image->image.texture);
+	snprintf(text, 255, "´´½¨ÁËÒ»¸öÎÆÀí,ÖµÎª%d", image->image.texture);
 	MoonPrompt(text);
 }
 
 extern void MoonImageDelete(MOON_IMAGE* image)
 {
 	char text[255];
-	snprintf(text, 255, "é”€æ¯äº†ä¸€ä¸ªçº¹ç†,å€¼ä¸º%d", image->image.texture);
+	snprintf(text, 255, "Ïú»ÙÁËÒ»¸öÎÆÀí,ÖµÎª%d", image->image.texture);
 	MoonPrompt(text);
 	glad_glDeleteTextures(1, &image->image.texture);
 	glad_glDeleteFramebuffers(1, &image->image.fbo);
@@ -441,7 +444,7 @@ extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenu
 		image[index] = image_buffer;
 
 		char text[255];
-		snprintf(text, 255, "åŠ è½½äº†ä¸€ä¸ªçº¹ç†,å€¼ä¸º%d,åŸå€¼ä¸º%d", image[index].image.texture, old_id);
+		snprintf(text, 255, "¼ÓÔØÁËÒ»¸öÎÆÀí,ÖµÎª%d,Ô­ÖµÎª%d", image[index].image.texture, old_id);
 		MoonPrompt(text);
 	}
 }
@@ -455,8 +458,8 @@ extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int 
 
 extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int timeload, int totalnumber, int width, int height)
 {
-	if (totalnumber <= 0) { MoonPrompt("[AnimeInitå‡½æ•°é”™è¯¯]åŠ¨ç”»åºåˆ—å¸§æ€»æ•°æœ‰é—®é¢˜!\n"); return MOON_Error; }
-	if (sequenceframes == NULL) { MoonPrompt("[AnimeInitå‡½æ•°é”™è¯¯]åŠ¨ç”»åºåˆ—å¸§æœ‰é—®é¢˜,è¯·æ£€æŸ¥åä¸ºåŠ¨ç”»æ˜¯å¦å­˜åœ¨!\n"); return MOON_Error; }
+	if (totalnumber <= 0) { MoonPrompt("[AnimeInitº¯Êı´íÎó]¶¯»­ĞòÁĞÖ¡×ÜÊıÓĞÎÊÌâ!\n"); return MOON_Error; }
+	if (sequenceframes == NULL) { MoonPrompt("[AnimeInitº¯Êı´íÎó]¶¯»­ĞòÁĞÖ¡ÓĞÎÊÌâ,Çë¼ì²éÃûÎª¶¯»­ÊÇ·ñ´æÔÚ!\n"); return MOON_Error; }
 	anime->sequenceframes = sequenceframes;
 	anime->totalnumber = totalnumber;
 	anime->number = 0;
@@ -465,7 +468,7 @@ extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int time
 		anime->sequenceframes[i].image_size.x = width;
 		anime->sequenceframes[i].image_size.y = height;
 	}
-	MoonTimeLoadInit(&(anime->timeload), timeload);		//è®¾ç½®å®šæ—¶å™¨
+	MoonTimeLoadInit(&(anime->timeload), timeload);		//ÉèÖÃ¶¨Ê±Æ÷
 	return MOON_YES;
 }
 
@@ -491,8 +494,8 @@ extern void MoonAnimeCreate(
 
 extern void MoonImageDesignated(MOON_IMAGE* image)
 {
-	//glad_glBindFramebuffer	ç´‹ç†ä½œçˆ²ç•«å¸ƒ(å¯«å…¥)
-	//glad_glBindTexture		ç´‹ç†ä½œçˆ²è³‡æº(è®€å–)
+	//glad_glBindFramebuffer	¼yÀí×÷ ‘®‹²¼(Œ‘Èë)
+	//glad_glBindTexture		¼yÀí×÷ ‘ÙYÔ´(×xÈ¡)
 	glad_glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)image->image.fbo);
 }
 
@@ -505,7 +508,7 @@ extern void MoonCoreDrawArea(MOON_METADATA* metadata)
 {
 	if (!metadata->draw.image_goal || !metadata->draw.image.image_resources)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 
@@ -521,7 +524,7 @@ extern void MoonCoreDrawArea(MOON_METADATA* metadata)
 		vy4 = vy1;
 
 	{
-		//è¿™é‡Œå¤„ç†æ—‹è½¬
+		//ÕâÀï´¦ÀíĞı×ª
 
 		float 
 			cosrad = cos(MoonDegRad(metadata->draw.image.deg)), 
@@ -575,7 +578,7 @@ extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata)
 {
 	if (!metadata->draw.image_goal || !metadata->draw.image.image_resources)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 	MOON_POINT2D image_buffer_size =
@@ -624,7 +627,7 @@ extern void MoonCoreDrawAreaPlgBit(MOON_METADATA* metadata)
 {
 	if (!metadata->draw.image_goal || !metadata->draw.image.image_resources)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 	float
@@ -663,7 +666,7 @@ extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOO
 {
 	if (!metadata->draw.image_goal)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 	
@@ -683,7 +686,7 @@ extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON
 {
 	if (!metadata->draw.image_goal)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 
@@ -703,7 +706,7 @@ extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, 
 {
 	if (!metadata->draw.image_goal)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 	
@@ -723,7 +726,7 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 {
 	if (!metadata->draw.image_goal)
 	{
-		MoonPrompt("æ— æ•ˆçš„çº¹ç†å¯¹è±¡");
+		MoonPrompt("ÎŞĞ§µÄÎÆÀí¶ÔÏó");
 		return;
 	}
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
@@ -948,7 +951,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 		else return;
 }
 
-//æ­¤å‡½æ•°ä»…ä½œä¸ºè¾…åŠ©å‡½æ•°
+//´Ëº¯Êı½ö×÷Îª¸¨Öúº¯Êı
 static inline void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a)
 {
 	vertex[index_offset].x = vx;
@@ -960,7 +963,7 @@ static inline void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_o
 	vertex[index_offset].b = b;
 }
 
-//æ­¤å‡½æ•°ä»…ä½œä¸ºè¾…åŠ©å‡½æ•°
+//´Ëº¯Êı½ö×÷Îª¸¨Öúº¯Êı
 static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset)
 {
 	MOON_IMAGE* image_new = metadata->draw.image_goal;
@@ -982,7 +985,7 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 	}
 	if (moon_vertex_index >= MOON_VERTICES_MAX - offset)
 	{
-		MoonPrompt("é¡¶ç‚¹æº¢å‡º");
+		MoonPrompt("¶¥µãÒç³ö");
 		return MOON_FALSE;
 	}
 	return MOON_TRUE;

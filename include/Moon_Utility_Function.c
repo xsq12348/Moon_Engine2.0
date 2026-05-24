@@ -1,5 +1,8 @@
 #include"MoonCore.h"
 
+//ÁÙÊ±±¸ÍüÂ¼,·¢²¼Ê±ÐèÒªÉ¾³ý
+//ÐèÒªÌá¹©Ò»¸öÖ±½Ó¶ÁÈ¡ÎÄ±¾ÎÄ¼þµÄº¯Êý,ÓÃÓÚ¼ÓÔØshader
+
 MOON_PROJECTGOD* utility_project;
 
 extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
@@ -59,7 +62,7 @@ extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 	if (!mode)return MOON_FALSE;
 	else if (Timeload == MOON_NULL)
 	{
-		MoonPrompt("[TimeLoadå‡½æ•°é”™è¯¯!]å­˜åœ¨ç©ºæŒ‡é’ˆ");
+		MoonPrompt("[TimeLoadº¯Êý´íÎó!]´æÔÚ¿ÕÖ¸Õë");
 		return MOON_Error;
 	}
 	if (!Timeload->timeswitch)
@@ -98,16 +101,16 @@ extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char
 			project->entityindex[index].length = size_len;
 			project->entityindex[index].type_name = type_name;
 		}
-		else printf("éžæ³•çš„åç§°[%s],æ— æ³•é€šè¿‡è¿™ä¸ªå­—ç¬¦ä¸²å¾—åˆ°åˆæ³•çš„ç´¢å¼•", nameid);
+		else printf("·Ç·¨µÄÃû³Æ[%s],ÎÞ·¨Í¨¹ýÕâ¸ö×Ö·û´®µÃµ½ºÏ·¨µÄË÷Òý", nameid);
 	}
 	else
 	{
-		printf("[CreateEntityIndexå‡½æ•°]æŠ¥é”™,å«åš[%s]çš„å®žä½“,æ­¤ä½ç½®[%d],å·²æœ‰å®žä½“å­˜åœ¨,åç§°ä¸º[%s],è¯·æ¢ä¸€ä¸ªåå­—", nameid, hash, project->entityindex[index].nameid);
-		strlen(project->entityindex[hash].nameid) <= 0 && MoonProjectError(&project->entityindex[hash], 2, (char*)"æ¥è‡ª[CreateEntityIndexå‡½æ•°]çš„é”™è¯¯,å‡ºçŽ°äº†å¹½çµå®žä½“,æ²¡æœ‰åˆæ³•åç§°");
+		printf("[CreateEntityIndexº¯Êý]±¨´í,½Ð×ö[%s]µÄÊµÌå,´ËÎ»ÖÃ[%d],ÒÑÓÐÊµÌå´æÔÚ,Ãû³ÆÎª[%s],Çë»»Ò»¸öÃû×Ö", nameid, hash, project->entityindex[index].nameid);
+		strlen(project->entityindex[hash].nameid) <= 0 && MoonProjectError(&project->entityindex[hash], 2, (char*)"À´×Ô[CreateEntityIndexº¯Êý]µÄ´íÎó,³öÏÖÁËÓÄÁéÊµÌå,Ã»ÓÐºÏ·¨Ãû³Æ");
 		index = MOON_NOTFOUND;
 	}
 	char text[255];
-	snprintf(text, 255, "åˆ›å»ºäº†åç§°ä¸º[\033[31;46m%s\033[0m]çš„å®žä½“\nç±»åž‹:%s\nåœ°å€:0x%p\nHash:%d\nç´¢å¼•:%d", nameid, project->entityindex[hash].type_name, project->entityindex[hash].entityindex, MoonHash(nameid), index);
+	snprintf(text, 255, "´´½¨ÁËÃû³ÆÎª[\033[31;46m%s\033[0m]µÄÊµÌå\nÀàÐÍ:%s\nµØÖ·:0x%p\nHash:%d\nË÷Òý:%d", nameid, project->entityindex[hash].type_name, project->entityindex[hash].entityindex, MoonHash(nameid), index);
 	MoonPrompt(text);
 	return index;
 }
@@ -118,11 +121,6 @@ extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c,
 	int d2 = (p.x - c.x) * (b.y - c.y) - (b.x - c.x) * (p.y - c.y);
 	int d3 = (p.x - a.x) * (c.y - a.y) - (c.x - a.x) * (p.y - a.y);
 	return (d1 * d2 > 0) && (d2 * d3 > 0);
-}
-
-extern void MoonRunProgram(const wchar_t* name) 
-{ 
-	ShellExecute(MOON_NULL, L"open", name, MOON_NULL, MOON_NULL, SW_SHOW); 
 }
 
 extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height)
@@ -141,7 +139,7 @@ extern int MoonButtonDetection(MOON_PROJECTGOD* project, char* name)
 	MoonHashFindEntity(project, name, MOON_BUTTON, button);
 	if (project->entityindex[(MoonHash(name) % ENTITYNUMBER)].length != sizeof(MOON_BUTTON))
 	{
-		MoonProjectError(button, 3, (char*)"[ButtonDetectionå‡½æ•°]é”™è¯¯!é”™è¯¯åŽŸå› :ç±»åž‹å¯¼å…¥é”™è¯¯.");
+		MoonProjectError(button, 3, (char*)"[ButtonDetectionº¯Êý]´íÎó!´íÎóÔ­Òò:ÀàÐÍµ¼Èë´íÎó.");
 		return 0;
 	}
 	MoonHashFindEntity(project, "ProjectMouseCoord", MOON_POINT2D, mousecoord);
@@ -171,7 +169,7 @@ extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project,char* name,unsigned
 	MoonHashFindEntity(project, name, MOON_BUTTON, button);
 	if (project->entityindex[MoonHash(name)].length != sizeof(MOON_BUTTON))
 	{
-		MoonProjectError(button, 3, (char*)"[ButtonSetTriggerModeå‡½æ•°]é”™è¯¯!é”™è¯¯åŽŸå› :ç±»åž‹å¯¼å…¥é”™è¯¯.");
+		MoonProjectError(button, 3, (char*)"[ButtonSetTriggerModeº¯Êý]´íÎó!´íÎóÔ­Òò:ÀàÐÍµ¼Èë´íÎó.");
 		return 0;
 	}
 	button->triggermode = key;
@@ -190,4 +188,23 @@ extern int MoonWcharToChar(char* text1, wchar_t* text2, int len)
 	setlocale(LC_ALL, "");
 	wcstombs(text1, text2, len);
 	return 1;
+}
+
+extern void MoonSetMouseCoord(MOON_CURSOR_MODE mode)
+{
+	switch (mode)
+	{
+	case MOON_CURSOR_MODE_HIDDEN:
+		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		break;
+		
+	case MOON_CURSOR_MODE_DISABLED:
+		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		break;
+		
+	case MOON_CURSOR_MODE_CAPTURED:
+		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+		break;
+	}
+	return;
 }

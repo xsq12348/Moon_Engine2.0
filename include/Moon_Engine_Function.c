@@ -4,7 +4,7 @@ static unsigned char Moon_Engine_VSn[4] = { 2,1,0,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
-static POINT projectmousecoord;
+static MOON_POINT2D projectmousecoord;
 static MOON_ENTITYINDEX entityindex[ENTITYNUMBER];
 static MOON_ENGINECORE moon_engine_core;
 static _Bool thread_draw_type, thread_attr_type;
@@ -83,7 +83,7 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 	}
 	//glfwShowWindow(hwnd);
 	printf("OpenGL: %s\n", glGetString(GL_VERSION));
-	UINT vao;
+	unsigned int vao;
 	glad_glGenVertexArrays(1, &vao);
 	glad_glBindVertexArray(vao);
 	glad_glClearColor(0.f, 0.f, 0.f, 1.f);
@@ -294,6 +294,10 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
 {
 	MoonPrompt("[ProjectRun]引擎流程函数进入成功!");
+	
+	//默认在窗口内部
+	glfwSetInputMode(project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+	
 	if (ProjectDrawing == MOON_NULL)
 	{
 		MoonProjectError(ProjectDrawing, 1, (char*)"绘图函数传入失败!");
@@ -347,8 +351,8 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 			moon_engine_core.power != modetemp && MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
 			moon_engine_core.power != modetemp && MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
 			modetemp = moon_engine_core.power;
-			!developer && MoonKeyState(VK_OEM_3) && (developer = MOON_TRUE);
-			developer && (ProjectConsole(project, project->developerconsole), (MoonKeyState(VK_OEM_3) && (developer = MOON_FALSE)));
+			!developer && MoonKeyState(MOON_KEY_OEM_3) && (developer = MOON_TRUE);
+			developer && (ProjectConsole(project, project->developerconsole), (MoonKeyState(MOON_KEY_OEM_3) && (developer = MOON_FALSE)));
 
 			//自动锁
 			MoonProjectGetMessage(project, &moon_engine_core.message_attr, &moon_engine_core.thread_message_type_attr, MoonAttrMessageHandle);
@@ -411,7 +415,7 @@ extern int MoonProjectError(void* alpha, int degree, char* text)
 	case General:printf("\t等级[General/一般]\n"); break;
 	case Mild:printf("\t等级[Mild/轻微]\n"); break;
 	}
-	while (!MoonKeyState(VK_ESCAPE)) MoonSleep(1);
+	while (!MoonKeyState(MOON_KEY_ESCAPE)) MoonSleep(1);
 	return degree;
 }
 

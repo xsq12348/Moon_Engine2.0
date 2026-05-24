@@ -32,9 +32,10 @@ MoonEngine是一个简单的框架/轻量化引擎
 Email:1993346266@qq.com
 创建日期:2025.10.29
 版本,如果没有日期,那就是前一个日期一起写的/If there is no date, it is written together with the previous date.
-最后一个是修改BUG/重构函数/更新些许小功能,第二个是添加函数,第三个是重构,第四个是正式的大版本号
+(0)是修改BUG/重构函数/更新些许小功能,(1)是添加函数,(2)是重构,(3)是正式的大版本号
 一般来说只有写着日期的日志才是我正式工作的日期,如果要判断工时,请以此为据
 
+	大版本(3).主要版本(2).小版本(1).小更新(0)
 
 [简易文档]
 最后一次更新日期 : 2026.5.22
@@ -179,6 +180,11 @@ Email:1993346266@qq.com
 			由于目前的技术力,暂时还不打算接受任意长度的字符串数据
 			因此请您注意是否超出MOON_MESSAGE_TEXT_MAX
 			或者说您可以自行切割字符串以支持任意长度
+
+[8]
+			鼠标默认行为在窗口内部
+			您可以通过MoonSetMouseCoord来更改
+
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -520,10 +526,18 @@ Email:1993346266@qq.com
 *							MoonAnimeRun函数的size参数改为int类型
 * 
 * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+* 从2.0开始,添加一条新规则,
+* 如果是稳定版,则为2.x.x.x+
+* 反之则为普通版本,不一定稳定
 * Moon Engine 2.0 正式版
 * 
 * 2.1.0.0		2026.5.22	2.0版本正式完成
-*
+* 2.1.0.1		2026.5.24	MoonSETMOUSECOORD更改名称为MoonSetMouseCoord
+* 2.1.0.2					去除了对Windows.h头文件的依赖
+* 2.1.0.3					去除了MoonRunProgram函数
+* 2.1.0.3					去除了MoonCMD函数
+* 2.1.0.4					添加了MOON_CURSOR_MODE枚举
+* 2.1.0.5+					修正了MoonAnimeInit一个不合理的参数
 * 
 */
 
@@ -606,12 +620,12 @@ extern _Bool MoonKeyReal(unsigned int Key);					//获取按键的值
 #define MoonRange(alpha, alpha_min, alpha_max) (MoonMin(MoonMax(alpha, alpha_min), alpha_max))//限制范围
 
 /*
-* 函數 SETMOUSECOORD
-* 作用 設置鼠標位置
+* 函數 MoonSetMouseCoord
+* 作用 設置窗口输入中光标的状态
 * 使用方法 
-* SETMOUSECOORD(x, y);
+* MoonSetMouseCoord(x, y);
 */
-#define MoonSETMOUSECOORD(X, Y) SetCursorPos((X), (Y))		//设置鼠标位置
+extern void MoonSetMouseCoord(MOON_CURSOR_MODE mode);//设置鼠标位置
 
 /*
 * 函數 Random
@@ -630,15 +644,6 @@ extern _Bool MoonKeyReal(unsigned int Key);					//获取按键的值
 extern void MoonMusic(const char* File);			//播放音乐
 
 /*
-* 函數 CMD
-* 作用 开关控制台
-* 使用方法
-* CMD(ON);
-* CMD(OFF);
-*/
-#define MoonCMD(YES_OR_ON) ShowWindow(GetConsoleWindow(), YES_OR_ON? SW_SHOW : SW_HIDE)//开关控制台
-
-/*
 * 函數 MoonTriangleDetection
 * 作用 檢測點與三角形的位置關係
 * 使用方法
@@ -652,14 +657,6 @@ extern void MoonMusic(const char* File);			//播放音乐
 * _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
 */
 extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
-
-/*
-* 函數 MoonRunProgram
-* 作用 运行外部程序
-* 使用方法
-* MoonRunProgram("Game.exe");
-*/
-extern void MoonRunProgram(const wchar_t* name);	//运行外部程序
 
 /*
 * 函數 MoonString
@@ -1083,7 +1080,7 @@ extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int 
 * ANIME anim;
 * MoonAnimeInit(&anim, "Walk", frames, 100, 8, 64, 64);
 */
-extern int MoonAnimeInit(MOON_ANIME* anime, LPCSTR name, MOON_IMAGE* sequenceframes, int timeload, int totalnumber, int width, int height);//初始化动画
+extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int timeload, int totalnumber, int width, int height);//初始化动画
 
 /*
 * 函數 MoonAnimeRun

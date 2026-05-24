@@ -4,7 +4,6 @@
 #include<math.h>
 #include<string.h>
 #include<stdlib.h>
-#include<Windows.h>
 #include <locale.h>
 #include <wchar.h>
 
@@ -31,8 +30,8 @@ typedef GLFWwindow MOON_HWND;
 #define MOON_ON				MOON_TRUE
 #define MOON_OFF			MOON_FALSE
 #define MOON_Pi				(3.1415926f)		//Pi
-#define MOON_VERTICES_MAX	(65536)				//é¡¶ç‚¹ä¸Šé™
-#define MOON_MESSAGE_TEXT_MAX 32				//å•æ¡æ¶ˆæ¯æœ€å¤§å­—ç¬¦æ•°
+#define MOON_VERTICES_MAX	(65536)				//¶¥µãÉÏÏÞ
+#define MOON_MESSAGE_TEXT_MAX 32				//µ¥ÌõÏûÏ¢×î´ó×Ö·ûÊý
 
 enum
 {
@@ -41,10 +40,10 @@ enum
 	MOON_MODULE_ATTR,
 };
 
-//åˆ›å»ºçº¿ç¨‹å‡½æ•°å…³é”®å­—
+//´´½¨Ïß³Ìº¯Êý¹Ø¼ü×Ö
 typedef int SDLCALL  MOON_THREAD;
 
-//å®šæ—¶å™¨
+//¶¨Ê±Æ÷
 typedef struct
 {
 	unsigned int time1;
@@ -53,16 +52,16 @@ typedef struct
 	_Bool timeswitch;
 }MOON_TIMELOAD;
 
-//å¯¹è±¡
+//¶ÔÏó
 typedef struct
 {
 	char* nameid;
 	char* type_name;
 	int length;
 	void* entityindex;
-}MOON_ENTITYINDEX;					//å®žä½“
+}MOON_ENTITYINDEX;					//ÊµÌå
 
-//ç‚¹ç»“æž„ä½“
+//µã½á¹¹Ìå
 typedef struct
 {
 	float x, y, z;
@@ -78,26 +77,26 @@ typedef struct
 	};
 }MOON_POINT2D;
 
-//åŒç¼“å†²ç»˜å›¾
+//Ë«»º³å»æÍ¼
 typedef struct
 {
 	unsigned int texture, fbo;
 }MOON_DOUBLEBUFFER;
 
-//å›¾ç‰‡
+//Í¼Æ¬
 typedef struct
 {
-	MOON_POINT2D image_size;		//ç‰©ç†å°ºå¯¸
-	MOON_DOUBLEBUFFER image;		//å›¾ç‰‡
+	MOON_POINT2D image_size;		//ÎïÀí³ß´ç
+	MOON_DOUBLEBUFFER image;		//Í¼Æ¬
 }MOON_IMAGE;
 
-//åŠ¨ç”»ç»“æž„ä½“
+//¶¯»­½á¹¹Ìå
 typedef struct
 {
-	MOON_IMAGE* sequenceframes;		//åºåˆ—å¸§æ•°ç»„
-	long long int number;			//å½“å‰åºåˆ—å¸§
-	int totalnumber;				//åºåˆ—å¸§æ€»æ•°
-	MOON_TIMELOAD timeload;			//å®šæ—¶å™¨
+	MOON_IMAGE* sequenceframes;		//ÐòÁÐÖ¡Êý×é
+	long long int number;			//µ±Ç°ÐòÁÐÖ¡
+	int totalnumber;				//ÐòÁÐÖ¡×ÜÊý
+	MOON_TIMELOAD timeload;			//¶¨Ê±Æ÷
 }MOON_ANIME;
 
 typedef struct
@@ -106,36 +105,36 @@ typedef struct
 	{
 		struct
 		{
-			MOON_IMAGE* image_goal;					//ç›®æ ‡çº¹ç†
+			MOON_IMAGE* image_goal;					//Ä¿±êÎÆÀí
 			unsigned int
-				shader,								//ç€è‰²å™¨
-				color;								//é¢œè‰²
+				shader,								//×ÅÉ«Æ÷
+				color;								//ÑÕÉ«
 			union
 			{
 				struct
 				{
-					MOON_IMAGE* image_resources;						//æºçº¹ç†èµ„æº
+					MOON_IMAGE* image_resources;						//Ô´ÎÆÀí×ÊÔ´
 					int x, y, width, height, deg;
 					float
-						apx, apy,					//é”šç‚¹
-						uv_w, uv_h;					//uvè£åˆ‡å®½åº¦
-				}image;													//çº¹ç†
+						apx, apy,					//Ãªµã
+						uv_w, uv_h;					//uv²ÃÇÐ¿í¶È
+				}image;													//ÎÆÀí
 				struct
 				{
 					int x1, y1, x2, y2, x3, y3;
-				}graphic;												//ç»˜å›¾
+				}graphic;												//»æÍ¼
 				struct
 				{
-					MOON_IMAGE* image_resources;	//æºçº¹ç†èµ„æº
-					MOON_POINT2D point[4];			//é¡¶ç‚¹
-				}image_pig;												//çº¹ç†æ˜ å°„
+					MOON_IMAGE* image_resources;	//Ô´ÎÆÀí×ÊÔ´
+					MOON_POINT2D point[4];			//¶¥µã
+				}image_pig;												//ÎÆÀíÓ³Éä
 
 				struct
 				{
-					MOON_POINT2D coord;						//åæ ‡
+					MOON_POINT2D coord;						//×ø±ê
 					float size_w, size_h;
 					char text[MOON_MESSAGE_TEXT_MAX];
-				}text;													//çº¹ç†
+				}text;													//ÎÆÀí
 			};
 		}draw;
 		struct
@@ -146,11 +145,11 @@ typedef struct
 				int fps;
 				int dead;
 			};
-		} attr;															//å±žæ€§
+		} attr;															//ÊôÐÔ
 		union
 		{
-			int (*function)(struct MOON_PROJECTGOD*);					//åˆ‡æ¢æ¨¡å—
-			void(*function_open)(struct MOON_PROJECTGOD*);				//è‡ªå®šä¹‰æ¶ˆæ¯é˜Ÿåˆ—
+			int (*function)(struct MOON_PROJECTGOD*);					//ÇÐ»»Ä£¿é
+			void(*function_open)(struct MOON_PROJECTGOD*);				//×Ô¶¨ÒåÏûÏ¢¶ÓÁÐ
 
 		};
 	};
@@ -158,8 +157,8 @@ typedef struct
 
 typedef struct MOON_MESSAGE_SPECIFIC
 {
-	unsigned int message;				//æ¶ˆæ¯ç±»åž‹
-	MOON_METADATA metadata;				//æ•°æ®å…ƒ
+	unsigned int message;				//ÏûÏ¢ÀàÐÍ
+	MOON_METADATA metadata;				//Êý¾ÝÔª
 }MOON_MESSAGE_SPECIFIC;
 
 typedef struct
@@ -167,6 +166,14 @@ typedef struct
 	MOON_MESSAGE_SPECIFIC* message;
 	unsigned int message_index;
 }MOON_MESSAGE_ALL;
+
+typedef enum
+{
+	//MOON_CURSOR_MODE_NULL,			//Õý³£Ä£Ê½
+	MOON_CURSOR_MODE_HIDDEN,		//ÔÚ´°¿ÚÎ»ÖÃÒþ²Ø¹â±ê,²»ÏÞÖÆÎ»ÖÃ
+	MOON_CURSOR_MODE_DISABLED,		//½ûÓÃÄ£Ê½,È«³ÌÒþ²Ø¹â±ê²¢²»ÊÜÖ÷´°¿ÚÏÞÖÆ
+	MOON_CURSOR_MODE_CAPTURED,		//²¶»ñÄ£Ê½,·ÀÖ¹¹â±êÅÜ³ö´°¿Ú,²»Òþ²Ø
+}MOON_CURSOR_MODE;
 
 typedef enum
 {
@@ -180,24 +187,24 @@ typedef enum
 typedef enum
 {
 	/*
-	è¯·æ³¨æ„
-	å¤§éƒ¨åˆ†æƒ…å†µä¸‹æ‚¨éƒ½ä¸å¿…ä½¿ç”¨_ENDç±»æ¶ˆæ¯,å¼•æ“Žä¼šè‡ªåŠ¨å¤„ç†
-	è€Œä¸”ä½¿ç”¨å®ƒä»¬éœ€è¦éžå¸¸å°å¿ƒ,å¯èƒ½ä¼šé€ æˆå¼•æ“Žå†…éƒ¨è‡ªåŠ¨é”å¤±æ•ˆ
-	æ ¸å¿ƒåªä¿è¯ä¸€å®šç¨‹åº¦çš„ç¨³å®šæ€§
-	å‘å±žæ€§çº¿ç¨‹å‘é€æ¶ˆæ¯æ—¶è¦éžå¸¸å°å¿ƒå¹¶å‘é—®é¢˜
-	å¦‚æžœä¸æ˜¯å¹¶å‘é—®é¢˜
-	æ›´æ”¹å‡½æ•°æŒ‡é’ˆçš„æ¶ˆæ¯ä¹Ÿä¸ä¼šç‹¬ç«‹å‡ºæ¥
+	Çë×¢Òâ
+	´ó²¿·ÖÇé¿öÏÂÄú¶¼²»±ØÊ¹ÓÃ_ENDÀàÏûÏ¢,ÒýÇæ»á×Ô¶¯´¦Àí
+	¶øÇÒÊ¹ÓÃËüÃÇÐèÒª·Ç³£Ð¡ÐÄ,¿ÉÄÜ»áÔì³ÉÒýÇæÄÚ²¿×Ô¶¯ËøÊ§Ð§
+	ºËÐÄÖ»±£Ö¤Ò»¶¨³Ì¶ÈµÄÎÈ¶¨ÐÔ
+	ÏòÊôÐÔÏß³Ì·¢ËÍÏûÏ¢Ê±Òª·Ç³£Ð¡ÐÄ²¢·¢ÎÊÌâ
+	Èç¹û²»ÊÇ²¢·¢ÎÊÌâ
+	¸ü¸Äº¯ÊýÖ¸ÕëµÄÏûÏ¢Ò²²»»á¶ÀÁ¢³öÀ´
 	MOON_MESSAGE_ATTR_SETLOGIC
 	MOON_MESSAGE_ATTR_SETDRAW
 
-	å¦‚æžœæŒ‰ç…§æˆ‘è®¾å®šçš„å·¥ç¨‹è§„èŒƒ
-	åªèƒ½ç”±å•ä¸€çº¿ç¨‹
-	ä¸€èˆ¬æ˜¯é€»è¾‘çº¿ç¨‹æ¥å‘é€å±žæ€§çº¿ç¨‹çš„æ¶ˆæ¯
+	Èç¹û°´ÕÕÎÒÉè¶¨µÄ¹¤³Ì¹æ·¶
+	Ö»ÄÜÓÉµ¥Ò»Ïß³Ì
+	Ò»°ãÊÇÂß¼­Ïß³ÌÀ´·¢ËÍÊôÐÔÏß³ÌµÄÏûÏ¢
 
 	*/
 	MOON_MESSAGE_NULL = MOON_FALSE,
 	
-	MOON_MESSAGE_DRAW_START,//èµ·å§‹ç¬¦,æ— å…¶ä»–å«ä¹‰
+	MOON_MESSAGE_DRAW_START,//ÆðÊ¼·û,ÎÞÆäËûº¬Òå
 	MOON_MESSAGE_DRAW_SETDRAW,
 	MOON_MESSAGE_DRAW_OPEN,
 	MOON_MESSAGE_DRAW_IMAGE,
@@ -211,34 +218,34 @@ typedef enum
 	//MOON_MESSAGE_DRAW_BOX,
 	//MOON_MESSAGE_DRAW_BOX_FULL,
 	MOON_MESSAGE_DRAW_TRI_FULL,
-	MOON_MESSAGE_DRAW_TEXT,		//é»˜è®¤å­—ä½“
+	MOON_MESSAGE_DRAW_TEXT,		//Ä¬ÈÏ×ÖÌå
 	//MOON_MESSAGE_DRAW_ANIME_RUN,
 	//MOON_MESSAGE_DRAW_ANIME_MODE,
 	//MOON_MESSAGE_DRAW_ANIME_DELETE,
-	MOON_MESSAGE_DRAW_END,//ç»ˆæ­¢ç¬¦,æå‰è¿”å›žé˜Ÿåˆ—,æå‰è§£é”,éœ€è¦å¾ˆå°å¿ƒçš„ä½¿ç”¨,æœ€å¥½åªåœ¨æœ¬çº¿ç¨‹ä½¿ç”¨,åªåœ¨ç»˜åˆ¶çº¿ç¨‹ä½¿ç”¨,å› ä¸ºæ˜¯ä¸²è¡Œ,ä¼šæå‰å¤„ç†,æ‰€ä»¥æ²¡é—®é¢˜,å…¶ä»–çº¿ç¨‹ä½¿ç”¨å¯èƒ½ä¼šç ´åè‡ªåŠ¨é”
+	MOON_MESSAGE_DRAW_END,//ÖÕÖ¹·û,ÌáÇ°·µ»Ø¶ÓÁÐ,ÌáÇ°½âËø,ÐèÒªºÜÐ¡ÐÄµÄÊ¹ÓÃ,×îºÃÖ»ÔÚ±¾Ïß³ÌÊ¹ÓÃ,Ö»ÔÚ»æÖÆÏß³ÌÊ¹ÓÃ,ÒòÎªÊÇ´®ÐÐ,»áÌáÇ°´¦Àí,ËùÒÔÃ»ÎÊÌâ,ÆäËûÏß³ÌÊ¹ÓÃ¿ÉÄÜ»áÆÆ»µ×Ô¶¯Ëø
 
-	MOON_MESSAGE_ATTR_START,//èµ·å§‹ç¬¦,æ— å…¶ä»–å«ä¹‰
+	MOON_MESSAGE_ATTR_START,//ÆðÊ¼·û,ÎÞÆäËûº¬Òå
 	MOON_MESSAGE_ATTR_DEAD,
 	MOON_MESSAGE_ATTR_POWER,
 	MOON_MESSAGE_ATTR_SETFPS,
 	MOON_MESSAGE_ATTR_OPEN,
-	MOON_MESSAGE_ATTR_END,//ç»ˆæ­¢ç¬¦,æå‰è¿”å›žé˜Ÿåˆ—,æå‰è§£é”,éœ€è¦å¾ˆå°å¿ƒçš„ä½¿ç”¨,æœ€å¥½åªåœ¨æœ¬çº¿ç¨‹ä½¿ç”¨,åªåœ¨ç»˜åˆ¶çº¿ç¨‹ä½¿ç”¨,å› ä¸ºæ˜¯ä¸²è¡Œ,ä¼šæå‰å¤„ç†,æ‰€ä»¥æ²¡é—®é¢˜,å…¶ä»–çº¿ç¨‹ä½¿ç”¨å¯èƒ½ä¼šç ´åè‡ªåŠ¨é”
+	MOON_MESSAGE_ATTR_END,//ÖÕÖ¹·û,ÌáÇ°·µ»Ø¶ÓÁÐ,ÌáÇ°½âËø,ÐèÒªºÜÐ¡ÐÄµÄÊ¹ÓÃ,×îºÃÖ»ÔÚ±¾Ïß³ÌÊ¹ÓÃ,Ö»ÔÚ»æÖÆÏß³ÌÊ¹ÓÃ,ÒòÎªÊÇ´®ÐÐ,»áÌáÇ°´¦Àí,ËùÒÔÃ»ÎÊÌâ,ÆäËûÏß³ÌÊ¹ÓÃ¿ÉÄÜ»áÆÆ»µ×Ô¶¯Ëø
 
-	MOON_MESSAGE_LOGIC_START,//èµ·å§‹ç¬¦,æ— å…¶ä»–å«ä¹‰
+	MOON_MESSAGE_LOGIC_START,//ÆðÊ¼·û,ÎÞÆäËûº¬Òå
 	MOON_MESSAGE_LOGIC_SETLOGIC,
 	MOON_MESSAGE_LOGIC_OPEN,
-	MOON_MESSAGE_LOGIC_END,//ç»ˆæ­¢ç¬¦,æå‰è¿”å›žé˜Ÿåˆ—,æå‰è§£é”,éœ€è¦å¾ˆå°å¿ƒçš„ä½¿ç”¨,æœ€å¥½åªåœ¨æœ¬çº¿ç¨‹ä½¿ç”¨,åªåœ¨ç»˜åˆ¶çº¿ç¨‹ä½¿ç”¨,å› ä¸ºæ˜¯ä¸²è¡Œ,ä¼šæå‰å¤„ç†,æ‰€ä»¥æ²¡é—®é¢˜,å…¶ä»–çº¿ç¨‹ä½¿ç”¨å¯èƒ½ä¼šç ´åè‡ªåŠ¨é”
+	MOON_MESSAGE_LOGIC_END,//ÖÕÖ¹·û,ÌáÇ°·µ»Ø¶ÓÁÐ,ÌáÇ°½âËø,ÐèÒªºÜÐ¡ÐÄµÄÊ¹ÓÃ,×îºÃÖ»ÔÚ±¾Ïß³ÌÊ¹ÓÃ,Ö»ÔÚ»æÖÆÏß³ÌÊ¹ÓÃ,ÒòÎªÊÇ´®ÐÐ,»áÌáÇ°´¦Àí,ËùÒÔÃ»ÎÊÌâ,ÆäËûÏß³ÌÊ¹ÓÃ¿ÉÄÜ»áÆÆ»µ×Ô¶¯Ëø
 }MOON_MESSAGE;
 
-//éµç›¤æŽƒæç¢¼
+//æI±P’ßÃè´a
 
 enum
 {
-	//é¼ æ ‡
+	//Êó±ê
 	MOON_KEY_MOUSE_LEFT = GLFW_MOUSE_BUTTON_LEFT,
 	MOON_KEY_MOUSE_RIGHT = GLFW_MOUSE_BUTTON_RIGHT,
 
-	// å­—æ¯é”®
+	// ×ÖÄ¸¼ü
 	MOON_KEY_A = GLFW_KEY_A,          // 65
 	MOON_KEY_B = GLFW_KEY_B,          // 66
 	MOON_KEY_C = GLFW_KEY_C,          // 67
@@ -266,7 +273,7 @@ enum
 	MOON_KEY_Y = GLFW_KEY_Y,          // 89
 	MOON_KEY_Z = GLFW_KEY_Z,          // 90
 
-	// æ•°å­—é”®
+	// Êý×Ö¼ü
 	MOON_KEY_0 = GLFW_KEY_0,          // 48
 	MOON_KEY_1 = GLFW_KEY_1,          // 49
 	MOON_KEY_2 = GLFW_KEY_2,          // 50
@@ -278,7 +285,7 @@ enum
 	MOON_KEY_8 = GLFW_KEY_8,          // 56
 	MOON_KEY_9 = GLFW_KEY_9,          // 57
 
-	// åŠŸèƒ½é”®
+	// ¹¦ÄÜ¼ü
 	MOON_KEY_ESCAPE = GLFW_KEY_ESCAPE,        // 256
 	MOON_KEY_RETURN = GLFW_KEY_ENTER,         // 257
 	MOON_KEY_TAB = GLFW_KEY_TAB,              // 258
@@ -299,7 +306,7 @@ enum
 	MOON_KEY_SNAPSHOT = GLFW_KEY_PRINT_SCREEN, // 283 (Print Screen)
 	MOON_KEY_PAUSE = GLFW_KEY_PAUSE,          // 284
 
-	// FåŠŸèƒ½é”®
+	// F¹¦ÄÜ¼ü
 	MOON_KEY_F1 = GLFW_KEY_F1,     // 290
 	MOON_KEY_F2 = GLFW_KEY_F2,     // 291
 	MOON_KEY_F3 = GLFW_KEY_F3,     // 292
@@ -325,7 +332,7 @@ enum
 	MOON_KEY_F23 = GLFW_KEY_F23,   // 312
 	MOON_KEY_F24 = GLFW_KEY_F24,   // 313
 
-	// å°é”®ç›˜
+	// Ð¡¼üÅÌ
 	MOON_KEY_NUMPAD0 = GLFW_KEY_KP_0,        // 320
 	MOON_KEY_NUMPAD1 = GLFW_KEY_KP_1,        // 321
 	MOON_KEY_NUMPAD2 = GLFW_KEY_KP_2,        // 322
@@ -341,10 +348,10 @@ enum
 	MOON_KEY_MULTIPLY = GLFW_KEY_KP_MULTIPLY, // 332 (*)
 	MOON_KEY_SUBTRACT = GLFW_KEY_KP_SUBTRACT, // 333 (-)
 	MOON_KEY_ADD = GLFW_KEY_KP_ADD,          // 334 (+)
-	MOON_KEY_SEPARATOR = GLFW_KEY_KP_ENTER,  // 335 (Enter åœ¨å°é”®ç›˜ä¸Šçš„å¯¹åº”)
+	MOON_KEY_SEPARATOR = GLFW_KEY_KP_ENTER,  // 335 (Enter ÔÚÐ¡¼üÅÌÉÏµÄ¶ÔÓ¦)
 	MOON_KEY_OEM_PLUS = GLFW_KEY_KP_EQUAL,   // 336 (=)
 
-	// ä¿®é¥°é”®
+	// ÐÞÊÎ¼ü
 	MOON_KEY_LSHIFT = GLFW_KEY_LEFT_SHIFT,      // 340
 	MOON_KEY_LCONTROL = GLFW_KEY_LEFT_CONTROL,  // 341
 	MOON_KEY_LMENU = GLFW_KEY_LEFT_ALT,         // 342 (Left Alt)
@@ -355,7 +362,7 @@ enum
 	MOON_KEY_RWIN = GLFW_KEY_RIGHT_SUPER,       // 347 (Right Windows)
 	MOON_KEY_APPS = GLFW_KEY_MENU,              // 348 (Menu / Apps)
 
-	// ç¬¦å·é”®
+	// ·ûºÅ¼ü
 	MOON_KEY_SPACE = GLFW_KEY_SPACE,                    // 32
 	MOON_KEY_OEM_7 = GLFW_KEY_APOSTROPHE,               // 39 (')
 	MOON_KEY_OEM_COMMA = GLFW_KEY_COMMA,                // 44 (,)

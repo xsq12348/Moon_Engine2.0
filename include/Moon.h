@@ -543,6 +543,7 @@ Email:1993346266@qq.com
 *							MOON_POINT2D添加了成员
 							struct { float fx, fy; };
 							struct { float fw, fh; };
+							MoonImageShader更改名称为MoonImageShader
 * 
 */
 
@@ -1039,12 +1040,12 @@ extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, u
 extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, int x3, int y3, unsigned int color);//绘制三角形
 
 /*
-* 函數 MoonImaheShader
+* 函數 MoonImageShader
 * 作用 切換成開發者設定的Shader
 * 使用方法
-* MoonImaheShader( 0, shader);
+* MoonImageShader( 0, shader);
 */
-extern void MoonImaheShader(unsigned int shader);	//设置著色器
+extern void MoonImageShader(unsigned int shader);	//设置著色器
 
 //------------------------------------图片------------------------------------------------//
 

@@ -74,6 +74,8 @@ typedef struct
 	{
 		struct { long int x, y; };
 		struct { long int w, h; };
+		struct { float fx, fy; };
+		struct { float fw, fh; };
 	};
 }MOON_POINT2D;
 

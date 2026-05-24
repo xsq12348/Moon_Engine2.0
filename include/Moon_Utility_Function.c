@@ -190,7 +190,7 @@ extern int MoonWcharToChar(char* text1, wchar_t* text2, int len)
 	return 1;
 }
 
-extern void MoonSetMouseCoord(MOON_CURSOR_MODE mode)
+extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 {
 	switch (mode)
 	{

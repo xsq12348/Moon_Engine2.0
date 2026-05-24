@@ -538,6 +538,11 @@ Email:1993346266@qq.com
 * 2.1.0.3					去除了MoonCMD函数
 * 2.1.0.4					添加了MOON_CURSOR_MODE枚举
 * 2.1.0.5+					修正了MoonAnimeInit一个不合理的参数
+*							MoonSetMouseCoord更改名称为MoonSetMouse
+*							更改了部分注释的位置,修复了IDE下注释可能显示不正确的体验
+*							MOON_POINT2D添加了成员
+							struct { float fx, fy; };
+							struct { float fw, fh; };
 * 
 */
 
@@ -625,7 +630,7 @@ extern _Bool MoonKeyReal(unsigned int Key);					//获取按键的值
 * 使用方法 
 * MoonSetMouseCoord(x, y);
 */
-extern void MoonSetMouseCoord(MOON_CURSOR_MODE mode);//设置鼠标位置
+extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 
 /*
 * 函數 Random

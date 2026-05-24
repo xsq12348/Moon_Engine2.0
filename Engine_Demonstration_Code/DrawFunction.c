@@ -18,11 +18,12 @@ extern MOON_PROJECTMODULE(GameDrawLoad)
 	MOON_METADATA metadata;
 	metadata.function = GameDrawAll;
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_SETDRAW, metadata);
-	
-	return 1;
+    printf("GLFW Version: %s\n", glfwGetVersionString());
+    return 1;
 }
 
 extern MOON_PROJECTMODULE(GameDrawAll)
 {
+
 	return 1;
 }

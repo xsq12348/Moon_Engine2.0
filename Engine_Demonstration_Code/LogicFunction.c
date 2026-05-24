@@ -1,7 +1,7 @@
 #include"Project_All.h"
 
 static MOON_TIMELOAD* logictps;
-static POINT* mousecoord;
+static MOON_POINT2D* mousecoord;
 
 /*
 * º¯”µ HardwareProcess
@@ -14,7 +14,7 @@ extern MOON_PROJECTMODULE(GameLogicLoad)
 	MoonHashFindEntity(project, "LogicTps", MOON_TIMELOAD, logictps_2);
 	logictps = logictps_2;
 
-	MoonHashFindEntity(project, "ProjectMouseCoord", POINT, mousecoord_2);
+	MoonHashFindEntity(project, "ProjectMouseCoord", MOON_POINT2D, mousecoord_2);
 	mousecoord = mousecoord_2;
 
 	MOON_METADATA metadata;
@@ -27,7 +27,7 @@ extern MOON_PROJECTMODULE(GameLogicLoad)
 extern MOON_PROJECTMODULE(GameLogicAll)
 {
 	//Ö¡ÏÞÖÆ
-	if (!MoonTimeLoad(logictps, TRUE))
+	if (!MoonTimeLoad(logictps, MOON_TRUE))
 	{
 		MoonSleep(1);
 		return 1;

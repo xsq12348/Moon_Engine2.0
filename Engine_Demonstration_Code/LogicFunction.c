@@ -22,7 +22,7 @@ extern MOON_PROJECTMODULE(GameLogicLoad)
 
 		MOON_METADATA metadata = { MOON_NULL };
 		metadata.function = GameLogicAll;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_SETLOGIC, metadata);
 	}
 
 	//切换绘制模块
@@ -30,7 +30,7 @@ extern MOON_PROJECTMODULE(GameLogicLoad)
 		GameDrawLoad(project);	//加载绘制模块
 		MOON_METADATA metadata = { MOON_NULL };
 		metadata.function = GameDrawAll;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_SETDRAW, metadata);
 	}
 	return 1;
 }

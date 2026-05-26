@@ -354,7 +354,7 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	metadata.draw.text.coord.y = y;
 	metadata.draw.text.size_w = sizewidth;
 	metadata.draw.text.size_h = sizeheight;
-	int len = strlen(text);
+	int len = (int)strlen(text);
 	if (len >= MOON_MESSAGE_TEXT_MAX)
 	{
 		char textbuffer[255] = { 0 };
@@ -535,14 +535,14 @@ extern void MoonCoreDrawArea(MOON_METADATA* metadata)
 		int apx = -metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w,
 			apy = -metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h;
 		float matrix2d[4] = { cosrad,-sinrad,sinrad,cosrad };
-		points[0].x = metadata->draw.image.x + matrix2d[0] * apx + matrix2d[2] * apy;
-		points[0].y = metadata->draw.image.y + matrix2d[1] * apx + matrix2d[3] * apy;																		//0,0
-		points[1].x = metadata->draw.image.x + matrix2d[0] * (apx + metadata->draw.image.width) + matrix2d[2] * apy;
-		points[1].y = metadata->draw.image.y + matrix2d[1] * (apx + metadata->draw.image.width) + matrix2d[3] * apy;										//1,0
-		points[2].x = metadata->draw.image.x + matrix2d[0] * apx + matrix2d[2] * (apy + metadata->draw.image.height);
-		points[2].y = metadata->draw.image.y + matrix2d[1] * apx + matrix2d[3] * (apy + metadata->draw.image.height);										//0,1
-		points[3].x = metadata->draw.image.x + matrix2d[0] * (apx + metadata->draw.image.width) + matrix2d[2] * (apy + metadata->draw.image.height);
-		points[3].y = metadata->draw.image.y + matrix2d[1] * (apx + metadata->draw.image.width) + matrix2d[3] * (apy + metadata->draw.image.height);		//1,1
+		points[0].x = (long int)(metadata->draw.image.x + matrix2d[0] * apx + matrix2d[2] * apy);
+		points[0].y = (long int)(metadata->draw.image.y + matrix2d[1] * apx + matrix2d[3] * apy);																		//0,0
+		points[1].x = (long int)(metadata->draw.image.x + matrix2d[0] * (apx + metadata->draw.image.width) + matrix2d[2] * apy);
+		points[1].y = (long int)(metadata->draw.image.y + matrix2d[1] * (apx + metadata->draw.image.width) + matrix2d[3] * apy);										//1,0
+		points[2].x = (long int)(metadata->draw.image.x + matrix2d[0] * apx + matrix2d[2] * (apy + metadata->draw.image.height));
+		points[2].y = (long int)(metadata->draw.image.y + matrix2d[1] * apx + matrix2d[3] * (apy + metadata->draw.image.height));										//0,1
+		points[3].x = (long int)(metadata->draw.image.x + matrix2d[0] * (apx + metadata->draw.image.width) + matrix2d[2] * (apy + metadata->draw.image.height));
+		points[3].y = (long int)(metadata->draw.image.y + matrix2d[1] * (apx + metadata->draw.image.width) + matrix2d[3] * (apy + metadata->draw.image.height));		//1,1
 		
 		vx1 = MoonLerp(-1.f, 1.f, points[0].x * 1.f / metadata->draw.image_goal->image_size.w);
 		vy1 = MoonLerp(1.f, -1.f, points[0].y * 1.f / metadata->draw.image_goal->image_size.h);

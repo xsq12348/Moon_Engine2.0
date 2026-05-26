@@ -1,5 +1,6 @@
 [简易文档]
 最后一次更新日期 : 2026.5.22
+最后一次更新日期 : 2026.5.26
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -27,26 +28,25 @@
 	[3.1]
 	引擎内部总是维护两个内部函数,用于逻辑与绘制线程
 	这两个函数通过指针切换特定签名的函数来实现模块的切换
-	最好只在单线程操作单类型的消息
+	单一线程只能操纵单一线程类型的消息
 
 	例如
-	逻辑线程可以发送绘制消息
-	但是绝不能逻辑线程绘制线程都发送绘制消息
-
-	逻辑线程与绘制线程可以发送属性消息
+	逻辑线程可以发送属性消息
+	绘制线程可以发送属性消息
 	但是绝不能逻辑线程绘制线程都发送属性消息
 
 	总结
-	禁止多个线程操作同一类消息,否则容易造成并发问题
-	一类消息最好只由一个线程发送
-	不属于本线程的消息类,可能造成问题
-	最佳实践是
-	绘制消息 ----------- 绘制线程
-	逻辑消息,属性消息 --- 逻辑线程
+		禁止多个线程操作同一类消息,否则容易造成并发问题
+		一类消息一定只由一个线程发送
+		不属于本线程的消息类,可能造成问题
+		最佳实践是
+		绘制消息 ----------- 绘制线程
+		逻辑消息,属性消息 --- 逻辑线程
 	或者
-	绘制消息,属性消息 --- 绘制线程
-	逻辑消息 ----------- 逻辑线程
-	比如绘制线程的消息完全由逻辑线程发送会导致频闪
+		绘制消息,属性消息 --- 绘制线程
+		逻辑消息 ----------- 逻辑线程
+	
+	逻辑线程禁止发送绘制消息,会导致频闪
 	请注意,这个频闪不是由于即时模式的那种没有双缓冲导致的
 	恰恰是由双缓冲本身导致的
 	具体原因是因为线程的异步导致消息队列的异步
@@ -58,22 +58,30 @@
 	逻辑线程
 		MOON_METADATA metadata;
 		metadata.function = GameLogicAll;
-		MoonProjectSendMessage(MOON_MESSAGE_LOGIC_SETLOGIC, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
 	
 	绘制线程
 		MOON_METADATA metadata;
 		metadata.function = GameDrawAll;
-		int alpha = MoonProjectSendMessage(MOON_MESSAGE_DRAW_SETDRAW, metadata);
+		int alpha = MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
 	
 		MOON_IMAGE的实际功能更偏向于图层,配套函数也是基于图层的逻辑来写的
+
+	[3.3]
+		请注意,绘制模块是必选项
+		逻辑模块是可选项
+		如果您在初始化阶段传入逻辑模块
+		引擎内部会开启逻辑线程
 	
 [4]
-		引擎固定的用于输出的纹理渲染器unifrom变量是moon_utexture,
+		引擎固定的用于输出的纹理渲染器unifrom变量是
+			moon_utexture
+
 		如果您需要自行编写着色器并使用消息
 			MOON_DRAW_IMAGE
 			MOON_DRAW_IMAGE_UV
 			MOON_DRAW_IMAGE_PIG
-		渲染
+		来进行渲染
 		那么请参考此条目
 
 [5]
@@ -141,3 +149,7 @@
 			由于目前的技术力,暂时还不打算接受任意长度的字符串数据
 			因此请您注意是否超出MOON_MESSAGE_TEXT_MAX
 			或者说您可以自行切割字符串以支持任意长度
+
+[8]
+			鼠标默认行为在窗口内部
+			您可以通过MoonSetMouseCoord来更改

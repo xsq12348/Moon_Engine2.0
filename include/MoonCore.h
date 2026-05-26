@@ -2,120 +2,120 @@
 #include"Moon.h"
 
 /*
-×¢Òâ!
-Õâ¸öÎÄ¼şÖĞµÄº¯ÊıÄú²»Ó¦¸ÃÊ¹ÓÃ!
+æ³¨æ„!
+è¿™ä¸ªæ–‡ä»¶ä¸­çš„å‡½æ•°æ‚¨ä¸åº”è¯¥ä½¿ç”¨!
 
 */
 
 typedef struct MOON_ENGINECORE
 {
-	_Bool dead;					//ÏîÄ¿×´Ì¬
-	_Bool thread_message_type_draw;//ÏûÏ¢¶ÓÁĞ×´Ì¬ MOON_FALSEÎª¿ÉÓÃ MOON_TRUEÎª²»¿É·¢ËÍÏûÏ¢
-	_Bool thread_message_type_logic;//ÏûÏ¢¶ÓÁĞ×´Ì¬ MOON_FALSEÎª¿ÉÓÃ MOON_TRUEÎª²»¿É·¢ËÍÏûÏ¢
-	//_Bool thread_message_type_attr;//ÏûÏ¢¶ÓÁĞ×´Ì¬ MOON_FALSEÎª¿ÉÓÃ MOON_TRUEÎª²»¿É·¢ËÍÏûÏ¢	
-	_Bool gamepowermode;		//¼ÇÂ¼¸ßĞÔÄÜÄ£Ê½¾ÉÄ£Ê½
-	char power;					//¸ßĞÔÄÜÄ£Ê½
-	int focus;					//½¹µã
-	int(*Logic)(struct MOON_PROJECTGOD*);				//¶àÏß³ÌÂß¼­º¯Êı
-	int(*Drawing)(struct MOON_PROJECTGOD*);				//Ö÷Ïß³Ì»æÍ¼º¯Êı
-	int(*Attr)(struct MOON_PROJECTGOD*);				//ÊôĞÔº¯Êı
+	_Bool dead;					//é¡¹ç›®çŠ¶æ€
+	_Bool thread_message_type_draw;//æ¶ˆæ¯é˜Ÿåˆ—çŠ¶æ€ MOON_FALSEä¸ºå¯ç”¨ MOON_TRUEä¸ºä¸å¯å‘é€æ¶ˆæ¯
+	_Bool thread_message_type_logic;//æ¶ˆæ¯é˜Ÿåˆ—çŠ¶æ€ MOON_FALSEä¸ºå¯ç”¨ MOON_TRUEä¸ºä¸å¯å‘é€æ¶ˆæ¯
+	//_Bool thread_message_type_attr;//æ¶ˆæ¯é˜Ÿåˆ—çŠ¶æ€ MOON_FALSEä¸ºå¯ç”¨ MOON_TRUEä¸ºä¸å¯å‘é€æ¶ˆæ¯	
+	_Bool gamepowermode;		//è®°å½•é«˜æ€§èƒ½æ¨¡å¼æ—§æ¨¡å¼
+	char power;					//é«˜æ€§èƒ½æ¨¡å¼
+	int focus;					//ç„¦ç‚¹
+	int(*Logic)(struct MOON_PROJECTGOD*);				//å¤šçº¿ç¨‹é€»è¾‘å‡½æ•°
+	int(*Drawing)(struct MOON_PROJECTGOD*);				//ä¸»çº¿ç¨‹ç»˜å›¾å‡½æ•°
+	int(*Attr)(struct MOON_PROJECTGOD*);				//å±æ€§å‡½æ•°
 
-	MOON_MESSAGE_ALL message_draw;//»æÖÆÏûÏ¢¶ÓÁĞ
-	MOON_MESSAGE_ALL message_logic;//Âß¼­ÏûÏ¢¶ÓÁĞ
-	//MOON_MESSAGE_ALL message_attr;//ÊôĞÔÏûÏ¢¶ÓÁĞ
+	MOON_MESSAGE_ALL message_draw;//ç»˜åˆ¶æ¶ˆæ¯é˜Ÿåˆ—
+	MOON_MESSAGE_ALL message_logic;//é€»è¾‘æ¶ˆæ¯é˜Ÿåˆ—
+	//MOON_MESSAGE_ALL message_attr;//å±æ€§æ¶ˆæ¯é˜Ÿåˆ—
 
-	MOON_TIMELOAD timeload;		//¼ÆÊ±Æ÷
+	MOON_TIMELOAD timeload;		//è®¡æ—¶å™¨
 }MOON_ENGINECORE;
 
 /*
-* º¯”µ MoonWindow
-* ×÷ÓÃ „“½¨´°¿Ú
-* Ê¹ÓÃ·½·¨
+* å‡½æ•¸ MoonWindow
+* ä½œç”¨ å‰µå»ºçª—å£
+* ä½¿ç”¨æ–¹æ³•
 * MOON_HWND* hwnd = MoonWindow(L"MyGame", 100, 100, 800, 600);
 */
-extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height);					//´´½¨´°¿Ú
+extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height);					//åˆ›å»ºçª—å£
 
 /*
-* º¯”µ MoonPrompt
-* ×÷ÓÃ ÄÚ²¿ÌáÊ¾
-* Ê¹ÓÃ·½·¨
+* å‡½æ•¸ MoonPrompt
+* ä½œç”¨ å†…éƒ¨æç¤º
+* ä½¿ç”¨æ–¹æ³•
 * MoonPrompt(text);
 */
 extern void MoonPrompt(char* text);
 
 /*
-* º¯”µ MoonProjectError
-* ×÷ÓÃ åeÕ`ÌÀíº¯”µ
-* Ê¹ÓÃ·½·¨
+* å‡½æ•¸ MoonProjectError
+* ä½œç”¨ éŒ¯èª¤è™•ç†å‡½æ•¸
+* ä½¿ç”¨æ–¹æ³•
 * MoonProjectError(NULL, 1, "Something went wrong!");
 */
-extern int MoonProjectError(void* alpha, int degree, char* text);	//´íÎó´¦Àí
+extern int MoonProjectError(void* alpha, int degree, char* text);	//é”™è¯¯å¤„ç†
 
 /*
-* ×¢Òâ!ß@‚€º¯”µŒ¦ÄãµÄ´ú´a›]ÓĞÈÎºÎ×÷ÓÃ!ƒHƒHÊÇÒıÇæÄÚ²¿³õÊ¼»¯Ê¹ÓÃµÄ,Äã¿ÉÒÔÊ¹ÓÃMoonProjectFunctionSwitchí«@µÃ¸üºÃµÄĞ§¹û
-* º¯”µ MoonProjectPause
-* ×÷ÓÃ •ºÍ£/»ÖÍí—Ä¿ß\ĞĞ
-* Ê¹ÓÃ·½·¨
+* æ³¨æ„!é€™å€‹å‡½æ•¸å°ä½ çš„ä»£ç¢¼æ²’æœ‰ä»»ä½•ä½œç”¨!åƒ…åƒ…æ˜¯å¼•æ“å†…éƒ¨åˆå§‹åŒ–ä½¿ç”¨çš„,ä½ å¯ä»¥ä½¿ç”¨MoonProjectFunctionSwitchä¾†ç²å¾—æ›´å¥½çš„æ•ˆæœ
+* å‡½æ•¸ MoonProjectPause
+* ä½œç”¨ æš«åœ/æ¢å¾©é …ç›®é‹è¡Œ
+* ä½¿ç”¨æ–¹æ³•
 * MoonProjectPause(1, &project->Logic, NULL, NULL);
 */
-extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*));		//ÔİÍ£º¯Êı
+extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*));		//æš‚åœå‡½æ•°
 
 /*
-* ×¢Òâ!ß@‚€º¯”µŒ¦ÄãµÄ´ú´a¿ÉÄÜ›]ÓĞÈÎºÎ×÷ÓÃ!
-* º¯”µ MoonUtilityLoad
-* ×÷ÓÃ ³õÊ¼»¯ËùÓĞÄÚ²¿¹¤¾ßº¯”µ
-* Ê¹ÓÃ·½·¨
+* æ³¨æ„!é€™å€‹å‡½æ•¸å°ä½ çš„ä»£ç¢¼å¯èƒ½æ²’æœ‰ä»»ä½•ä½œç”¨!
+* å‡½æ•¸ MoonUtilityLoad
+* ä½œç”¨ åˆå§‹åŒ–æ‰€æœ‰å†…éƒ¨å·¥å…·å‡½æ•¸
+* ä½¿ç”¨æ–¹æ³•
 * MoonUtilityLoad(project);
 */
 extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
 
 /*
-* ×¢Òâ!ß@‚€º¯”µŒ¦ÄãµÄ´ú´a¿ÉÄÜ›]ÓĞÈÎºÎ×÷ÓÃ!
-* º¯”µ MoonDrawLoad
-* ×÷ÓÃ ³õÊ¼»¯ËùÓĞÄÚ²¿»æÍ¼º¯”µ
-* Ê¹ÓÃ·½·¨
+* æ³¨æ„!é€™å€‹å‡½æ•¸å°ä½ çš„ä»£ç¢¼å¯èƒ½æ²’æœ‰ä»»ä½•ä½œç”¨!
+* å‡½æ•¸ MoonDrawLoad
+* ä½œç”¨ åˆå§‹åŒ–æ‰€æœ‰å†…éƒ¨ç»˜å›¾å‡½æ•¸
+* ä½¿ç”¨æ–¹æ³•
 * MoonDrawLoad(project);
 */
 extern void MoonDrawLoad(MOON_PROJECTGOD* project);
 
 /*
-* ×¢Òâ!ß@‚€º¯”µŒ¦ÄãµÄ´ú´a¿ÉÄÜ›]ÓĞÈÎºÎ×÷ÓÃ!
-* º¯”µ MoonDrawOver
-* ×÷ÓÃ »ØÊÕ»æÍ¼Ä£¿éµÄ×ÊÔ´
-* Ê¹ÓÃ·½·¨
+* æ³¨æ„!é€™å€‹å‡½æ•¸å°ä½ çš„ä»£ç¢¼å¯èƒ½æ²’æœ‰ä»»ä½•ä½œç”¨!
+* å‡½æ•¸ MoonDrawOver
+* ä½œç”¨ å›æ”¶ç»˜å›¾æ¨¡å—çš„èµ„æº
+* ä½¿ç”¨æ–¹æ³•
 * MoonDrawOver();
 */
 extern void MoonDrawOver();
 
 /*
-* º¯”µ MoonProjectFunctionSwitch
-* ×÷ÓÃ ÇĞ“Qí—Ä¿ÖĞµÄº¯”µÖ¸á˜
-*		Í¨¹ıµÚ¶ş¸ö²ÎÊı,Ö¸¶¨ĞèÒª¸ü»»µÄÄ£¿é
-*		²ÎÊıÎª
+* å‡½æ•¸ MoonProjectFunctionSwitch
+* ä½œç”¨ åˆ‡æ›é …ç›®ä¸­çš„å‡½æ•¸æŒ‡é‡
+*		é€šè¿‡ç¬¬äºŒä¸ªå‚æ•°,æŒ‡å®šéœ€è¦æ›´æ¢çš„æ¨¡å—
+*		å‚æ•°ä¸º
 			MOON_MODULE_DRAW
 			MOON_MODULE_LOGIC
-* Ê¹ÓÃ·½·¨
+* ä½¿ç”¨æ–¹æ³•
 * MoonProjectFunctionSwitch(project, MOON_MODULE_DRAW, NewDrawingFunction);
 */
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*));//º¯ÊıÇĞ»»
+extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*));//å‡½æ•°åˆ‡æ¢
 
 /*
-* ×¢Òâ!ß@‚€º¯”µŒ¦ÄãµÄ´ú´a¿ÉÄÜ›]ÓĞÈÎºÎ×÷ÓÃ!
-* º¯”µ MoonProjectGetMessage
-* ×÷ÓÃ ³õÊ¼»¯ËùÓĞÄÚ²¿¹¤¾ßº¯”µ
-* Ê¹ÓÃ·½·¨
+* æ³¨æ„!é€™å€‹å‡½æ•¸å°ä½ çš„ä»£ç¢¼å¯èƒ½æ²’æœ‰ä»»ä½•ä½œç”¨!
+* å‡½æ•¸ MoonProjectGetMessage
+* ä½œç”¨ åˆå§‹åŒ–æ‰€æœ‰å†…éƒ¨å·¥å…·å‡½æ•¸
+* ä½¿ç”¨æ–¹æ³•
 * MoonProjectGetMessage(message, handle);
 */
-extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message,_Bool* type, void(*Handle)(MOON_MESSAGE_ALL*,_Bool*));	//»ñÈ¡ÏûÏ¢
-extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//´¦Àí»æÖÆÏß³ÌÏûÏ¢
-extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//´¦ÀíÂß¼­Ïß³ÌÏûÏ¢
+extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*));	//è·å–æ¶ˆæ¯
+extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//å¤„ç†ç»˜åˆ¶çº¿ç¨‹æ¶ˆæ¯
+extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//å¤„ç†é€»è¾‘çº¿ç¨‹æ¶ˆæ¯
 
-//-------------------------------------------------------------------------------------------»æÖÆº¯Êı--------------------------------------------------------------------------------//
+//-------------------------------------------------------------------------------------------ç»˜åˆ¶å‡½æ•°--------------------------------------------------------------------------------//
 
-extern void MoonCoreDrawArea(MOON_METADATA* metadata);														//»­°å
-extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata);													//UV»­°å
-extern void MoonCoreDrawAreaPlgBit(MOON_METADATA* metadata);												//PigBlt»­°å
-extern void MoonCorePixs(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//»æÖÆµã
-extern void MoonCoreLines(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//»æÖÆÏß
-extern void MoonCoreTriFulls(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);	//»æÖÆÌî³ä¾ØĞÎ
-extern void MoonCoreFont(MOON_METADATA* metadata);															//äÖÈ¾Ä¬ÈÏ×ÖÌå
+extern void MoonCoreDrawArea(MOON_METADATA* metadata);														//ç”»æ¿
+extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata);													//UVç”»æ¿
+extern void MoonCoreDrawAreaPlgBit(MOON_METADATA* metadata);												//PigBltç”»æ¿
+extern void MoonCorePixs(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//ç»˜åˆ¶ç‚¹
+extern void MoonCoreLines(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//ç»˜åˆ¶çº¿
+extern void MoonCoreTriFulls(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);	//ç»˜åˆ¶å¡«å……çŸ©å½¢
+extern void MoonCoreFont(MOON_METADATA* metadata);															//æ¸²æŸ“é»˜è®¤å­—ä½“

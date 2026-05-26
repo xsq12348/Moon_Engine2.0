@@ -58,12 +58,12 @@
 	逻辑线程
 		MOON_METADATA metadata;
 		metadata.function = GameLogicAll;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_SETLOGIC, metadata);
 	
 	绘制线程
 		MOON_METADATA metadata;
 		metadata.function = GameDrawAll;
-		int alpha = MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
+		int alpha = MoonProjectSendMessage(MOON_MESSAGE_SETDRAW, metadata);
 	
 		MOON_IMAGE的实际功能更偏向于图层,配套函数也是基于图层的逻辑来写的
 

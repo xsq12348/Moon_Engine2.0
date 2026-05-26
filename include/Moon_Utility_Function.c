@@ -37,8 +37,8 @@ extern unsigned int MoonHash(char* text)
 
 extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
 {
-	Timeload->time1 = MOON_NULL;
-	Timeload->time2 = MOON_NULL;
+	Timeload->time1 = 0;
+	Timeload->time2 = 0;
 	Timeload->timeload = load;
 	Timeload->timeswitch = 0;
 }
@@ -98,7 +98,7 @@ extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char
 			index = hash;
 			project->entityindex[index].entityindex = arrentity;
 			project->entityindex[index].nameid = nameid;
-			project->entityindex[index].length = size_len;
+			project->entityindex[index].length = (int)size_len;
 			project->entityindex[index].type_name = type_name;
 		}
 		else printf("非法的名称[%s],无法通过这个字符串得到合法的索引", nameid);

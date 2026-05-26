@@ -138,7 +138,7 @@ typedef struct
 		}draw;
 		union
 		{
-			void(*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
+			int (*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
 			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
 			int power;
 			int fps;

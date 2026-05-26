@@ -144,7 +144,7 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 	project->window_width = width;
 	moon_engine_core.dead = MOON_FALSE;
 	project->entityindex = entityindex;
-	MoonTimeLoadInit(&moon_engine_core.timeload, 1000.f / (fps > 0 ? fps : 60));
+	MoonTimeLoadInit(&moon_engine_core.timeload, (int)(1000.f / (fps > 0 ? fps : 60)));
 	MoonTimeLoadInit(&projectfps, 1000);
 	MoonCreateEntityIndex(project, &fpsmax2, (char*)"ProjectFPS", sizeof(int), (char*)"int");
 	MoonCreateEntityIndex(project, &projectmousecoord, (char*)"ProjectMouseCoord", sizeof(MOON_POINT2D), (char*)"MOON_POINT2D");
@@ -268,7 +268,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		runload[1] = clock();
 		runload[2] = runload[1] - runload[0];
 		if (moon_engine_core.power <= 0)
-			if (runload[2] < moon_engine_core.timeload.timeload)
+			if ((unsigned int)runload[2] < moon_engine_core.timeload.timeload)
 				MoonSleep((moon_engine_core.timeload.timeload - runload[2]));
 	}
 
@@ -398,7 +398,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 		if (project->entityindex[index].type_name != 0)
 			if (!strcmp(project->entityindex[index].type_name, (char*)"MOON_IMAGE"))MoonImageDelete((MOON_IMAGE*)project->entityindex[index].entityindex);
 			else if (!strcmp(project->entityindex[index].type_name, (char*)"MOON_ANIME"))MoonAnimeDelete((MOON_ANIME*)project->entityindex[index].entityindex);
-		project->entityindex[index].length = MOON_NULL;
+		project->entityindex[index].length = 0;
 		project->entityindex[index].nameid = MOON_NULL;
 		project->entityindex[index].entityindex = MOON_NULL;
 	}
@@ -436,7 +436,7 @@ extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJEC
 {
 	if (function_2 == MOON_NULL)
 	{
-		char text[255] = { MOON_NULL };
+		char text[255] = { 0 };
 		snprintf(text, 255, "[MoonProjectFunctionSwitch]函数,空指针错误,请勿传入空指针,来自模块[%s]", (module == MOON_MODULE_DRAW ? "Draw" : (module == MOON_MODULE_ATTR ? "Attr" : "Logic")));
 		MoonPrompt(text);
 	}
@@ -528,9 +528,10 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 		}
 		else
 			return MOON_MESSAGE_THREAD_TYPE_BUSY;
+	return MOON_MESSAGE_THREAD_TYPE_FALSE;
 }
 
-extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
+extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
 {
 	//type的作用
 	//防止随意操作标志导致消息处理紊乱
@@ -549,7 +550,7 @@ extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
-	for (int index = 0; index < message->message_index; index++)
+	for (int index = 0; (unsigned int)index < message->message_index; index++)
 	{
 		if (*type)
 		{
@@ -573,8 +574,8 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 					break;
 				case MOON_MESSAGE_SETFPS:
 				{
-					int fps = 1000.f / message->message[index].metadata.fps;
-					if (fps <= 0)fps = 1000.f / 60;
+					int fps = (int)(1000.f / message->message[index].metadata.fps);
+					if (fps <= 0)fps = (int)(1000.f / 60);
 					moon_engine_core.timeload.timeload = fps;
 				}
 				case MOON_MESSAGE_ATTR_OPEN:

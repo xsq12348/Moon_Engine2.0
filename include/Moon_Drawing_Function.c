@@ -118,12 +118,12 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetShaderInfoLog(vertex_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,顶点着色器编译失败!");
-		MOON_METADATA metadata = { MOON_NULL };
+		MoonProjectError(shader_program, 1, "[MoonRendererLoad]函数错误,顶点着色器编译失败!");
+		MOON_METADATA metadata = { 0 };
 		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
-	success = MOON_NULL;
+	success = 0;
 	MoonPrompt("顶点着色器编译完成");
 
 	//編譯像素著色器
@@ -136,12 +136,12 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetShaderInfoLog(pixel_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,像素着色器编译失败!");
-		MOON_METADATA metadata = { MOON_NULL };
+		MoonProjectError(shader_program, 1, "[MoonRendererLoad]函数错误,像素着色器编译失败!");
+		MOON_METADATA metadata = { 0 };
 		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
-	success = MOON_NULL;
+	success = 0;
 	MoonPrompt("像素着色器编译完成");
 
 
@@ -158,12 +158,12 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		char error_log[1024];
 		glad_glGetProgramInfoLog(*shader_program, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
-		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,着色器鏈接失败!");
-		MOON_METADATA metadata = { MOON_NULL };
+		MoonProjectError(shader_program, 1, "[MoonRendererLoad]函数错误,着色器鏈接失败!");
+		MOON_METADATA metadata = { 0 };
 		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
-	success = MOON_NULL;
+	success = 0;
 	MoonPrompt("着色器链接完成");
 
 
@@ -174,7 +174,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 
 extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source,int x,int y,int width ,int height)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.shader = texture_shader;
 	metadata.draw.image_goal = image_goal;
 	metadata.draw.image.image_resources = image_source;
@@ -192,7 +192,7 @@ extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source,int x,
 
 extern void MoonDrawAreaRound(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, float apx, float apy, int width, int height, int deg)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.shader = texture_shader;
 	metadata.draw.image_goal = image_goal;
 	metadata.draw.image.image_resources = image_source;
@@ -210,7 +210,7 @@ extern void MoonDrawAreaRound(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, 
 
 extern void MoonDrawAreaPlgBit(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, MOON_POINT2D point[4])
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.shader = texture_shader;
 	metadata.draw.image_goal = image_goal;
 	metadata.draw.image_pig.image_resources = image_source;
@@ -223,7 +223,7 @@ extern void MoonDrawAreaPlgBit(MOON_IMAGE* image_goal, MOON_IMAGE* image_source,
 
 extern void MoonDrawAreaUV(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, int width, int height, float uv_x, float uv_y, float uv_width, float uv_height)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.shader = texture_shader;
 	metadata.draw.image_goal = image_goal;
 	metadata.draw.image.image_resources = image_source;
@@ -241,7 +241,7 @@ extern void MoonDrawAreaUV(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int
 
 extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, unsigned int color)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
 	metadata.draw.image_goal = image;
 	metadata.draw.shader = solid_color_shader;
@@ -252,7 +252,7 @@ extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, unsigned int color)
 
 extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
 	metadata.draw.image_goal = image;
 	metadata.draw.shader = solid_color_shader;
@@ -265,7 +265,7 @@ extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsi
 
 extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
 	metadata.draw.image_goal = image;
 	metadata.draw.shader = solid_color_shader;
@@ -290,7 +290,7 @@ extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsig
 
 extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, int x3, int y3, unsigned  int color)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
 	metadata.draw.image_goal = image;
 	metadata.draw.shader = solid_color_shader;
@@ -305,7 +305,7 @@ extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, i
 
 extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
 	metadata.draw.image_goal = image;
 	metadata.draw.shader = solid_color_shader;
@@ -327,7 +327,7 @@ extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, i
 	else
 	{
 		anime->number %= anime->totalnumber;
-		MOON_METADATA metadata = { MOON_NULL };
+		MOON_METADATA metadata = { 0 };
 		metadata.draw.shader = texture_shader;
 		metadata.draw.image_goal = image;
 		metadata.draw.image.image_resources = &anime->sequenceframes[anime->number];
@@ -343,12 +343,12 @@ extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, i
 		MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
 	}
 	if (MoonTimeLoad(&(anime->timeload), 1)) ++anime->number;
-	return anime->number;
+	return (int)anime->number;
 }
 
 extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, float sizewidth, float sizeheight)
 {
-	MOON_METADATA metadata = { MOON_NULL };
+	MOON_METADATA metadata = { 0 };
 	metadata.draw.image_goal = image;
 	metadata.draw.text.coord.x = x;
 	metadata.draw.text.coord.y = y;
@@ -357,9 +357,9 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	int len = strlen(text);
 	if (len >= MOON_MESSAGE_TEXT_MAX)
 	{
-		char textbuffer[255] = { MOON_NULL };
+		char textbuffer[255] = { 0 };
 		snprintf(textbuffer, 255, "单次消息超过最大字符数,或许考虑(拼接|缩短)\n字符串为[%s]", text);
-		MoonPrompt(text);
+		MoonPrompt((char*)text);
 		return;
 	}
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
@@ -784,7 +784,7 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
 	MOON_IMAGE* image_old = MOON_NULL;
-	for (int index = 0; index < message->message_index; index++)
+	for (int index = 0; (unsigned int)index < message->message_index; index++)
 		if (*type)
 		{
 			switch (message->message[index].message)
@@ -983,7 +983,7 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 			view.h = image_new->image_size.h;
 		}
 	}
-	if (moon_vertex_index >= MOON_VERTICES_MAX - offset)
+	if (moon_vertex_index >= (unsigned int)MOON_VERTICES_MAX - offset)
 	{
 		MoonPrompt("顶点溢出");
 		return MOON_FALSE;

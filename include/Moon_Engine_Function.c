@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,0,9 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,0,10 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -161,8 +161,6 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 
 	if (ProjectSetting_1 != MOON_NULL)ProjectSetting_1(project);
 	MoonPrompt("[ProjectInit]初始化完成");
-
-	glfwMakeContextCurrent(MOON_NULL);
 }
 
 static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
@@ -306,6 +304,9 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	moon_engine_core.Drawing = ProjectDrawing;
 
 	if (ProjectSetting_2 != MOON_NULL)ProjectSetting_2(project);
+
+	glfwMakeContextCurrent(MOON_NULL);
+
 	MOON_CREATETHREAD(ProjectDrawingThread, "DrawingThread", project);//加载属性线程
 
 	//加载逻辑线程

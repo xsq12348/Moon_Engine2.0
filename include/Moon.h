@@ -193,6 +193,13 @@ Email:1993346266@qq.com
 			鼠标默认行为在窗口内部
 			您可以通过MoonSetMouseCoord来更改
 
+[9]
+			由于逻辑线程没有OpenGL上下文
+			所以MoonShaderLoad这类需要OpenGL上下文的函数应尽量在
+				ProjectSetting_1
+				ProjectSetting_2
+				绘制线程内部
+			里面完成
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -563,6 +570,7 @@ Email:1993346266@qq.com
 *									MOON_MESSAGE_LOGIC_SETDRAW
 *									MOON_MESSAGE_DRAW_SETDRAW
 *							统一由属性线程进行切换
+* 2.1.0.10					将ProjectSetting_2纳入OpenGL上下文范围
 *							
 */
 

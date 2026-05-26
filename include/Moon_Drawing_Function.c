@@ -120,8 +120,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êý´íÎó,¶¥µã×ÅÉ«Æ÷±àÒëÊ§°Ü!");
 		MOON_METADATA metadata = { MOON_NULL };
-		metadata.attr.dead = MOON_TRUE;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;
@@ -139,8 +138,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êý´íÎó,ÏñËØ×ÅÉ«Æ÷±àÒëÊ§°Ü!");
 		MOON_METADATA metadata = { MOON_NULL };
-		metadata.attr.dead = MOON_TRUE;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;
@@ -162,8 +160,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]º¯Êý´íÎó,×ÅÉ«Æ÷æœ½ÓÊ§°Ü!");
 		MOON_METADATA metadata = { MOON_NULL };
-		metadata.attr.dead = MOON_TRUE;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 		return;
 	}
 	success = MOON_NULL;

@@ -97,12 +97,12 @@ Email:1993346266@qq.com
 	逻辑线程
 		MOON_METADATA metadata;
 		metadata.function = GameLogicAll;
-		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
+		MoonProjectSendMessage(MOON_MESSAGE_SETLOGIC, metadata);
 	
 	绘制线程
 		MOON_METADATA metadata;
 		metadata.function = GameDrawAll;
-		int alpha = MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
+		int alpha = MoonProjectSendMessage(MOON_MESSAGE_SETDRAW, metadata);
 	
 		MOON_IMAGE的实际功能更偏向于图层,配套函数也是基于图层的逻辑来写的
 
@@ -575,8 +575,15 @@ Email:1993346266@qq.com
 * 2.1.0.12					去除了对这两个链接库的依赖
 *							#pragma comment( lib,"Winmm.lib")
 *							#pragma comment(lib, "Msimg32.lib")
+* 2.1.0.13					去除了对这两个链接库的依赖
+**								设计了
+*									MOON_MESSAGE_LOGIC_SETLOGIC
+*									MOON_MESSAGE_LOGIC_SETDRAW
+*								注释掉了
+*									MOON_MESSAGE_ATTR_SETDRAW
+*									MOON_MESSAGE_ATTR_SETDRAW
+* 2.1.0.14+					为了彻底解决并发问题,完全去除了属性消息
 *
-*							
 */
 
 typedef struct MOON_PROJECTGOD
@@ -606,7 +613,7 @@ extern unsigned int MoonHash(char* text);
 * 使用方法 
 * float alpha = cos(DegRad(45));
 */
-#define MoonDegRad(phi) (MOON_Pi * (phi) * 1.f / 180.f)		//角度转弧度
+#define MoonDegRad(phi) (MOON_Pi * (phi) * 1.f / 180.f)//角度转弧度
 
 /*
 * 函數 MoonKeyState
@@ -614,7 +621,7 @@ extern unsigned int MoonHash(char* text);
 * 使用方法 
 * _Bool alpha = MoonKeyState(MOON_KEY_SPACE);
 */
-extern _Bool MoonKeyState(unsigned int Key);					//获取按键的值
+extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
 
 /*
 * 函數 MoonKeyReal
@@ -623,7 +630,7 @@ extern _Bool MoonKeyState(unsigned int Key);					//获取按键的值
 * 使用方法 
 * _Bool alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
 */
-extern _Bool MoonKeyReal(unsigned int Key);					//获取按键的值
+extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
 
 /*
 * 函數 Lerp
@@ -671,7 +678,7 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 * 使用方法 
 * int alpha = Random(0, 100);
 */
-#define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))			//随机数获取
+#define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))//随机数获取
 
 /*
 * 函數 MoonMusic
@@ -679,7 +686,7 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 * 使用方法
 * MoonMusic("music.mp3");
 */
-extern void MoonMusic(const char* File);			//播放音乐
+extern void MoonMusic(const char* File);//播放音乐
 
 /*
 * 函數 MoonTriangleDetection
@@ -1077,7 +1084,7 @@ extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, i
 * 使用方法
 * MoonImageShader( 0, shader);
 */
-extern void MoonImageShader(unsigned int shader);	//设置著色器
+extern void MoonImageShader(unsigned int shader);//设置著色器
 
 //------------------------------------图片------------------------------------------------//
 
@@ -1087,7 +1094,7 @@ extern void MoonImageShader(unsigned int shader);	//设置著色器
 * 使用方法
 * MoonImageDesignated(&backBuffer);
 */
-extern void MoonImageDesignated(MOON_IMAGE* image);			//设置绘图对象
+extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
 
 /*
 * 函數 MoonImageLoad
@@ -1106,7 +1113,7 @@ extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenu
 * const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
 * MoonImageLoadBatch(project, frames, 10, names, 64, 64);
 */
-extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);			//批量加载图片
+extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
 
 //------------------------------------动画------------------------------------------------//
 
@@ -1134,7 +1141,7 @@ extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, i
 * 使用方法
 * MoonAnimeDelete(&anim);
 */
-extern void MoonAnimeDelete(MOON_ANIME* anime);				//删除动画
+extern void MoonAnimeDelete(MOON_ANIME* anime);//删除动画
 
 /*
 * 函數 MoonAnimeCreate
@@ -1145,4 +1152,4 @@ extern void MoonAnimeDelete(MOON_ANIME* anime);				//删除动画
 * const wchar_t* names[] = {L"1.bmp", L"2.bmp", ...};
 * MoonAnimeCreate(project, frames, &anim, 10, names, "PlayerAnim", 100, 64, 64);
 */
-extern void MoonAnimeCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);	//创建动画
+extern void MoonAnimeCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);//创建动画

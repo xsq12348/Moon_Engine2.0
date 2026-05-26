@@ -136,20 +136,13 @@ typedef struct
 				}text;													//纹理
 			};
 		}draw;
-		struct
-		{
-			union
-			{
-				int power;
-				int fps;
-				int dead;
-			};
-		} attr;															//属性
 		union
 		{
-			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
 			void(*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
-
+			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
+			int power;
+			int fps;
+			int dead;
 		};
 	};
 }MOON_METADATA;
@@ -205,37 +198,33 @@ typedef enum
 	
 	MOON_MESSAGE_DRAW_START,//起始符,无其他含义
 	//MOON_MESSAGE_DRAW_SETDRAW,
-	MOON_MESSAGE_DRAW_OPEN,
-	MOON_MESSAGE_DRAW_IMAGE,
+	MOON_MESSAGE_DRAW_OPEN,						//在消息队列注入自定义模块函数,一次性
+	MOON_MESSAGE_DRAW_IMAGE,					//绘制纹理图层
 	//MOON_MESSAGE_DRAW_IMAGE_ALPHA,
 	//MOON_MESSAGE_DRAW_IMAGE_ROUND,
-	MOON_MESSAGE_DRAW_IMAGE_UV,
-	MOON_MESSAGE_DRAW_IMAGE_PIG,
-	MOON_MESSAGE_DRAW_IMAGE_CLEAN,
-	MOON_MESSAGE_DRAW_PIX,
-	MOON_MESSAGE_DRAW_LINE,
+	MOON_MESSAGE_DRAW_IMAGE_UV,					//绘制UV纹理图层
+	MOON_MESSAGE_DRAW_IMAGE_PIG,				//绘制自定义顶点纹理图层
+	MOON_MESSAGE_DRAW_IMAGE_CLEAN,				//清屏纹理图层
+	MOON_MESSAGE_DRAW_PIX,						//绘制点
+	MOON_MESSAGE_DRAW_LINE,						//绘制线
 	//MOON_MESSAGE_DRAW_CIRCLE,
 	//MOON_MESSAGE_DRAW_BOX,
 	//MOON_MESSAGE_DRAW_BOX_FULL,
-	MOON_MESSAGE_DRAW_TRI_FULL,
-	MOON_MESSAGE_DRAW_TEXT,		//默认字体
+	MOON_MESSAGE_DRAW_TRI_FULL,					//绘制三角形
+	MOON_MESSAGE_DRAW_TEXT,						//绘制默认字体
 	//MOON_MESSAGE_DRAW_ANIME_RUN,
 	//MOON_MESSAGE_DRAW_ANIME_MODE,
 	//MOON_MESSAGE_DRAW_ANIME_DELETE,
 	MOON_MESSAGE_DRAW_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 
-	MOON_MESSAGE_ATTR_START,//起始符,无其他含义
-	MOON_MESSAGE_ATTR_DEAD,
-	MOON_MESSAGE_ATTR_POWER,
-	MOON_MESSAGE_ATTR_SETFPS,
-	MOON_MESSAGE_ATTR_SETLOGIC,
-	MOON_MESSAGE_ATTR_SETDRAW,
-	MOON_MESSAGE_ATTR_OPEN,
-	MOON_MESSAGE_ATTR_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
-
 	MOON_MESSAGE_LOGIC_START,//起始符,无其他含义
-	//MOON_MESSAGE_LOGIC_SETLOGIC,
-	MOON_MESSAGE_LOGIC_OPEN,
+	MOON_MESSAGE_SETLOGIC,						//设置逻辑模块
+	MOON_MESSAGE_SETDRAW,						//设置绘图模块
+	MOON_MESSAGE_LOGIC_OPEN,					//在消息队列注入自定义模块函数,一次性
+	MOON_MESSAGE_ATTR_OPEN,						//在属性线程注入自定义模块函数,长期,可以传入MOON_NULL来禁用注入的函数
+	MOON_MESSAGE_DEAD,							//项目退出,不论传入的任何值
+	MOON_MESSAGE_POWER,							//设置高性能模式/暂停/锁帧
+	MOON_MESSAGE_SETFPS,						//设置帧数
 	MOON_MESSAGE_LOGIC_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 }MOON_MESSAGE;
 

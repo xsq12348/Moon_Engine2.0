@@ -11,17 +11,18 @@ typedef struct MOON_ENGINECORE
 {
 	_Bool dead;					//项目状态
 	_Bool thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
-	_Bool thread_message_type_logic;					//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
-	_Bool thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
+	_Bool thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
+	//_Bool thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
 	_Bool gamepowermode;		//记录高性能模式旧模式
 	char power;					//高性能模式
 	int focus;					//焦点
 	int(*Logic)(struct MOON_PROJECTGOD*);				//多线程逻辑函数
 	int(*Drawing)(struct MOON_PROJECTGOD*);				//主线程绘图函数
+	int(*Attr)(struct MOON_PROJECTGOD*);				//属性函数
 
 	MOON_MESSAGE_ALL message_draw;//绘制消息队列
 	MOON_MESSAGE_ALL message_logic;//逻辑消息队列
-	MOON_MESSAGE_ALL message_attr;//属性消息队列
+	//MOON_MESSAGE_ALL message_attr;//属性消息队列
 
 	MOON_TIMELOAD timeload;		//计时器
 }MOON_ENGINECORE;
@@ -106,7 +107,6 @@ extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJEC
 * MoonProjectGetMessage(message, handle);
 */
 extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message,_Bool* type, void(*Handle)(MOON_MESSAGE_ALL*,_Bool*));	//获取消息
-extern void MoonAttrMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理属性线程消息
 extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
 extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
 

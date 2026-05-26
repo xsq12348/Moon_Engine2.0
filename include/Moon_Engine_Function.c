@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,0,12 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,0,14 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -165,8 +165,6 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 
 static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 {
-	//等待绘制线程
-	while (!moon_engine_core.thread_message_type_draw);
 	//逻辑线程
 	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
 
@@ -184,8 +182,6 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 
 static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 {
-	//等待属性线程
-	while (!moon_engine_core.thread_message_type_attr);
 	//绘制线程
 	//OpenGL
 	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
@@ -247,7 +243,6 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 			if (!MoonTimeLoad(&projectfps, MOON_TRUE))fpsmax++;
 			else { fpsmax2 = fpsmax; fpsmax = 0; }
 		}
-
 
 		{
 			moon_engine_core.Drawing(project);
@@ -332,9 +327,9 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	//属性线程
 	while (!moon_engine_core.dead)
 	{
-		if(moon_engine_core.Logic != MoonLogicPause) 
+		if (moon_engine_core.Logic != MoonLogicPause)
 			logic = moon_engine_core.Logic;
-		if(moon_engine_core.Drawing != MoonDrawingPause)
+		if (moon_engine_core.Drawing != MoonDrawingPause)
 			drawing = moon_engine_core.Drawing;
 		moon_engine_core.dead = (_Bool)glfwWindowShouldClose(project->hwnd);
 		moon_engine_core.focus = (_Bool)!glfwGetWindowAttrib(project->hwnd, GLFW_FOCUSED);
@@ -351,7 +346,7 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 				moon_engine_core.power = moon_engine_core.gamepowermode;
 
 			//当Power改变时
-			if(moon_engine_core.power != modetemp )
+			if (moon_engine_core.power != modetemp)
 			{
 				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
 				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
@@ -362,12 +357,12 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 			if (developer)
 			{
 				ProjectConsole(project, project->developerconsole);
-				if(MoonKeyState(MOON_KEY_OEM_3)) 
+				if (MoonKeyState(MOON_KEY_OEM_3))
 					developer = MOON_FALSE;
 			}
-			//自动锁
-			MoonProjectGetMessage(project, &moon_engine_core.message_attr, &moon_engine_core.thread_message_type_attr, MoonAttrMessageHandle);
 		}
+		if (moon_engine_core.Attr)
+			moon_engine_core.Attr(project);
 		MoonSleep(1);
 	}
 	thread_attr_type = MOON_TRUE;
@@ -533,25 +528,6 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 		}
 		else
 			return MOON_MESSAGE_THREAD_TYPE_BUSY;
-
-
-	if (message > MOON_MESSAGE_ATTR_START && message <= MOON_MESSAGE_ATTR_END)
-		if (!moon_engine_core.thread_message_type_attr)
-		{
-			MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_attr.message, (moon_engine_core.message_attr.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
-			if (!buffer)
-				return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
-			else
-			{
-				moon_engine_core.message_attr.message = buffer;
-				moon_engine_core.message_attr.message[moon_engine_core.message_attr.message_index].message = message;
-				moon_engine_core.message_attr.message[moon_engine_core.message_attr.message_index].metadata = metadata;
-				moon_engine_core.message_attr.message_index += 1;
-				return MOON_MESSAGE_THREAD_TYPE_TRUE;
-			}
-		}
-		else
-			return MOON_MESSAGE_THREAD_TYPE_BUSY;
 }
 
 extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
@@ -571,44 +547,6 @@ extern void MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 	return MOON_FALSE;
 }
 
-extern void MoonAttrMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
-{
-	for (int index = 0; index < message->message_index; index++)
-	{
-		if (*type)
-		{
-			switch (message->message[index].message)
-			{
-			case MOON_MESSAGE_ATTR_END: *type = MOON_FALSE; break;
-			case MOON_MESSAGE_ATTR_DEAD:
-				moon_engine_core.dead = MOON_TRUE;
-				break;
-			case MOON_MESSAGE_ATTR_POWER:
-				moon_engine_core.gamepowermode = message->message[index].metadata.attr.power;
-				break;
-			case MOON_MESSAGE_ATTR_SETLOGIC:
-				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);
-				break;
-			case MOON_MESSAGE_ATTR_SETDRAW: 
-				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);
-				break;
-			case MOON_MESSAGE_ATTR_SETFPS: 
-			{
-				int fps = 1000.f / message->message[index].metadata.attr.fps;
-				if (fps <= 0)fps = 1000.f / 60;
-				moon_engine_core.timeload.timeload = fps;
-			}
-			case MOON_MESSAGE_ATTR_OPEN:
-			{
-				message->message[index].metadata.function_open(project);
-			}
-			break;
-			}
-		}
-		else return;
-	}
-}
-
 extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
 	for (int index = 0; index < message->message_index; index++)
@@ -619,10 +557,30 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 			{
 			case MOON_MESSAGE_LOGIC_END: *type = MOON_FALSE; break;
 			//case MOON_MESSAGE_LOGIC_SETLOGIC:				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);				break;
+			case MOON_MESSAGE_SETLOGIC:
+				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);
+				break;
+			case MOON_MESSAGE_SETDRAW:
+				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);
+				break;
 			case MOON_MESSAGE_LOGIC_OPEN:
-			{
 				message->message[index].metadata.function_open(project);
-			}
+			case MOON_MESSAGE_DEAD:
+					moon_engine_core.dead = MOON_TRUE;
+					break;
+				case MOON_MESSAGE_POWER:
+					moon_engine_core.gamepowermode = message->message[index].metadata.power;
+					break;
+				case MOON_MESSAGE_SETFPS:
+				{
+					int fps = 1000.f / message->message[index].metadata.fps;
+					if (fps <= 0)fps = 1000.f / 60;
+					moon_engine_core.timeload.timeload = fps;
+				}
+				case MOON_MESSAGE_ATTR_OPEN:
+					moon_engine_core.Attr = message->message[index].metadata.function_open;
+				break;
+			break;
 			}
 		}
 		else return;

@@ -119,7 +119,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		glad_glGetShaderInfoLog(vertex_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,顶点着色器编译失败!");
-		MOON_METADATA metadata;
+		MOON_METADATA metadata = { MOON_NULL };
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
@@ -138,7 +138,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		glad_glGetShaderInfoLog(pixel_shader_uint, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,像素着色器编译失败!");
-		MOON_METADATA metadata;
+		MOON_METADATA metadata = { MOON_NULL };
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
@@ -161,7 +161,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 		glad_glGetProgramInfoLog(*shader_program, 1024, MOON_NULL, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(success, 1, "[MoonRendererLoad]函数错误,着色器鏈接失败!");
-		MOON_METADATA metadata;
+		MOON_METADATA metadata = { MOON_NULL };
 		metadata.attr.dead = MOON_TRUE;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 		return;
@@ -360,7 +360,9 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	int len = strlen(text);
 	if (len >= MOON_MESSAGE_TEXT_MAX)
 	{
-		MoonPrompt("单次消息超过最大字符数");
+		char textbuffer[255] = { MOON_NULL };
+		snprintf(textbuffer, 255, "单次消息超过最大字符数,或许考虑(拼接|缩短)\n字符串为[%s]", text);
+		MoonPrompt(text);
 		return;
 	}
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
@@ -788,9 +790,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			switch (message->message[index].message)
 			{
 			case MOON_MESSAGE_DRAW_END: *type = MOON_FALSE; break;
-			case MOON_MESSAGE_DRAW_SETDRAW:
-				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);
-			break;
+			//case MOON_MESSAGE_DRAW_SETDRAW:				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);			break;
 
 			case MOON_MESSAGE_DRAW_IMAGE:
 			{

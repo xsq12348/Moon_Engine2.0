@@ -428,6 +428,12 @@ extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int 
 
 extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*))
 {
+	if (function_2 == MOON_NULL)
+	{
+		char text[255] = { MOON_NULL };
+		snprintf(text, 255, "[MoonProjectFunctionSwitch]函数,空指针错误,请勿传入空指针,来自模块[%s]", (module == MOON_MODULE_DRAW ? "Draw" : (module == MOON_MODULE_ATTR ? "Attr" : "Logic")));
+		MoonPrompt(text);
+	}
 	switch (module)
 	{
 	case MOON_MODULE_DRAW:	moon_engine_core.Drawing = function_2; break;
@@ -569,12 +575,12 @@ extern void MoonAttrMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			case MOON_MESSAGE_ATTR_POWER:
 				moon_engine_core.gamepowermode = message->message[index].metadata.attr.power;
 				break;
-			//case MOON_MESSAGE_ATTR_SETLOGIC:
-				//MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.attr.function);
-				//break;
-			//case MOON_MESSAGE_ATTR_SETDRAW: 
-				//MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.attr.function);
-				//break;
+			case MOON_MESSAGE_ATTR_SETLOGIC:
+				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);
+				break;
+			case MOON_MESSAGE_ATTR_SETDRAW: 
+				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);
+				break;
 			case MOON_MESSAGE_ATTR_SETFPS: 
 			{
 				int fps = 1000.f / message->message[index].metadata.attr.fps;
@@ -601,9 +607,7 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 			switch (message->message[index].message)
 			{
 			case MOON_MESSAGE_LOGIC_END: *type = MOON_FALSE; break;
-			case MOON_MESSAGE_LOGIC_SETLOGIC:
-				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);
-				break;
+			//case MOON_MESSAGE_LOGIC_SETLOGIC:				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);				break;
 			case MOON_MESSAGE_LOGIC_OPEN:
 			{
 				message->message[index].metadata.function_open(project);

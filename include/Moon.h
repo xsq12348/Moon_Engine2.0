@@ -854,7 +854,7 @@ extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
 * 使用方法
 * MoonDeawTextFont(&image, 10, 10, L"Hello", RGB(255,255,255), TRUE, L"宋體", 24, 24, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE);
 */
-extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, float sizewidth, float sizeheight);	//显示字符
+extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight);	//显示字符
 
 //------------------------------------按钮控件------------------------------------------------//
 

@@ -131,7 +131,7 @@ typedef struct
 				struct
 				{
 					MOON_POINT2D coord;						//×ø±ê
-					float size_w, size_h;
+					int size_w, size_h;
 					char text[MOON_MESSAGE_TEXT_MAX];
 				}text;													//ÎÆÀí
 			};

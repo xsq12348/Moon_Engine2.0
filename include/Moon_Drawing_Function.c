@@ -346,7 +346,7 @@ extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, i
 	return (int)anime->number;
 }
 
-extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, float sizewidth, float sizeheight)
+extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight)
 {
 	MOON_METADATA metadata = { 0 };
 	metadata.draw.image_goal = image;
@@ -529,11 +529,11 @@ extern void MoonCoreDrawArea(MOON_METADATA* metadata)
 		//这里处理旋转
 
 		float 
-			cosrad = cos(MoonDegRad(metadata->draw.image.deg)), 
-			sinrad = sin(MoonDegRad(metadata->draw.image.deg));
+			cosrad = (float)cos(MoonDegRad(metadata->draw.image.deg)), 
+			sinrad = (float)sin(MoonDegRad(metadata->draw.image.deg));
 		MOON_POINT2D points[4];
-		int apx = -metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w,
-			apy = -metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h;
+		int apx = (int)(-metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w),
+			apy = (int)(-metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h);
 		float matrix2d[4] = { cosrad,-sinrad,sinrad,cosrad };
 		points[0].x = (long int)(metadata->draw.image.x + matrix2d[0] * apx + matrix2d[2] * apy);
 		points[0].y = (long int)(metadata->draw.image.y + matrix2d[1] * apx + matrix2d[3] * apy);																		//0,0
@@ -585,8 +585,8 @@ extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata)
 	}
 	MOON_POINT2D image_buffer_size =
 	{
-		metadata->draw.image.image_resources->image_size.w * metadata->draw.image.uv_w,
-		metadata->draw.image.image_resources->image_size.h * metadata->draw.image.uv_h
+		(long int)(metadata->draw.image.image_resources->image_size.w * metadata->draw.image.uv_w),
+		(long int)(metadata->draw.image.image_resources->image_size.h * metadata->draw.image.uv_h)
 	};
 
 	float
@@ -737,8 +737,8 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 
 		MOON_POINT2D image_buffer_size =
 		{
-			metadata->draw.text.size_w,
-			metadata->draw.text.size_h,
+			(long int)(metadata->draw.text.size_w),
+			(long int)(metadata->draw.text.size_h),
 		};
 		int x = image_buffer_size.w * index + metadata->draw.text.coord.x;
 

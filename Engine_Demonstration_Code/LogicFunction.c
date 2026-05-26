@@ -16,11 +16,22 @@ extern MOON_PROJECTMODULE(GameLogicLoad)
 
 	MoonHashFindEntity(project, "ProjectMouseCoord", MOON_POINT2D, mousecoord_2);
 	mousecoord = mousecoord_2;
-
-	MOON_METADATA metadata;
-	metadata.function = GameLogicAll;
-	MoonProjectSendMessage(MOON_MESSAGE_LOGIC_SETLOGIC, metadata);
 	
+	//ÇÐ»»Âß¼­Ä£¿é
+	{
+
+		MOON_METADATA metadata = { MOON_NULL };
+		metadata.function = GameLogicAll;
+		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
+	}
+
+	//ÇÐ»»»æÖÆÄ£¿é
+	{
+		GameDrawLoad(project);	//¼ÓÔØ»æÖÆÄ£¿é
+		MOON_METADATA metadata = { MOON_NULL };
+		metadata.function = GameDrawAll;
+		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
+	}
 	return 1;
 }
 

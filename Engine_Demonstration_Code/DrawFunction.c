@@ -15,15 +15,10 @@ extern MOON_PROJECTMODULE(GameDrawLoad)
 	MoonHashFindEntity(project, (char*)"ProjectFPS", int, fpsnumber);
 	fps = fpsnumber;
 
-	MOON_METADATA metadata;
-	metadata.function = GameDrawAll;
-	MoonProjectSendMessage(MOON_MESSAGE_DRAW_SETDRAW, metadata);
-    printf("GLFW Version: %s\n", glfwGetVersionString());
     return 1;
 }
 
 extern MOON_PROJECTMODULE(GameDrawAll)
 {
-
 	return 1;
 }

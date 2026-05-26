@@ -56,12 +56,12 @@
 	如要切换模块[示例]
 
 	逻辑线程
-		MOON_METADATA metadata = { MOON_NULL };
+		MOON_METADATA metadata;
 		metadata.function = GameLogicAll;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
 	
 	绘制线程
-		MOON_METADATA metadata= { MOON_NULL };
+		MOON_METADATA metadata;
 		metadata.function = GameDrawAll;
 		int alpha = MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
 	
@@ -153,3 +153,11 @@
 [8]
 			鼠标默认行为在窗口内部
 			您可以通过MoonSetMouseCoord来更改
+
+[9]
+			由于逻辑线程没有OpenGL上下文
+			所以MoonShaderLoad这类需要OpenGL上下文的函数应尽量在
+				ProjectSetting_1
+				ProjectSetting_2
+				绘制线程内部
+			里面完成

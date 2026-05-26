@@ -56,12 +56,12 @@
 	如要切换模块[示例]
 
 	逻辑线程
-		MOON_METADATA metadata;
+		MOON_METADATA metadata = { MOON_NULL };
 		metadata.function = GameLogicAll;
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETLOGIC, metadata);
 	
 	绘制线程
-		MOON_METADATA metadata;
+		MOON_METADATA metadata= { MOON_NULL };
 		metadata.function = GameDrawAll;
 		int alpha = MoonProjectSendMessage(MOON_MESSAGE_ATTR_SETDRAW, metadata);
 	

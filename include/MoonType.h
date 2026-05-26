@@ -17,9 +17,6 @@
 
 typedef GLFWwindow MOON_HWND;
 
-#pragma comment( lib,"Winmm.lib")
-#pragma comment(lib, "Msimg32.lib")
-
 #define MOON_TRUE			(1)
 #define MOON_FALSE			(0)
 #define MOON_NULL			((void*)0)

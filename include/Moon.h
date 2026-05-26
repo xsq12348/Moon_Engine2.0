@@ -571,6 +571,11 @@ Email:1993346266@qq.com
 *									MOON_MESSAGE_DRAW_SETDRAW
 *							统一由属性线程进行切换
 * 2.1.0.10					将ProjectSetting_2纳入OpenGL上下文范围
+* 2.1.0.11					针对一些警告,做了语法上的优化
+* 2.1.0.12					去除了对这两个链接库的依赖
+*							#pragma comment( lib,"Winmm.lib")
+*							#pragma comment(lib, "Msimg32.lib")
+*
 *							
 */
 

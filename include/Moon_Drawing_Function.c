@@ -384,11 +384,14 @@ extern void MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmp
 	glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	int data_size = bmpwidth * bmpheight * 4;
-	unsigned char* data = (unsigned char*)malloc(data_size);
-	memset(data, 0, data_size);
-	glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)bmpwidth, (GLsizei)bmpheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	free(data);
-
+	unsigned char* data = (unsigned char*)calloc(data_size, 1);
+	if (data)
+	{
+		glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)bmpwidth, (GLsizei)bmpheight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		free(data);
+	}
+	else
+		MoonPrompt("[MoonImageCreate]º¯Êı¾¯¸æ,ÄÚ´æ·ÖÅäÊ§°Ü");
 	glad_glGenFramebuffers(1, &image->image.fbo);
 	glad_glBindFramebuffer(GL_FRAMEBUFFER, image->image.fbo);
 	glad_glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image->image.texture, 0);

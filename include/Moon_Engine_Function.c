@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,0,10 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,0,12 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -292,10 +292,10 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
 {
 	MoonPrompt("[ProjectRun]引擎流程函数进入成功!");
-	
+
 	//默认在窗口内部
 	glfwSetInputMode(project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-	
+
 	if (ProjectDrawing == MOON_NULL)
 	{
 		MoonProjectError(ProjectDrawing, 1, (char*)"绘图函数传入失败!");
@@ -332,8 +332,10 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	//属性线程
 	while (!moon_engine_core.dead)
 	{
-		moon_engine_core.Logic != MoonLogicPause && (logic = moon_engine_core.Logic);
-		moon_engine_core.Drawing != MoonDrawingPause && (drawing = moon_engine_core.Drawing);
+		if(moon_engine_core.Logic != MoonLogicPause) 
+			logic = moon_engine_core.Logic;
+		if(moon_engine_core.Drawing != MoonDrawingPause)
+			drawing = moon_engine_core.Drawing;
 		moon_engine_core.dead = (_Bool)glfwWindowShouldClose(project->hwnd);
 		moon_engine_core.focus = (_Bool)!glfwGetWindowAttrib(project->hwnd, GLFW_FOCUSED);
 		glfwPollEvents();
@@ -349,12 +351,20 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 				moon_engine_core.power = moon_engine_core.gamepowermode;
 
 			//当Power改变时
-			moon_engine_core.power != modetemp && MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
-			moon_engine_core.power != modetemp && MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
+			if(moon_engine_core.power != modetemp )
+			{
+				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
+				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
+			}
 			modetemp = moon_engine_core.power;
-			!developer && MoonKeyState(MOON_KEY_OEM_3) && (developer = MOON_TRUE);
-			developer && (ProjectConsole(project, project->developerconsole), (MoonKeyState(MOON_KEY_OEM_3) && (developer = MOON_FALSE)));
-
+			if (!developer && MoonKeyState(MOON_KEY_OEM_3))
+				developer = MOON_TRUE;
+			if (developer)
+			{
+				ProjectConsole(project, project->developerconsole);
+				if(MoonKeyState(MOON_KEY_OEM_3)) 
+					developer = MOON_FALSE;
+			}
 			//自动锁
 			MoonProjectGetMessage(project, &moon_engine_core.message_attr, &moon_engine_core.thread_message_type_attr, MoonAttrMessageHandle);
 		}

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"Moon_Configuration.h"
 //Compatible Moon Engine 1.2.5.1
 #define Hash MoonHash

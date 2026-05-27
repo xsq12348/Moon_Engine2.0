@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #define MOON_OPEN_SDL			0
 #define MOONMANYENTITY			0
 #define MOONSTANDARDENTITY		1

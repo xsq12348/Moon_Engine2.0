@@ -1,4 +1,5 @@
-﻿
+﻿#ifndef MOON_TYPE_DEF
+#define MOON_TYPE_DEF
 #include<stdio.h>
 #include<time.h>
 #include<math.h>
@@ -16,6 +17,20 @@
 #pragma comment(lib, "opengl32.lib")
 
 typedef GLFWwindow MOON_HWND;
+
+#if	   MOONMANYENTITY
+#undef MOONSTANDARDENTITY
+#undef MOONFEWENTITY
+#define ENTITYNUMBER	1000003
+#elif  MOONSTANDARDENTITY
+#undef MOONMANYENTITY
+#undef MOONFEWENTITY
+#define ENTITYNUMBER	10007
+#elif  MOONFEWENTITY
+#undef MOONMANYENTITY
+#undef MOONSTANDARDENTITY
+#define ENTITYNUMBER	997
+#endif
 
 #define MOON_TRUE			(1)
 #define MOON_FALSE			(0)
@@ -38,7 +53,7 @@ enum
 };
 
 //创建线程函数关键字
-typedef int SDLCALL  MOON_THREAD;
+typedef int MOON_THREAD;
 
 //定时器
 typedef struct
@@ -366,3 +381,15 @@ enum
 	MOON_KEY_OEM_6 = GLFW_KEY_RIGHT_BRACKET,            // 93 (])
 	MOON_KEY_OEM_3 = GLFW_KEY_GRAVE_ACCENT,             // 96 (`)
 };
+
+typedef struct MOON_PROJECTGOD
+{
+	const char* project_name;							//名字
+	MOON_HWND* hwnd;									//窗口句柄
+	int window_width;									//宽度
+	int window_height;									//高度
+	MOON_ENTITYINDEX* entityindex;						//对象池注册表
+	int(*developerconsole)(struct MOON_PROJECTGOD*);	//开发者控制台,按下波浪号进入
+}MOON_PROJECTGOD;		//项目结构体中心
+
+#endif

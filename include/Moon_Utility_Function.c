@@ -84,7 +84,15 @@ extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 
 extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid)
 {
-	return project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex;
+	void* entity = project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex;
+	if (entity == MOON_NULL)
+	{
+		char text[255];
+		snprintf(text, 255, "[MoonFindEntity]空指针错误!来自名称[%s]的实体", nameid);
+		MoonProjectError(project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex, 1, text);
+		return MOON_NULL;
+	}
+	return entity;
 }
 
 extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name)

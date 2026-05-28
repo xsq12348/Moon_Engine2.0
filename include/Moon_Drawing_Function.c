@@ -359,7 +359,7 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	{
 		char textbuffer[255] = { 0 };
 		snprintf(textbuffer, 255, "单次消息超过最大字符数,或许考虑(拼接|缩短)\n字符串为[%s]", text);
-		MoonPrompt((char*)text);
+		MoonPrompt((char*)textbuffer);
 		return;
 	}
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)

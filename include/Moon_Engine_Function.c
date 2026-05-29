@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,0,17 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,0,18 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -165,6 +165,8 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 
 static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 {
+	int runload[3] = { 0 };//帧率计时器
+
 	//逻辑线程
 	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
 
@@ -172,10 +174,20 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 
 	while (!moon_engine_core.dead)
 	{
+		runload[0] = clock();
+
 		moon_engine_core.Logic(project);
 
 		//自动锁
 		MoonProjectGetMessage(project, &moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+		
+		runload[1] = clock();
+		runload[2] = runload[1] - runload[0];
+		if (runload[2] >= 2000)
+		{
+			MoonPrompt("[逻辑线程]时间过长,超过2000ms,现在转入暂停");
+			moon_engine_core.power = MOON_Error;
+		}
 	}
 	return 1;
 }
@@ -270,6 +282,12 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		if (moon_engine_core.power <= 0)
 			if ((unsigned int)runload[2] < moon_engine_core.timeload.timeload)
 				MoonSleep((moon_engine_core.timeload.timeload - runload[2]));
+
+		if (runload[2] >= 2000)
+		{
+			MoonPrompt("[绘制线程]时间过长,超过2000ms,现在转入暂停");
+			moon_engine_core.power = MOON_Error;
+		}
 	}
 
 	{
@@ -570,7 +588,10 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 					moon_engine_core.dead = MOON_TRUE;
 					break;
 				case MOON_MESSAGE_POWER:
-					moon_engine_core.gamepowermode = message->message[index].metadata.power;
+				{
+					int buffer = MoonMax(message->message[index].metadata.power,0);
+					moon_engine_core.gamepowermode = buffer;
+				}
 					break;
 				case MOON_MESSAGE_SETFPS:
 				{

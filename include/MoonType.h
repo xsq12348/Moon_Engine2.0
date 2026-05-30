@@ -113,6 +113,27 @@ typedef struct
 	MOON_TIMELOAD timeload;			//定时器
 }MOON_ANIME;
 
+enum
+{
+	MOON_BUTTON_FALSE,			//不存在按钮
+	MOON_BUTTON_PRESS = 1,		//按下
+	MOON_BUTTON_PRESS_LONG,		//长按
+	MOON_BUTTON_RHOVER,			//悬停
+};
+
+typedef struct MOONBUTTON
+{
+	int x;
+	int y;
+	int width;
+	int height;
+	char mode;
+	unsigned char triggermode;
+	int (*ButtonModePress)   (struct MOONBUTTON* buton, void* context);	//按下
+	int (*ButtonModePressL)  (struct MOONBUTTON* buton, void* context);	//长按
+	int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
+}MOON_BUTTON;
+
 typedef struct
 {
 	union

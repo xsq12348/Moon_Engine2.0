@@ -142,34 +142,47 @@ extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int heig
 	return 1;
 }
 
-extern int MoonButtonDetection(MOON_PROJECTGOD* project, char* name)
+extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 {
-	MoonHashFindEntity(project, name, MOON_BUTTON, button);
-	if (project->entityindex[(MoonHash(name) % ENTITYNUMBER)].length != sizeof(MOON_BUTTON))
+	static _Bool mode = 0;
+	if (
+		button->x < x
+		&& button->y < y
+		&& button->x + button->width > x
+		&& button->y + button->height > y
+		)
 	{
-		MoonProjectError(button, 3, (char*)"[ButtonDetection函数]错误!错误原因:类型导入错误.");
-		return 0;
+		if (MoonKeyState(button->triggermode))
+		{
+			mode = MOON_TRUE;
+			button->mode = MOON_BUTTON_PRESS;
+			if (button->ButtonModePress)
+				button->ButtonModePress(button, context);
+			return MOON_BUTTON_PRESS;
+		}
+		else
+			if (mode && MoonKeyReal(button->triggermode))
+			{
+				if (button->ButtonModePressL)
+					button->ButtonModePressL(button, context);
+				button->mode = MOON_BUTTON_PRESS_LONG;
+				return MOON_BUTTON_PRESS_LONG;
+			}
+			else
+			{
+				mode = MOON_FALSE;
+				if (button->ButtonModeHover)
+					button->ButtonModeHover(button, context);
+				button->mode = MOON_BUTTON_RHOVER;
+				return MOON_BUTTON_RHOVER;
+			}
 	}
-	MoonHashFindEntity(project, "ProjectMouseCoord", MOON_POINT2D, mousecoord);
-	if (mousecoord->x > button->x && mousecoord->x < (button->x + button->width) && mousecoord->y > button->y && mousecoord->y < (button->y + button->height))
+	else
 	{
-		if (MoonKeyState(button->triggermode))button->mode = MOON_BUTTONPRESS;
-		else button->mode = MOON_BUTTONRHOVER;
-
+		mode = MOON_FALSE;
+		button->mode = MOON_BUTTON_FALSE;
+		return MOON_BUTTON_FALSE;
 	}
-	else button->mode = MOON_FALSE;
-	switch (button->mode)
-	{
-	case MOON_BUTTONPRESS:	
-		button->ButtonModePress && button->ButtonModePress(project, button);
-			return MOON_BUTTONPRESS;
-		break;
-	case MOON_BUTTONRHOVER:
-			button->ButtonModeHover && button->ButtonModeHover(project, button);
-			return MOON_BUTTONRHOVER;
-		break;
-	}
-	return 0;
 }
 
 extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project,char* name,unsigned char key)
@@ -215,4 +228,57 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 		break;
 	}
 	return;
+}
+
+extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
+{
+	for (unsigned int index = 0; index < text_size; index++)
+		text[index] = '\0';
+
+	FILE* fp = fopen(file_name, "r");
+	if (fp == NULL)
+	{
+		printf("[FileLoad_TEXT]文件错误\n[%s]文件读取失败\n", file_name);
+		return MOON_FALSE;
+	}
+
+	{
+		int chbuffer[3] = { 0 };
+		chbuffer[0] = fgetc(fp);
+		chbuffer[1] = fgetc(fp);
+		chbuffer[2] = fgetc(fp);
+
+		if (chbuffer[0] == 0xEF
+			&& chbuffer[1] == 0xBB
+			&& chbuffer[2] == 0xBF)
+			printf("\n[FileLoad_TEXT]检测到BOM开头的的特殊字节码 0xEF 0xBB 0xBF\n");
+		else
+		{
+			ungetc(chbuffer[2], fp);
+			ungetc(chbuffer[1], fp);
+			ungetc(chbuffer[0], fp);
+		}
+	}
+
+	int ch = fgetc(fp);
+	for (unsigned int index = 0; index < text_size; index++)
+		if (ch != EOF)
+		{
+			text[index] = ch;
+			ch = fgetc(fp);
+		}
+		else
+			break;
+
+	fclose(fp);
+
+	if (text[text_size - 1] != '\0')
+	{
+		printf("\n[FileLoad_TEXT]函数错误\n[%s]文件,传入的[text_size]空间不足,已清空字符串\n", file_name);
+		for (unsigned int index = 0; index < text_size; index++)
+			text[index] = '\0';
+		return MOON_FALSE;
+	}
+
+	return MOON_TRUE;
 }

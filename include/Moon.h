@@ -581,7 +581,57 @@ Email:1993346266@qq.com
 * 2.1.0.18		2026.5.29	添加了未响应机制
 *							如果每帧时间超过2000ms
 *							那么自动跳入未响应状态
-*
+* 2.1.0.19		2026.5.30	重构了按钮系统
+*								
+原来的
+								enum
+								{
+									MOON_BUTTONPRESS = 1,																																				//按下
+									MOON_BUTTONRHOVER,																																					//悬停
+								};
+
+								typedef struct MOONBUTTON
+								{
+									char nameid[255];
+									int x;
+									int y;
+									int width;
+									int height;
+									char mode;
+									unsigned char triggermode;
+									int (*ButtonModePress)   (PROJECTGOD* project, struct MOONBUTTON* buton);	//按下
+									int (*ButtonModeRelease) (PROJECTGOD* project, struct MOONBUTTON* buton);	//松开
+									int (*ButtonModeHover)   (PROJECTGOD* project, struct MOONBUTTON* buton);	//悬停
+								}MOONBUTTON;
+
+								更改为
+								enum
+								{
+									MOON_BUTTON_FALSE,			//不存在按钮
+									MOON_BUTTON_PRESS = 1,		//按下
+									MOON_BUTTON_PRESS_LONG,		//长按
+									MOON_BUTTON_RHOVER,			//悬停
+								};
+
+								typedef struct MOONBUTTON
+								{
+									int x;
+									int y;
+									int width;
+									int height;
+									char mode;
+									unsigned char triggermode;
+									int (*ButtonModePress)   (struct MOONBUTTON* buton, void* context);	//按下
+									int (*ButtonModePressL)  (struct MOONBUTTON* buton, void* context);	//长按
+									int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
+								}MOON_BUTTON;
+*							
+*							修改了MoonButtonDetection的参数
+*								由
+*									MoonButtonDetection(PROJECTGOD* project, char* name)
+*								改为
+*									MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context)
+* 2.1.1.0					添加了MoonFileLoad_TEXT函数,用于加载文本文件
 */
 
 

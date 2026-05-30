@@ -255,27 +255,6 @@ _declspec(dllexport) extern int MoonWcharToChar(char* text1, wchar_t* text2, int
 
 //------------------------------------按钮控件------------------------------------------------//
 
-enum
-{
-	MOON_BUTTONPRESS = 1,							//按下
-	MOON_BUTTONRHOVER,								//悬停
-};
-
-typedef struct MOONBUTTON
-{
-	char nameid[255];
-	int x;
-	int y;
-	int width;
-	int height;
-	char mode;
-	unsigned char triggermode;
-	int (*ButtonModePress)   (MOON_PROJECTGOD* project, struct MOONBUTTON* buton);	//按下
-	int (*ButtonModeRelease) (MOON_PROJECTGOD* project, struct MOONBUTTON* buton);	//松开
-	int (*ButtonModeHover)   (MOON_PROJECTGOD* project, struct MOONBUTTON* buton);	//悬停
-}MOON_BUTTON;
-
-
 /*
 * 函數 MoonButtonInit
 * 作用 初始化按鈕控件
@@ -289,9 +268,9 @@ _declspec(dllexport) extern int MoonButtonInit(MOON_BUTTON* button, int x, int y
 * 函數 MoonButtonDetection
 * 作用 檢測按鈕觸發狀態
 * 使用方法
-* if(MoonButtonDetection(project, "MyButton") == MOON_BUTTONPRESS) { ... }
+* if(MoonButtonDetection(button, x, y, context) { ... }
 */
-_declspec(dllexport) extern int MoonButtonDetection(MOON_PROJECTGOD* project, char* name);	//检测按钮Trigger
+_declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context);
 
 /*
 * 函數 MoonButtonSetTriggerMode
@@ -308,10 +287,17 @@ _declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* projec
 * static MOONBUTTON button
 * MOONBUTTONCREATE(project, name, x, y, w, h, 0, 0, 0);
 */
-#define MOONBUTTONCREATE(project, name, button, x, y, width, height, Press, Release, Hover) \
+#define MOONBUTTONCREATE(project, name, button, x, y, width, height, Press, PressL, Hover)  \
 MoonButtonInit(&button,(x), (y), (width), (height));                                        \
-button.ButtonModeHover = Hover;                                                             \
-button.ButtonModePress = Press;                                                             \
-button.ButtonModeRelease = Release;                                                         \
-strcpy(button.nameid , name);                                                               \
+button.ButtonModeHover = (Hover);                                                           \
+button.ButtonModePress = (Press);                                                           \
+button.ButtonModePressL = (PressL);                                                         \
 MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");
+
+/*
+* 函數 MoonFileLoad_TEXT
+* 作用 加载文本文件
+* 使用方法
+*	MoonFileLoad_TEXT("a.txt", text, strlen(text));
+*/
+_declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);

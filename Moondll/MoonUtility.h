@@ -270,7 +270,7 @@ _declspec(dllexport) extern int MoonButtonInit(MOON_BUTTON* button, int x, int y
 * 使用方法
 * if(MoonButtonDetection(button, x, y, context) { ... }
 */
-_declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context);
+_declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context);
 
 /*
 * 函數 MoonButtonSetTriggerMode

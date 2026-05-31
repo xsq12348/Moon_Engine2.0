@@ -589,6 +589,8 @@ _declspec(dllexport) extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata)
 		(long int)(metadata->draw.image.image_resources->image_size.h * metadata->draw.image.uv_h)
 	};
 
+	metadata->draw.image.apy = 1.f - metadata->draw.image.apy;
+
 	float
 		vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * 1.f / metadata->draw.image_goal->image_size.w),
 		vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * 1.f / metadata->draw.image_goal->image_size.h),

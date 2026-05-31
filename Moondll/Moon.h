@@ -632,7 +632,8 @@ Email:1993346266@qq.com
 *								改为
 *									MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context)
 * 2.1.1.0					添加了MoonFileLoad_TEXT函数,用于加载文本文件
-* 2.1.1.1		2026.5.31	修复了UV原点在左下角的问题
+* 2.1.1.2					UV函数优化了width和height的参数体验
+*							现在不再是在原图层上裁切相同大小的区域,而是匹配传入的width和height
 */
 
 

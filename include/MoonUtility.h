@@ -187,9 +187,9 @@ extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char
 * 作用 创建双缓冲绘图绘图区
 * 使用方法
 * IMAGE buffer;
-* MoonCreateImage(project, &buffer, project->window_width, project->window_height);
+* MoonCreateImage(&buffer, project->window_width, project->window_height);
 */
-extern void MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
+extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
 
 /*
 * 函數 MoonDeletImage

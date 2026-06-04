@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,1,2 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,1,3 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -150,7 +150,7 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 	MoonCreateEntityIndex(project, &projectmousecoord, (char*)"ProjectMouseCoord", sizeof(MOON_POINT2D), (char*)"MOON_POINT2D");
 	MoonCreateEntityIndex(project, &projectdoublebuffer, (char*)"ProjectBitmap", sizeof(MOON_IMAGE), (char*)"MOON_IMAGE");
 
-	MoonImageCreate(project, &projectdoublebuffer, project->window_width, project->window_height);
+	MoonImageCreate(&projectdoublebuffer, project->window_width, project->window_height);
 
 	MoonCreateEntityIndex(project, &shader_program_vectex, (char*)"ProjectShader_SolidColor", sizeof(unsigned int), (char*)"unsigned int");
 	MoonCreateEntityIndex(project, &shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");

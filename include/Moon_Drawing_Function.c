@@ -372,7 +372,7 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_TEXT, metadata);
 }
 
-extern void MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmpwidth, int bmpheight)
+extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight)
 {
 	glad_glGenTextures(1, &image->image.texture);
 	glad_glBindTexture(GL_TEXTURE_2D, image->image.texture);
@@ -451,10 +451,10 @@ extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenu
 	}
 }
 
-extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
+extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
 {
 	for (int i = 0; i < totalnumber; i++)
-		MoonImageCreate(project, &image[i], width, height);
+		MoonImageCreate(&image[i], width, height);
 	MoonImageLoad(image, name, totalnumber);
 }
 
@@ -489,7 +489,7 @@ extern void MoonAnimeCreate(
 	int totalnumber, const char** animename, char* entityname,
 	int timeload, int width, int height)
 {
-	MoonImageLoadBatch(project, image, totalnumber, animename, width, height);
+	MoonImageLoadBatch(image, totalnumber, animename, width, height);
 	MoonAnimeInit(anime, image, timeload, totalnumber, width, height);
 	MoonCreateEntityIndex(project, anime, entityname, sizeof(MOON_ANIME), "MOON_ANIME");
 }

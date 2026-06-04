@@ -187,9 +187,9 @@ _declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, 
 * 作用 创建双缓冲绘图绘图区
 * 使用方法
 * IMAGE buffer;
-* MoonCreateImage(project, &buffer, project->window_width, project->window_height);
+* MoonCreateImage(&buffer, project->window_width, project->window_height);
 */
-_declspec(dllexport) extern void MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
+_declspec(dllexport) extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
 
 /*
 * 函數 MoonDeletImage

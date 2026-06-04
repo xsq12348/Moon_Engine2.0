@@ -403,7 +403,8 @@ enum
 	MOON_KEY_OEM_3 = GLFW_KEY_GRAVE_ACCENT,             // 96 (`)
 };
 
-typedef struct MOON_PROJECTGOD
+typedef struct MOON_PROJECTGOD MOON_PROJECTGOD;
+struct MOON_PROJECTGOD
 {
 	const char* project_name;							//名字
 	MOON_HWND* hwnd;									//窗口句柄
@@ -411,6 +412,6 @@ typedef struct MOON_PROJECTGOD
 	int window_height;									//高度
 	MOON_ENTITYINDEX* entityindex;						//对象池注册表
 	int(*developerconsole)(struct MOON_PROJECTGOD*);	//开发者控制台,按下波浪号进入
-}MOON_PROJECTGOD;		//项目结构体中心
+};		//项目结构体中心
 
 #endif

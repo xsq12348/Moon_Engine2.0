@@ -132,9 +132,9 @@ _declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** i
 * 使用方法
 * IMAGE frames[10];
 * const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
-* MoonImageLoadBatch(project, frames, 10, names, 64, 64);
+* MoonImageLoadBatch(frames, 10, names, 64, 64);
 */
-_declspec(dllexport) extern void MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
+_declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
 
 //------------------------------------动画------------------------------------------------//
 

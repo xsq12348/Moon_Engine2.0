@@ -1,7 +1,7 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#pragma once
+﻿#pragma once
 #ifndef MOON_ENGINE
 #define MOON_ENGINE
+#define _CRT_SECURE_NO_WARNINGS
 #include"Moon_Configuration.h"
 
 #if MOONCOMPATIBLE
@@ -29,6 +29,7 @@ Email:1993346266@qq.com
 [简易文档]
 最后一次更新日期 : 2026.5.22
 最后一次更新日期 : 2026.5.26
+最后一次更新日期 : 2026.6.4
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -58,21 +59,8 @@ Email:1993346266@qq.com
 	这两个函数通过指针切换特定签名的函数来实现模块的切换
 	单一线程只能操纵单一线程类型的消息
 
-	例如
-	逻辑线程可以发送属性消息
-	绘制线程可以发送属性消息
-	但是绝不能逻辑线程绘制线程都发送属性消息
-
-	总结
-		禁止多个线程操作同一类消息,否则容易造成并发问题
-		一类消息一定只由一个线程发送
-		不属于本线程的消息类,可能造成问题
-		最佳实践是
-		绘制消息 ----------- 绘制线程
-		逻辑消息,属性消息 --- 逻辑线程
-	或者
-		绘制消息,属性消息 --- 绘制线程
-		逻辑消息 ----------- 逻辑线程
+	绘制线程只能够发送绘制消息
+	逻辑线程发送其余的所有消息
 	
 	逻辑线程禁止发送绘制消息,会导致频闪
 	请注意,这个频闪不是由于即时模式的那种没有双缓冲导致的
@@ -110,6 +98,7 @@ Email:1993346266@qq.com
 			MOON_DRAW_IMAGE_UV
 			MOON_DRAW_IMAGE_PIG
 		来进行渲染
+		使用此功能必须搭配引擎源码而非dll
 		那么请参考此条目
 
 [5]
@@ -189,6 +178,14 @@ Email:1993346266@qq.com
 				ProjectSetting_2
 				绘制线程内部
 			里面完成
+
+[10]
+			加载图片
+			您首先需要定义
+			MOON_IMAGE image;
+
+			其次使用 MoonImageCreate 给予它范围
+
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -583,7 +580,7 @@ Email:1993346266@qq.com
 *							那么自动跳入未响应状态
 * 2.1.0.19		2026.5.30	重构了按钮系统
 *								
-原来的
+							原来的
 								enum
 								{
 									MOON_BUTTONPRESS = 1,																																				//按下
@@ -632,8 +629,21 @@ Email:1993346266@qq.com
 *								改为
 *									MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context)
 * 2.1.1.0					添加了MoonFileLoad_TEXT函数,用于加载文本文件
+* 2.1.1.1		2026.5.31	修复了UV原点在左下角的问题
 * 2.1.1.2					UV函数优化了width和height的参数体验
 *							现在不再是在原图层上裁切相同大小的区域,而是匹配传入的width和height
+* 2.1.1.3					
+*				2026.6.4	修改了MoonImageCreate的参数
+*								由
+*									MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmpwidth, int bmpheight)
+*								改为
+*									MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight)
+* 
+*							修改了MoonImageLoadBatch的参数
+*								由
+*									MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
+*								改为
+*									MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
 */
 
 

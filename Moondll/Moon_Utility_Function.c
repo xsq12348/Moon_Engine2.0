@@ -1,8 +1,5 @@
 ﻿#include"MoonCore.h"
 
-//临时备忘录,发布时需要删除
-//需要提供一个直接读取文本文件的函数,用于加载shader
-
 MOON_PROJECTGOD* utility_project;
 
 _declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project)

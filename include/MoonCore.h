@@ -27,6 +27,11 @@ typedef struct MOON_ENGINECORE
 	MOON_TIMELOAD timeload;		//计时器
 }MOON_ENGINECORE;
 
+typedef struct
+{
+	float x, y, z, uv_x, uv_y;
+}MOON_TEXTURE_VECTER;		//用于纹理顶点
+
 /*
 * 函數 MoonWindow
 * 作用 創建窗口
@@ -112,10 +117,10 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
-extern void MoonCoreDrawArea(MOON_METADATA* metadata);														//画板
-extern void MoonCoreDrawAreaUV(MOON_METADATA* metadata);													//UV画板
-extern void MoonCoreDrawAreaPlgBit(MOON_METADATA* metadata);												//PigBlt画板
-extern void MoonCorePixs(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//绘制点
-extern void MoonCoreLines(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);		//绘制线
-extern void MoonCoreTriFulls(MOON_POINT3D* vectexs, unsigned int vertex_number, MOON_METADATA* metadata);	//绘制填充矩形
-extern void MoonCoreFont(MOON_METADATA* metadata);															//渲染默认字体
+extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//画板
+extern void MoonCoreDrawAreaUV(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//UV画板
+extern void MoonCoreDrawAreaPlgBit(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);		//PigBlt画板
+extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制点
+extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制线
+extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//绘制填充矩形
+extern void MoonCoreFont(MOON_METADATA* metadata);																			//渲染默认字体

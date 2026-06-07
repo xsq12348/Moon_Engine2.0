@@ -644,6 +644,8 @@ Email:1993346266@qq.com
 *									MoonImageLoadBatch(MOON_PROJECTGOD* project, MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
 *								改为
 *									MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
+* 2.1.1.4		2026.6.6	修正了定义参数与实际参数不一致的情况
+* 2.1.1.5		2026.6.7	实现了纹理的批量化渲染
 */
 
 

@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,1,5 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,1,6 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -410,6 +410,12 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 	glad_glDeleteProgram(shader_program_pixel);
 	glfwTerminate();
 
+	//释放消息队列
+	{
+		free(moon_engine_core.message_draw.message);
+		free(moon_engine_core.message_logic.message);
+	}
+
 	//釋放所有實體
 	for (int index = 0; index < ENTITYNUMBER; index++)
 	{
@@ -511,20 +517,27 @@ static MOON_PROJECTMODULE(MoonDrawingPause)
 
 extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata)
 {
+	static unsigned int
+		message_index_max_draw,
+		message_index_max_logic;
 	if (message > MOON_MESSAGE_DRAW_START && message <= MOON_MESSAGE_DRAW_END)
 		if (!moon_engine_core.thread_message_type_draw)
 		{
-			MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_draw.message, (moon_engine_core.message_draw.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
-			if (!buffer)
-				return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
-			else
+			if (moon_engine_core.message_draw.message_index >= message_index_max_draw)
 			{
-				moon_engine_core.message_draw.message = buffer;
-				moon_engine_core.message_draw.message[moon_engine_core.message_draw.message_index].message = message;
-				moon_engine_core.message_draw.message[moon_engine_core.message_draw.message_index].metadata = metadata;
-				moon_engine_core.message_draw.message_index += 1;
-				return MOON_MESSAGE_THREAD_TYPE_TRUE;
+				MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_draw.message, (moon_engine_core.message_draw.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
+				if (!buffer)
+					return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
+				else
+				{
+					message_index_max_draw += 1;
+					moon_engine_core.message_draw.message = buffer;
+				}
 			}
+			moon_engine_core.message_draw.message[moon_engine_core.message_draw.message_index].message = message;
+			moon_engine_core.message_draw.message[moon_engine_core.message_draw.message_index].metadata = metadata;
+			moon_engine_core.message_draw.message_index += 1;
+			return MOON_MESSAGE_THREAD_TYPE_TRUE;
 		}
 		else
 			return MOON_MESSAGE_THREAD_TYPE_BUSY;
@@ -532,20 +545,25 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 	if (message > MOON_MESSAGE_LOGIC_START && message <= MOON_MESSAGE_LOGIC_END)
 		if (!moon_engine_core.thread_message_type_logic)
 		{
-			MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_logic.message, (moon_engine_core.message_logic.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
-			if (!buffer)
-				return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
-			else
+			if (moon_engine_core.message_logic.message_index >= message_index_max_logic)
 			{
-				moon_engine_core.message_logic.message = buffer;
-				moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].message = message;
-				moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].metadata = metadata;
-				moon_engine_core.message_logic.message_index += 1;
-				return MOON_MESSAGE_THREAD_TYPE_TRUE;
+				MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_logic.message, (moon_engine_core.message_logic.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
+				if (!buffer)
+					return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
+				else
+				{
+					message_index_max_logic += 1;
+					moon_engine_core.message_logic.message = buffer;
+				}
 			}
+			moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].message = message;
+			moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].metadata = metadata;
+			moon_engine_core.message_logic.message_index += 1;
+			return MOON_MESSAGE_THREAD_TYPE_TRUE;
 		}
 		else
 			return MOON_MESSAGE_THREAD_TYPE_BUSY;
+
 	return MOON_MESSAGE_THREAD_TYPE_FALSE;
 }
 
@@ -556,10 +574,10 @@ extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* mes
 	*type = MOON_TRUE;
 	if (Handle)
 	{
-		Handle(project, message, type);
-		free(message->message);
 		//Handle内部应该处理完所有消息,因为该函数结束后,线程循环也差不多结束
-		message->message = MOON_NULL;
+		Handle(project, message, type);
+		if (message->message)
+			memset(message->message, 0, sizeof(MOON_MESSAGE_SPECIFIC) * message->message_index);
 		message->message_index = 0;
 	}
 	*type = MOON_FALSE;

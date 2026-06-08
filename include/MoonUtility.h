@@ -9,7 +9,7 @@
 * char arr[12] = "Hello_World";
 * int alpha = Moonhash(arr)
 */
-extern unsigned int MoonHash(char* text);
+_declspec(dllexport) extern unsigned int MoonHash(char* text);
 
 /*
 * 函數 DegRad
@@ -25,7 +25,7 @@ extern unsigned int MoonHash(char* text);
 * 使用方法
 * _Bool alpha = MoonKeyState(MOON_KEY_SPACE);
 */
-extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
+_declspec(dllexport) extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
 
 /*
 * 函數 MoonKeyReal
@@ -34,7 +34,7 @@ extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
 * 使用方法
 * _Bool alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
 */
-extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
+_declspec(dllexport) extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
 
 /*
 * 函數 Lerp
@@ -74,7 +74,7 @@ extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
 * 使用方法
 * MoonSetMouseCoord(x, y);
 */
-extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
+_declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 
 /*
 * 函數 Random
@@ -90,7 +90,7 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 * 使用方法
 * MoonMusic("music.mp3");
 */
-extern void MoonMusic(const char* File);//播放音乐
+_declspec(dllexport) extern void MoonMusic(const char* File);//播放音乐
 
 /*
 * 函數 MoonTriangleDetection
@@ -105,7 +105,7 @@ extern void MoonMusic(const char* File);//播放音乐
 * };
 * _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
 */
-extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
+_declspec(dllexport) extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
 
 /*
 * 函數 MoonString
@@ -133,7 +133,7 @@ extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c,
 * TIMELOAD load;
 * MoonTimeLoadInit(&load, 100);
 */
-extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load);		//初始化定时器
+_declspec(dllexport) extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load);		//初始化定时器
 
 /*
 * 函數 MoonTimeLoad
@@ -141,7 +141,7 @@ extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load);		//初始化定
 * 使用方法
 * MoonTimeLoad(&load, 1);
 */
-extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode);//运行定时器
+_declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode);//运行定时器
 
 /*
 * 函數 MoonSleep
@@ -149,7 +149,7 @@ extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode);//运行定时器
 * 使用方法
 * MoonSleep(1);
 */
-extern int MoonSleep(int timeload);					//暂停
+_declspec(dllexport) extern int MoonSleep(int timeload);					//暂停
 
 //------------------------------------实体函数--------------------------------------------------//
 
@@ -160,7 +160,7 @@ extern int MoonSleep(int timeload);					//暂停
 * 使用方法
 * int* entity = (int*)MoonFindEntity(projectgod, (char*)nameid)
 */
-extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid);	//寻找实体
+_declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid);	//寻找实体
 
 /*
 * 函數 HashFindEntity
@@ -177,7 +177,7 @@ extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid);	//寻找实
 * static TIMELOAD logictps;
 * MoonCreateEntityIndex(project, &logictps, "LogicTps", sizeof(TIMELOAD));
 */
-extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
+_declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
 
 //------------------------------------双缓冲函数------------------------------------------------//
 
@@ -189,7 +189,7 @@ extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char
 * IMAGE buffer;
 * MoonCreateImage(&buffer, project->window_width, project->window_height);
 */
-extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
+_declspec(dllexport) extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
 
 /*
 * 函數 MoonDeletImage
@@ -197,7 +197,7 @@ extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//�
 * 使用方法
 * MoonDeletImage(bitmap);
 */
-extern void MoonImageDelete(MOON_IMAGE* image);//删除双缓冲绘图绘图区
+_declspec(dllexport) extern void MoonImageDelete(MOON_IMAGE* image);//删除双缓冲绘图绘图区
 
 //------------------------------------多线程函数------------------------------------------------//
 
@@ -241,7 +241,7 @@ extern void MoonImageDelete(MOON_IMAGE* image);//删除双缓冲绘图绘图区
 * char* text2 = "Hello";
 * MoonCharToWchar(text1, text2, 5);
 */
-extern int MoonCharToWchar(wchar_t* text1, char* text2, int len);//字符转换
+_declspec(dllexport) extern int MoonCharToWchar(wchar_t* text1, char* text2, int len);//字符转换
 
 /*
 * 函數
@@ -251,7 +251,7 @@ extern int MoonCharToWchar(wchar_t* text1, char* text2, int len);//字符转换
 * wchar_t* text2 = L"Hello";
 * MoonCharToWchar(text1, text2, 5);
 */
-extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
+_declspec(dllexport) extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
 
 //------------------------------------按钮控件------------------------------------------------//
 
@@ -262,7 +262,7 @@ extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
 * MOONBUTTON btn;
 * MoonButtonInit(&btn, 10, 10, 100, 50);
 */
-extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height);		//初始化按钮
+_declspec(dllexport) extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height);		//初始化按钮
 
 /*
 * 函數 MoonButtonDetection
@@ -270,7 +270,7 @@ extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int heig
 * 使用方法
 * if(MoonButtonDetection(button, x, y, context) { ... }
 */
-extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context);
+_declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context);
 
 /*
 * 函數 MoonButtonSetTriggerMode
@@ -278,7 +278,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 * 使用方法
 * MoonButtonSetTriggerMode(project, "MyButton", MOON_BUTTONPRESS);
 */
-extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsigned char key);//更改触发方式
+_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsigned char key);//更改触发方式
 
 /*
 * 函數 MOONBUTTONCREATE
@@ -300,4 +300,4 @@ MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_
 * 使用方法
 *	MoonFileLoad_TEXT("a.txt", text, strlen(text));
 */
-extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);
+_declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);

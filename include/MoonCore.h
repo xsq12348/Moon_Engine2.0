@@ -38,7 +38,7 @@ typedef struct
 * 使用方法
 * MOON_HWND* hwnd = MoonWindow(L"MyGame", 100, 100, 800, 600);
 */
-extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height);					//创建窗口
+_declspec(dllexport) extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height);					//创建窗口
 
 /*
 * 函數 MoonPrompt
@@ -46,7 +46,7 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 * 使用方法
 * MoonPrompt(text);
 */
-extern void MoonPrompt(char* text);
+_declspec(dllexport) extern void MoonPrompt(char* text);
 
 /*
 * 函數 MoonProjectError
@@ -54,7 +54,7 @@ extern void MoonPrompt(char* text);
 * 使用方法
 * MoonProjectError(NULL, 1, "Something went wrong!");
 */
-extern int MoonProjectError(void* alpha, int degree, char* text);	//错误处理
+_declspec(dllexport) extern int MoonProjectError(void* alpha, int degree, char* text);	//错误处理
 
 /*
 * 注意!這個函數對你的代碼沒有任何作用!僅僅是引擎内部初始化使用的,你可以使用MoonProjectFunctionSwitch來獲得更好的效果
@@ -63,7 +63,7 @@ extern int MoonProjectError(void* alpha, int degree, char* text);	//错误处理
 * 使用方法
 * MoonProjectPause(1, &project->Logic, NULL, NULL);
 */
-extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*));		//暂停函数
+_declspec(dllexport) extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*));		//暂停函数
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -72,7 +72,7 @@ extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int 
 * 使用方法
 * MoonUtilityLoad(project);
 */
-extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
+_declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -81,7 +81,7 @@ extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
 * 使用方法
 * MoonDrawLoad(project);
 */
-extern void MoonDrawLoad(MOON_PROJECTGOD* project);
+_declspec(dllexport) extern void MoonDrawLoad(MOON_PROJECTGOD* project);
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -90,7 +90,7 @@ extern void MoonDrawLoad(MOON_PROJECTGOD* project);
 * 使用方法
 * MoonDrawOver();
 */
-extern void MoonDrawOver();
+_declspec(dllexport) extern void MoonDrawOver();
 
 /*
 * 函數 MoonProjectFunctionSwitch
@@ -102,7 +102,7 @@ extern void MoonDrawOver();
 * 使用方法
 * MoonProjectFunctionSwitch(project, MOON_MODULE_DRAW, NewDrawingFunction);
 */
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*));//函数切换
+_declspec(dllexport) extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*));//函数切换
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -111,16 +111,16 @@ extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJEC
 * 使用方法
 * MoonProjectGetMessage(message, handle);
 */
-extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*));	//获取消息
-extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
-extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
+_declspec(dllexport) extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*));	//获取消息
+_declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
+_declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
 
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
-extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//画板
-extern void MoonCoreDrawAreaUV(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//UV画板
-extern void MoonCoreDrawAreaPlgBit(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);		//PigBlt画板
-extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制点
-extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制线
-extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//绘制填充矩形
-extern void MoonCoreFont(MOON_METADATA* metadata);																			//渲染默认字体
+_declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//画板
+_declspec(dllexport) extern void MoonCoreDrawAreaUV(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//UV画板
+_declspec(dllexport) extern void MoonCoreDrawAreaPlgBit(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);		//PigBlt画板
+_declspec(dllexport) extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制点
+_declspec(dllexport) extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制线
+_declspec(dllexport) extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//绘制填充矩形
+_declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata);																			//渲染默认字体

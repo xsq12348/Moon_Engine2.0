@@ -157,6 +157,7 @@ typedef struct
 				struct
 				{
 					int x1, y1, x2, y2, x3, y3;
+					unsigned int color_1, color_2, color_3;
 				}graphic;												//绘图
 				struct
 				{

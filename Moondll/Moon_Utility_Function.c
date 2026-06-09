@@ -59,7 +59,7 @@ _declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 	if (!mode)return MOON_FALSE;
 	else if (Timeload == MOON_NULL)
 	{
-		MoonPrompt("[TimeLoad函数错误!]存在空指针");
+		MoonPrompt((char*)"[TimeLoad函数错误!]存在空指针");
 		return MOON_Error;
 	}
 	if (!Timeload->timeswitch)

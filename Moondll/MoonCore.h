@@ -118,8 +118,6 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
 _declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//画板
-_declspec(dllexport) extern void MoonCoreDrawAreaUV(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//UV画板
-_declspec(dllexport) extern void MoonCoreDrawAreaPlgBit(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);		//PigBlt画板
 _declspec(dllexport) extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制点
 _declspec(dllexport) extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制线
 _declspec(dllexport) extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//绘制填充矩形

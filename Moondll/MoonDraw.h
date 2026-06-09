@@ -95,9 +95,9 @@ _declspec(dllexport) extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int 
 * 函數 MoonDeawTextFont
 * 作用 在圖像上顯示文字
 * 使用方法
-* MoonDeawTextFont(&image, 10, 10, L"Hello", RGB(255,255,255), TRUE, L"宋體", 24, 24, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE);
+* MoonDeawTextFont(&image, 10, 10, L"Hello", RGB(255,255,255), TRUE, L"宋體", 24, 24, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, color);
 */
-_declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight);	//显示字符
+_declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight, unsigned int color);//显示字符
 
 /*
 * 函數 MoonImageShader

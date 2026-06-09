@@ -23,6 +23,7 @@ Email:1993346266@qq.com
 版本,如果没有日期,那就是前一个日期一起写的/If there is no date, it is written together with the previous date.
 (0)是修改BUG/重构函数/更新些许小功能,(1)是添加函数,(2)是重构,(3)是正式的大版本号
 一般来说只有写着日期的日志才是我正式工作的日期,如果要判断工时,请以此为据
+请注意,本引擎/框架本质上是作为内核/类内核使用的,实际只提供最小功能,比如基础图元,工具函数,大部分情况仍需您自主实现
 
 	大版本(3).主要版本(2).小版本(1).小更新(0)
 
@@ -30,6 +31,7 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.5.22
 最后一次更新日期 : 2026.5.26
 最后一次更新日期 : 2026.6.4
+最后一次更新日期 : 2026.6.9
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -91,7 +93,8 @@ Email:1993346266@qq.com
 	
 [4]
 		引擎固定的用于输出的纹理渲染器unifrom变量是
-			moon_utexture
+			moon_utexture	对应		纹理
+			moon_ucolor		对应		metadata.draw.color
 
 		如果您需要自行编写着色器并使用消息
 			MOON_DRAW_IMAGE
@@ -185,6 +188,240 @@ Email:1993346266@qq.com
 			MOON_IMAGE image;
 
 			其次使用 MoonImageCreate 给予它范围
+
+[11] 消息式绘图{ 警告!!本条目为AI自动填充,如有错误,作者不对此负有主要责任 }
+
+	MoonEngine 2.0 开始采用消息式绘图架构，所有绘图操作不再直接执行，而是通过发送消息由引擎在绘制线程中统一处理。
+
+	[11.1] 基本概念
+
+		消息式绘图的核心是“延迟 + 批量”：
+		- 延迟：绘图请求先存入队列，不立即执行
+		- 批量：引擎自动合并相同状态的绘制，减少 GPU 状态切换
+
+		开发者只需要调用 MoonProjectSendMessage 发送消息，引擎在每帧绘制阶段自动处理。
+
+	[11.2] 发送消息
+
+		使用 MoonProjectSendMessage 函数发送消息：
+
+		MOON_METADATA metadata = { 0 };
+		metadata.draw.xxx = ...;
+		MoonProjectSendMessage(MOON_MESSAGE_XXX, metadata);
+
+		返回值类型为 MOON_MESSAGE_THREAD_TYPE：
+			MOON_MESSAGE_THREAD_TYPE_TRUE				发送成功
+			MOON_MESSAGE_THREAD_TYPE_BUSY				线程忙，稍后重试
+			MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE	内存分配失败
+			MOON_MESSAGE_THREAD_TYPE_FALSE				无效消息
+
+	[11.3] 可用的绘图消息
+
+		MOON_MESSAGE_DRAW_IMAGE			绘制纹理图层
+		MOON_MESSAGE_DRAW_IMAGE_UV		绘制 UV 裁切后的纹理图层
+		MOON_MESSAGE_DRAW_IMAGE_PIG		四点透视变换纹理贴图
+		MOON_MESSAGE_DRAW_IMAGE_CLEAN	清屏
+		MOON_MESSAGE_DRAW_PIX			绘制点
+		MOON_MESSAGE_DRAW_LINE			绘制线
+		MOON_MESSAGE_DRAW_TRI_FULL		绘制填充三角形
+		MOON_MESSAGE_DRAW_TEXT			绘制默认字体文字
+		MOON_MESSAGE_DRAW_OPEN			注入自定义绘制模块（一次性）
+		MOON_MESSAGE_DRAW_END			提前终止本帧绘制（谨慎使用）
+
+	[11.4] 使用示例
+
+		[11.4.1] 绘制纹理
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xffffffff;
+			metadata.draw.shader = texture_shader;			// 纹理着色器
+			metadata.draw.image_goal = engineback;			// 目标纹理
+			metadata.draw.image.image_resources = sprite;	// 源纹理
+			metadata.draw.image.x = 100;
+			metadata.draw.image.y = 200;
+			metadata.draw.image.width = 64;
+			metadata.draw.image.height = 64;
+			metadata.draw.image.uv_w = 1.f;				// UV 宽度
+			metadata.draw.image.uv_h = 1.f;				// UV 高度
+			metadata.draw.image.deg = 0;				// 旋转角度
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
+
+		[11.4.2] 绘制旋转纹理
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xffffffff;
+			metadata.draw.shader = texture_shader;
+			metadata.draw.image_goal = engineback;
+			metadata.draw.image.image_resources = sprite;
+			metadata.draw.image.x = 100;
+			metadata.draw.image.y = 200;
+			metadata.draw.image.apx = 0.5f;				// 锚点 X（0~1）
+			metadata.draw.image.apy = 0.5f;				// 锚点 Y（0~1）
+			metadata.draw.image.width = 64;
+			metadata.draw.image.height = 64;
+			metadata.draw.image.uv_w = 1.f;
+			metadata.draw.image.uv_h = 1.f;
+			metadata.draw.image.deg = 45;				// 45 度旋转
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE, metadata);
+
+		[11.4.3] 绘制 UV 裁切纹理
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xffffffff;
+			metadata.draw.shader = texture_shader;
+			metadata.draw.image_goal = engineback;
+			metadata.draw.image.image_resources = sprite;
+			metadata.draw.image.x = 100;
+			metadata.draw.image.y = 200;
+			metadata.draw.image.width = 64;
+			metadata.draw.image.height = 64;
+			metadata.draw.image.apx = 0.5f;				// UV 起始 X
+			metadata.draw.image.apy = 0.0f;				// UV 起始 Y
+			metadata.draw.image.uv_w = 0.25f;			// UV 宽度
+			metadata.draw.image.uv_h = 0.25f;			// UV 高度
+			metadata.draw.image.deg = 0;
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE_UV, metadata);
+
+		[11.4.4] 绘制透视变换纹理
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xffffffff;
+			MOON_POINT2D points[4] = {
+				{100, 200},	// 左上
+				{300, 180},	// 右上
+				{80,  280},	// 左下
+				{320, 300}	// 右下
+			};
+			metadata.draw.shader = texture_shader;
+			metadata.draw.image_goal = engineback;
+			metadata.draw.image_pig.image_resources = sprite;
+			metadata.draw.image_pig.point[0] = points[0];
+			metadata.draw.image_pig.point[1] = points[1];
+			metadata.draw.image_pig.point[2] = points[2];
+			metadata.draw.image_pig.point[3] = points[3];
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE_PIG, metadata);
+
+		[11.4.5] 绘制点
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xFFFFFFFF;			// 颜色调制器，白色表示不调制
+			metadata.draw.shader = solid_color_shader;		// 纯色着色器
+			metadata.draw.image_goal = engineback;
+			metadata.draw.graphic.x1 = 100;
+			metadata.draw.graphic.y1 = 200;
+			metadata.draw.graphic.color_1 = 0xFFFF0000;		// 红色
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_PIX, metadata);
+
+		[11.4.6] 绘制线
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xFFFFFFFF;
+			metadata.draw.shader = solid_color_shader;
+			metadata.draw.image_goal = engineback;
+			metadata.draw.graphic.x1 = 100;
+			metadata.draw.graphic.y1 = 200;
+			metadata.draw.graphic.x2 = 300;
+			metadata.draw.graphic.y2 = 400;
+			metadata.draw.graphic.color_1 = 0xFFFFFFFF;		// 白色
+			metadata.draw.graphic.color_2 = 0xFFFFFFFF;
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_LINE, metadata);
+
+		[11.4.7] 绘制填充三角形
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xFFFFFFFF;
+			metadata.draw.shader = solid_color_shader;
+			metadata.draw.image_goal = engineback;
+			metadata.draw.graphic.x1 = 100;
+			metadata.draw.graphic.y1 = 200;
+			metadata.draw.graphic.x2 = 300;
+			metadata.draw.graphic.y2 = 200;
+			metadata.draw.graphic.x3 = 200;
+			metadata.draw.graphic.y3 = 400;
+			metadata.draw.graphic.color_1 = 0xFFFF0000;		// 顶点1 红色
+			metadata.draw.graphic.color_2 = 0xFF00FF00;		// 顶点2 绿色
+			metadata.draw.graphic.color_3 = 0xFF0000FF;		// 顶点3 蓝色
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_TRI_FULL, metadata);
+
+		[11.4.8] 清屏
+
+			MOON_METADATA metadata = { 0 };
+			metadata.draw.color = 0xFF000000;			// 黑色
+			metadata.draw.image_goal = engineback;
+			MoonProjectSendMessage(MOON_MESSAGE_DRAW_IMAGE_CLEAN, metadata);
+
+	[11.5] 颜色说明
+
+		颜色格式为 0xAARRGGBB：
+			AA = Alpha（透明度，00=全透明，FF=不透明）
+			RR = Red（红色）
+			GG = Green（绿色）
+			BB = Blue（蓝色）
+
+		使用 MoonRGBA 宏可以方便地构造颜色值：
+			unsigned int red = MoonRGBA(255, 0, 0, 255);
+
+		注意：
+			draw.color 是颜色调制器，最终颜色 = 顶点颜色 × draw.color
+			如果不想要调制效果，请将 draw.color 设为 0xFFFFFFFF（白色）
+			如果 draw.color 为 0x00000000，将导致完全透明/黑色，什么都不显示
+
+	[11.6] 批量渲染优化
+
+		引擎会自动合并连续的相同类型的绘制消息：
+		- 相同目标纹理（image_goal）
+		- 相同源纹理（image_resources）
+		- 相同消息类型
+
+		合并后的绘制会一次性提交给 GPU，减少 DrawCall 数量。
+		开发者无需手动处理，引擎自动完成。
+
+	[11.7] 封装函数
+
+		为了方便使用，引擎提供了一系列封装函数，内部自动填充 metadata 并发送消息：
+
+			MoonDrawArea			-> MOON_MESSAGE_DRAW_IMAGE
+			MoonDrawAreaRound		-> MOON_MESSAGE_DRAW_IMAGE
+			MoonDrawAreaUV			-> MOON_MESSAGE_DRAW_IMAGE_UV
+			MoonDrawAreaPlgBit		-> MOON_MESSAGE_DRAW_IMAGE_PIG
+			MoonDrawPix				-> MOON_MESSAGE_DRAW_PIX
+			MoonDrawLine			-> MOON_MESSAGE_DRAW_LINE
+			MoonDrawBox				-> MOON_MESSAGE_DRAW_LINE（4次）
+			MoonDrawBoxFull			-> MOON_MESSAGE_DRAW_TRI_FULL（2次）
+			MoonDrawTriFull			-> MOON_MESSAGE_DRAW_TRI_FULL
+			MoonDrawTextFont		-> MOON_MESSAGE_DRAW_TEXT
+
+		推荐优先使用封装函数，代码更简洁，且已正确处理 draw.color 的默认值。
+
+	[11.8] 注意事项
+
+		[11.8.1] metadata 必须完全初始化
+			建议使用 MOON_METADATA metadata = { 0 }; 后再填充需要的字段
+			未初始化的字段可能导致状态残留，出现顶点紊乱、黑屏等问题
+
+		[11.8.2] draw.color 不可为 0
+			即使不需要调制，也请设置为 0xFFFFFFFF
+			封装函数已自动处理，直接发送消息时需注意
+
+		[11.8.3] 逻辑线程与绘制线程
+			虽然可以从逻辑线程发送绘制消息，但引擎文档提示可能造成频闪
+			建议在绘制线程内部发送绘制消息，或使用封装函数让引擎自动处理
+
+		[11.8.4] 文字长度限制
+			单条 MOON_MESSAGE_DRAW_TEXT 消息最多支持 MOON_MESSAGE_TEXT_MAX 个字符
+			超出部分请自行分割为多条消息
+
+		[11.8.5] 顶点数量限制
+			单帧顶点总数不能超过 MOON_VERTICES_MAX（65536）
+			超出会触发顶点溢出警告
+
+	[11.9] 与旧版本的区别
+
+		MoonEngine 2.0 之前采用即时模式绘图，函数直接执行绘制操作。
+		2.0 之后改为消息式绘图，所有绘制操作都需要通过消息发送。
+
+		如果您需要兼容旧代码，可以在配置中开启 MOONCOMPATIBLE 宏，
+		引擎会提供兼容层支持旧版 API ,但不保证参数相同。
 
 
 * 0.0.0.0
@@ -529,6 +766,7 @@ Email:1993346266@qq.com
 * -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 * 从2.0开始,添加一条新规则,
 * 如果是稳定版,则为2.x.x.x+
+* 如果是破坏性版本,即参数数量(不包含类型)对不上,则为2.x.x.x-
 * 反之则为普通版本,不一定稳定
 * Moon Engine 2.0 正式版
 * 
@@ -578,7 +816,7 @@ Email:1993346266@qq.com
 * 2.1.0.18		2026.5.29	添加了未响应机制
 *							如果每帧时间超过2000ms
 *							那么自动跳入未响应状态
-* 2.1.0.19		2026.5.30	重构了按钮系统
+* 2.1.0.19-		2026.5.30	重构了按钮系统
 *								
 							原来的
 								enum
@@ -630,9 +868,9 @@ Email:1993346266@qq.com
 *									MoonButtonDetection(MOON_BUTTON* button, int x, int y, char* context)
 * 2.1.1.0					添加了MoonFileLoad_TEXT函数,用于加载文本文件
 * 2.1.1.1		2026.5.31	修复了UV原点在左下角的问题
-* 2.1.1.2					UV函数优化了width和height的参数体验
+* 2.1.1.2-					UV函数优化了width和height的参数体验
 *							现在不再是在原图层上裁切相同大小的区域,而是匹配传入的width和height
-* 2.1.1.3					
+* 2.1.1.3-					
 *				2026.6.4	修改了MoonImageCreate的参数
 *								由
 *									MoonImageCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, int bmpwidth, int bmpheight)
@@ -647,6 +885,25 @@ Email:1993346266@qq.com
 * 2.1.1.4		2026.6.6	修正了定义参数与实际参数不一致的情况
 * 2.1.1.5		2026.6.7	实现了纹理的批量化渲染
 * 2.1.1.6		2026.6.8	优化了渲染队列,现在不再是每帧realloc/free,而是在原先扩容的基础上分配
+* 2.1.1.7		2026.6.9	优化了渲染机制,现在每个顶点都会分配一个单独的颜色,而metadata.draw.color则用于颜色通道
+* 2.1.1.8					修复大量不规范的语法问题
+* 2.1.1.9					对纹理也应用了metadata.draw.color
+* 2.1.1.10					优化了
+*									MoonCoreDrawArea
+*									MoonCoreDrawAreaUV
+*									MoonCoreDrawAreaPlgBit
+*							统一优化成了
+*									MoonCoreDrawArea
+*							当然这对您的应用层代码没有影响
+* 2.1.1.11-					修改了MoonDrawTextFont的参数
+*								由
+*									MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight)
+*								改为
+*									MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)
+* 2.1.1.12					修复了纹理批处理时依旧无法合并的BUG
+*								原因是
+*									忘记更新image_resource_old
+*							现在是真正的纹理批量绘制
 */
 
 
@@ -661,7 +918,7 @@ Email:1993346266@qq.com
 * PROJECTGOD game;
 * MoonProjectInit(&game, L"MyGame", 100, 100, 800, 600, 60, GameSetting);
 */
-extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)(MOON_PROJECTGOD*));//创建项目
+_declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)(MOON_PROJECTGOD*));//创建项目
 
 /*
 * 函數 MoonProjectRun
@@ -669,7 +926,7 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 * 使用方法
 * MoonProjectRun(&game, GameInit, GameLogic, GameDrawing);
 */
-extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*));//运行项目
+_declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*));//运行项目
 
 /*
 * 函數 MoonProjectOver
@@ -677,7 +934,7 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 * 使用方法
 * MoonProjectOver(&game, GameCleanup);
 */
-extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*));//结束项目
+_declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*));//结束项目
 
 /*
 * 函數
@@ -701,7 +958,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 * 使用方法
 * int count = MoonProjectFindEntityAllNumber(project);
 */
-extern int  MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);	//统计实体总数
+_declspec(dllexport) extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实体总数
 
 
 /*
@@ -717,6 +974,6 @@ extern int  MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);	//统计�
 * 使用方法
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 */
-extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata);
+_declspec(dllexport) extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata);
 
 #endif

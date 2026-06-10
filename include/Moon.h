@@ -32,6 +32,7 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.5.26
 最后一次更新日期 : 2026.6.4
 最后一次更新日期 : 2026.6.9
+最后一次更新日期 : 2026.6.10
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -87,7 +88,14 @@ Email:1993346266@qq.com
 
 	[3.3]
 		请注意,绘制模块是必选项
-		逻辑模块是可选项
+		逻辑模块虽然是可选项
+			但是您会丧失
+			模块切换
+			动态设置帧率
+			注入消息
+			设定项目结束
+			等等一系列基本功能
+		几乎等于残废
 		如果您在初始化阶段传入逻辑模块
 		引擎内部会开启逻辑线程
 	
@@ -422,6 +430,18 @@ Email:1993346266@qq.com
 
 		如果您需要兼容旧代码，可以在配置中开启 MOONCOMPATIBLE 宏，
 		引擎会提供兼容层支持旧版 API ,但不保证参数相同。
+
+[12]
+	[12.1]
+		注册按钮十分简单
+		static MOON_BUTTON button;
+		MOON_BUTTON_CREATE(project, "button", button, 500, 100, 150, 150, MOON_NULL, MOON_NULL, MOON_NULL);
+		即可
+	[12.2]
+		按钮应当在绘制线程使用
+		因为按钮一般搭配绘制图像使用
+		在逻辑线程检测按钮易造成按钮本身不灵敏
+		原因是线程间异步
 
 
 * 0.0.0.0
@@ -904,6 +924,23 @@ Email:1993346266@qq.com
 *								原因是
 *									忘记更新image_resource_old
 *							现在是真正的纹理批量绘制
+* 2.1.1.13		2026.6.10	将
+*								MOON_MESSAGE_ALL
+*								MOON_MESSAGE_SPECIFIC
+*							转入了
+*								MoonCore
+* 2.1.1.14					将
+*								MoonCorePixs
+*								MoonCoreLines
+*								MoonCoreTriFulls
+*							合并为
+*								MoonCoreGraphic
+* 2.1.1.15-					MOONBUTTONCREATE 重命名为 MOON_BUTTON_CREATE
+* 2.1.1.16-					修改了MoonButtonSetTriggerMode的参数
+*								由
+*									MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsigned char key)
+*								改为
+*									MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
 */
 
 

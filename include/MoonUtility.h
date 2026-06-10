@@ -278,7 +278,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 * 使用方法
 * MoonButtonSetTriggerMode(project, "MyButton", MOON_BUTTONPRESS);
 */
-extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsigned char key);//更改触发方式
+extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key);//更改触发方式
 
 /*
 * 函數 MOONBUTTONCREATE
@@ -287,13 +287,15 @@ extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsign
 * static MOONBUTTON button
 * MOONBUTTONCREATE(project, name, x, y, w, h, 0, 0, 0);
 */
-#define MOONBUTTONCREATE(project, name, button, x, y, width, height, Press, PressL, Hover)  \
-MoonButtonInit(&button,(x), (y), (width), (height));                                        \
-button.ButtonModeHover = (Hover);                                                           \
-button.ButtonModePress = (Press);                                                           \
-button.ButtonModePressL = (PressL);                                                         \
-MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");
-
+#define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover)  \
+{	\
+	MoonButtonInit(&button,(x), (y), (width), (height));                                        \
+	MoonButtonSetTriggerMode(project,&button,MOON_KEY_MOUSE_LEFT);								\
+	button.ButtonModeHover = (Hover);                                                           \
+	button.ButtonModePress = (Press);                                                           \
+	button.ButtonModePressL = (PressL);                                                         \
+	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
+}
 /*
 * 函數 MoonFileLoad_TEXT
 * 作用 加载文本文件

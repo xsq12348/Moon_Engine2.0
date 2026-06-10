@@ -20,6 +20,7 @@ static void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_offset, 
 static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);
 static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);
 static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);
+static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);
 
 extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 {
@@ -472,8 +473,8 @@ extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenu
 
 extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
 {
-	for (int i = 0; i < totalnumber; i++)
-		MoonImageCreate(&image[i], width, height);
+	for (int index = 0; index < totalnumber; index++)
+		MoonImageCreate(&image[index], width, height);
 	MoonImageLoad(image, name, totalnumber);
 }
 
@@ -484,10 +485,10 @@ extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int time
 	anime->sequenceframes = sequenceframes;
 	anime->totalnumber = totalnumber;
 	anime->number = 0;
-	for (int i = 0; i < anime->totalnumber; i++)
+	for (int index = 0; index < anime->totalnumber; index++)
 	{
-		anime->sequenceframes[i].image_size.x = width;
-		anime->sequenceframes[i].image_size.y = height;
+		anime->sequenceframes[index].image_size.x = width;
+		anime->sequenceframes[index].image_size.y = height;
 	}
 	MoonTimeLoadInit(&(anime->timeload), timeload);		//设置定时器
 	return MOON_YES;
@@ -496,8 +497,8 @@ extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int time
 extern void MoonAnimeDelete(MOON_ANIME* anime)
 {
 	if (anime == MOON_NULL) return;
-	for (int i = 0; i < anime->totalnumber; i++)
-		MoonImageDelete(&anime->sequenceframes[i]);
+	for (int index = 0; index < anime->totalnumber; index++)
+		MoonImageDelete(&anime->sequenceframes[index]);
 	anime->sequenceframes = (MOON_IMAGE*)MOON_NULL;
 	anime->totalnumber = 0;
 	anime->number = 0;
@@ -553,61 +554,40 @@ extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_n
 	}
 }
 
-extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata)
+extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type)
 {
 	if (!metadata->draw.image_goal)
 	{
 		MoonPrompt((char*)"无效的纹理对象");
-		return;
+		return MOON_Error;
 	}
+
+	MoonImageShader(metadata->draw.shader);
 	
-	MoonImageShader(metadata->draw.shader);
+	GLenum graphic_mode = 0;
+
+	switch (message_type)
+	{
+	case MOON_MESSAGE_DRAW_LINE:
+		graphic_mode = GL_LINES;
+		break;
+	case MOON_MESSAGE_DRAW_PIX:
+		graphic_mode = GL_POINTS;
+		break;
+	case MOON_MESSAGE_DRAW_TRI_FULL:
+		graphic_mode = GL_TRIANGLES;
+		break;
+	default:
+		MoonPrompt((char*)"无效的绘制命令");
+		return MOON_Error;
+			break;
+	}
 
 	{
 		glad_glBindVertexArray(moon_vao_solid);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
 		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_POINT3D) * vertex_number, vertexs);
-		glad_glDrawArrays(GL_LINES, 0, vertex_number);
-		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glad_glBindVertexArray(0);
-	}
-}
-
-extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata)
-{
-	if (!metadata->draw.image_goal)
-	{
-		MoonPrompt((char*)"无效的纹理对象");
-		return;
-	}
-
-	MoonImageShader(metadata->draw.shader);
-
-	{
-		glad_glBindVertexArray(moon_vao_solid);
-		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
-		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_POINT3D) * vertex_number, vertexs);
-		glad_glDrawArrays(GL_POINTS, 0, vertex_number);
-		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glad_glBindVertexArray(0);
-	}
-}
-
-extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata)
-{
-	if (!metadata->draw.image_goal)
-	{
-		MoonPrompt((char*)"无效的纹理对象");
-		return;
-	}
-	
-	MoonImageShader(metadata->draw.shader);
-
-	{
-		glad_glBindVertexArray(moon_vao_solid);
-		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
-		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_POINT3D) * vertex_number, vertexs);
-		glad_glDrawArrays(GL_TRIANGLES, 0, vertex_number);
+		glad_glDrawArrays(graphic_mode, 0, vertex_number);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glad_glBindVertexArray(0);
 	}
@@ -888,14 +868,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				moon_vertex_index += 1;
 
-				if (
-					(index == message->message_index - 1)
-					|| message->message[index + 1].message != MOON_MESSAGE_DRAW_PIX
-					|| message->message[index + 1].metadata.draw.image_goal != image_old)
-				{
-					MoonCorePixs(moon_vertex, moon_vertex_index, &message->message[index].metadata);
-					moon_vertex_index = 0;
-				}
+				MoonCoreGraphicTemp(MOON_MESSAGE_DRAW_PIX, index, message, image_old);
+
 			}
 			break;
 
@@ -929,14 +903,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				moon_vertex_index += 2;
 
-				if (
-					(index == message->message_index - 1)
-					|| message->message[index + 1].message != MOON_MESSAGE_DRAW_LINE
-					|| message->message[index + 1].metadata.draw.image_goal != image_old)
-				{
-					MoonCoreLines(moon_vertex, moon_vertex_index, &message->message[index].metadata);
-					moon_vertex_index = 0;
-				}
+				MoonCoreGraphicTemp(MOON_MESSAGE_DRAW_LINE, index, message, image_old);
+
 			}
 			break;
 
@@ -977,14 +945,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				moon_vertex_index += 3;
 
-				if (
-					(index == message->message_index - 1)
-					|| message->message[index + 1].message != MOON_MESSAGE_DRAW_TRI_FULL
-					|| message->message[index + 1].metadata.draw.image_goal != image_old)
-				{
-					MoonCoreTriFulls(moon_vertex, moon_vertex_index, &message->message[index].metadata);
-					moon_vertex_index = 0;
-				}
+				MoonCoreGraphicTemp(MOON_MESSAGE_DRAW_TRI_FULL, index, message, image_old);
 			}
 			break;
 
@@ -1077,5 +1038,18 @@ static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON
 	{
 		MoonCoreDrawArea(moon_vertex_texture, moon_vertex_texture_index, &message->message[index].metadata);
 		moon_vertex_texture_index = 0;
+	}
+}
+
+//此函数仅作为辅助函数
+static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old)
+{
+	if (
+		(index == message->message_index - 1)
+		|| message->message[index + 1].message != message_type
+		|| message->message[index + 1].metadata.draw.image_goal != image_old)
+	{
+		MoonCoreGraphic(moon_vertex, moon_vertex_index, &message->message[index].metadata, message_type);
+		moon_vertex_index = 0;
 	}
 }

@@ -184,18 +184,6 @@ typedef struct
 	};
 }MOON_METADATA;
 
-typedef struct MOON_MESSAGE_SPECIFIC
-{
-	unsigned int message;				//消息类型
-	MOON_METADATA metadata;				//数据元
-}MOON_MESSAGE_SPECIFIC;
-
-typedef struct
-{
-	MOON_MESSAGE_SPECIFIC* message;
-	unsigned int message_index;
-}MOON_MESSAGE_ALL;
-
 typedef enum
 {
 	//MOON_CURSOR_MODE_NULL,			//正常模式

@@ -388,7 +388,7 @@ typedef unsigned char stbi_uc;
 typedef unsigned short stbi_us;
 
 #ifdef __cplusplus
-extern "C" {
+_declspec(dllexport) extern "C" {
 #endif
 
 #ifndef STBIDEF
@@ -604,9 +604,9 @@ STBIDEF int   stbi_zlib_decode_noheader_buffer(char *obuffer, int olen, const ch
 #endif
 
 #ifdef __cplusplus
-#define STBI_EXTERN extern "C"
+#define STBI__declspec(dllexport) extern _declspec(dllexport) extern "C"
 #else
-#define STBI_EXTERN extern
+#define STBI__declspec(dllexport) extern extern
 #endif
 
 
@@ -1323,8 +1323,8 @@ static void stbi__float_postprocess(float *result, int *x, int *y, int *comp, in
 #ifndef STBI_NO_STDIO
 
 #if defined(_WIN32) && defined(STBI_WINDOWS_UTF8)
-STBI_EXTERN __declspec(dllimport) int __stdcall MultiByteToWideChar(unsigned int cp, unsigned long flags, const char *str, int cbmb, wchar_t *widestr, int cchwide);
-STBI_EXTERN __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int cp, unsigned long flags, const wchar_t *widestr, int cchwide, char *str, int cbmb, const char *defchar, int *used_default);
+STBI__declspec(dllexport) extern __declspec(dllimport) int __stdcall MultiByteToWideChar(unsigned int cp, unsigned long flags, const char *str, int cbmb, wchar_t *widestr, int cchwide);
+STBI__declspec(dllexport) extern __declspec(dllimport) int __stdcall WideCharToMultiByte(unsigned int cp, unsigned long flags, const wchar_t *widestr, int cchwide, char *str, int cbmb, const char *defchar, int *used_default);
 #endif
 
 #if defined(_WIN32) && defined(STBI_WINDOWS_UTF8)

@@ -7,6 +7,18 @@
 
 */
 
+typedef struct MOON_MESSAGE_SPECIFIC
+{
+	unsigned int message;				//消息类型
+	MOON_METADATA metadata;				//数据元
+}MOON_MESSAGE_SPECIFIC;
+
+typedef struct
+{
+	MOON_MESSAGE_SPECIFIC* message;
+	unsigned int message_index;
+}MOON_MESSAGE_ALL;
+
 typedef struct MOON_ENGINECORE
 {
 	_Bool dead;					//项目状态
@@ -117,8 +129,6 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
-_declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);			//画板
-_declspec(dllexport) extern void MoonCorePixs(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制点
-_declspec(dllexport) extern void MoonCoreLines(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);						//绘制线
-_declspec(dllexport) extern void MoonCoreTriFulls(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//绘制填充矩形
-_declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata);																			//渲染默认字体
+_declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//画板
+_declspec(dllexport) extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type);	//绘制图案
+_declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata);																					//渲染默认字体

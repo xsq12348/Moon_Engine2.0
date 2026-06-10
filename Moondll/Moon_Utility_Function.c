@@ -182,14 +182,8 @@ _declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, 
 	}
 }
 
-_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project,char* name,unsigned char key)
+_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
 {
-	MoonHashFindEntity(project, name, MOON_BUTTON, button);
-	if (project->entityindex[MoonHash(name)].length != sizeof(MOON_BUTTON))
-	{
-		MoonProjectError(button, 3, (char*)"[ButtonSetTriggerMode函数]错误!错误原因:类型导入错误.");
-		return 0;
-	}
 	button->triggermode = key;
 	return key;
 }

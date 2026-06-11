@@ -10,7 +10,7 @@
 * 使用方法
 * MoonShaderLoad(shader, shader, program);
 */
-_declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program);//初始化所有内部繪圖函數
+extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program);//初始化所有内部繪圖函數
 
 /*
 * 函數 MoonDrawingArea
@@ -18,7 +18,7 @@ _declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pix
 * 使用方法
 * MoonDrawingArea(&backBuffer, &sprite, 10, 20, 64, 64);
 */
-_declspec(dllexport) extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, int width, int height);//画板
+extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, int width, int height);//画板
 
 /*
 * 函數 MoonDrawingAreaRound
@@ -26,7 +26,7 @@ _declspec(dllexport) extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE
 * 使用方法
 * MoonDrawingAreaRound(&backBuffer, &sprite, 100, 100, 32, 32, 64, 64, 45);
 */
-_declspec(dllexport) extern void MoonDrawAreaRound(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, float apx, float apy, int width, int height, int deg);//旋转的画板
+extern void MoonDrawAreaRound(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, float apx, float apy, int width, int height, int deg);//旋转的画板
 
 /*
 * 函數 MoonDrawingAreaPlgBit
@@ -41,7 +41,7 @@ _declspec(dllexport) extern void MoonDrawAreaRound(MOON_IMAGE* image_goal, MOON_
 * MOON_POINT2D points[4] = {{0,0},{100,0},{0,100},{100,100}};
 * MoonDrawingAreaPlgBit(&backBuffer, &texture, points, RGB(255,255,255));
 */
-_declspec(dllexport) extern void MoonDrawAreaPlgBit(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, MOON_POINT2D point[4]);//纹理贴图
+extern void MoonDrawAreaPlgBit(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, MOON_POINT2D point[4]);//纹理贴图
 
 /*
 * 函數 MoonDrawAreaUV
@@ -49,7 +49,7 @@ _declspec(dllexport) extern void MoonDrawAreaPlgBit(MOON_IMAGE* image_goal, MOON
 * 使用方法
 * MoonDrawAreaUV(&backBuffer, &sprite, 10, 20, 64, 64, 0, 0, 32, 32);
 */
-_declspec(dllexport) extern void MoonDrawAreaUV(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, int width, int height, float uv_x, float uv_y, float uv_width, float uv_height);	//UV纹理贴图
+extern void MoonDrawAreaUV(MOON_IMAGE* image_goal, MOON_IMAGE* image_source, int x, int y, int width, int height, float uv_x, float uv_y, float uv_width, float uv_height);	//UV纹理贴图
 
 /*
 * 函數 MoonPix
@@ -57,7 +57,7 @@ _declspec(dllexport) extern void MoonDrawAreaUV(MOON_IMAGE* image_goal, MOON_IMA
 * 使用方法
 * MoonPix(&image, 10, 10, RGB(255,0,0));
 */
-_declspec(dllexport) extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, unsigned int color);//绘制点
+extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, unsigned int color);//绘制点
 
 /*
 * 函數 MoonLine
@@ -65,7 +65,7 @@ _declspec(dllexport) extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, un
 * 使用方法
 * MoonLine(&image, 0, 0, 100, 100, 2, 0xffffffff);
 */
-_declspec(dllexport) extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制线
+extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制线
 
 /*
 * 函數 MoonBox
@@ -73,7 +73,7 @@ _declspec(dllexport) extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1,
 * 使用方法
 * MoonBox(&image, 10, 10, 100, 100, 2, 0xffffffff);
 */
-_declspec(dllexport) extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制矩形
+extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制矩形
 
 /*
 * 函數 MoonBoxFull
@@ -81,7 +81,7 @@ _declspec(dllexport) extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, 
 * 使用方法
 * MoonBoxFull(&image, 10, 10, 100, 100, 0xffffffff);
 */
-_declspec(dllexport) extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制填充矩形
+extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制填充矩形
 
 /*
 * 函數 MoonTriFull
@@ -89,7 +89,7 @@ _declspec(dllexport) extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int 
 * 使用方法
 * MoonTriFull(&image, 10, 10, 100, 100, 200, 200, 0xffffffff);
 */
-_declspec(dllexport) extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, int x3, int y3, unsigned int color);//绘制三角形
+extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, int x3, int y3, unsigned int color);//绘制三角形
 
 /*
 * 函數 MoonDeawTextFont
@@ -97,7 +97,7 @@ _declspec(dllexport) extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int 
 * 使用方法
 * MoonDeawTextFont(&image, 10, 10, L"Hello", RGB(255,255,255), TRUE, L"宋體", 24, 24, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE, color);
 */
-_declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight, unsigned int color);//显示字符
+extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight, unsigned int color);//显示字符
 
 /*
 * 函數 MoonImageShader
@@ -105,7 +105,7 @@ _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char*
 * 使用方法
 * MoonImageShader( 0, shader);
 */
-_declspec(dllexport) extern void MoonImageShader(unsigned int shader);//设置著色器
+extern void MoonImageShader(unsigned int shader);//设置著色器
 
 //------------------------------------图片------------------------------------------------//
 
@@ -115,7 +115,7 @@ _declspec(dllexport) extern void MoonImageShader(unsigned int shader);//设置�
 * 使用方法
 * MoonImageDesignated(&backBuffer);
 */
-_declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
+extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
 
 /*
 * 函數 MoonImageLoad
@@ -124,7 +124,7 @@ _declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置
 * const wchar_t* files[] = {L"1.bmp", L"2.bmp"};
 * MoonImageLoad(&image, files, 2);
 */
-_declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber);	//加载图片
+extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber);	//加载图片
 
 /*
 * 函數 MoonImageLoadBatch
@@ -134,7 +134,7 @@ _declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** i
 * const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
 * MoonImageLoadBatch(frames, 10, names, 64, 64);
 */
-_declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
+extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
 
 //------------------------------------动画------------------------------------------------//
 
@@ -146,7 +146,7 @@ _declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int total
 * ANIME anim;
 * MoonAnimeInit(&anim, "Walk", frames, 100, 8, 64, 64);
 */
-_declspec(dllexport) extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int timeload, int totalnumber, int width, int height);//初始化动画
+extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int timeload, int totalnumber, int width, int height);//初始化动画
 
 /*
 * 函數 MoonAnimeRun
@@ -154,7 +154,7 @@ _declspec(dllexport) extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* seq
 * 使用方法
 * MoonAnimeRun(&backBuffer, &anim, 1, x, y, 1.0f, 1.0f);
 */
-_declspec(dllexport) extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, int x, int y, int width, int height);//运行动画
+extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, int x, int y, int width, int height);//运行动画
 
 /*
 * 函數 MoonAnimeDelete
@@ -162,7 +162,7 @@ _declspec(dllexport) extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anim
 * 使用方法
 * MoonAnimeDelete(&anim);
 */
-_declspec(dllexport) extern void MoonAnimeDelete(MOON_ANIME* anime);//删除动画
+extern void MoonAnimeDelete(MOON_ANIME* anime);//删除动画
 
 /*
 * 函數 MoonAnimeCreate
@@ -173,4 +173,4 @@ _declspec(dllexport) extern void MoonAnimeDelete(MOON_ANIME* anime);//删除动�
 * const wchar_t* names[] = {L"1.bmp", L"2.bmp", ...};
 * MoonAnimeCreate(project, frames, &anim, 10, names, "PlayerAnim", 100, 64, 64);
 */
-_declspec(dllexport) extern void MoonAnimeCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);//创建动画
+extern void MoonAnimeCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);//创建动画

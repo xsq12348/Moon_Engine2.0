@@ -2,12 +2,12 @@
 
 MOON_PROJECTGOD* utility_project;
 
-_declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
+extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
 {
 	utility_project = project;
 }
 
-_declspec(dllexport) extern void MoonMusic(const char* File)
+extern void MoonMusic(const char* File)
 {
 	//SDL_OpenAudioDeviceStream();
 	//TCHAR cmd[255];
@@ -17,13 +17,13 @@ _declspec(dllexport) extern void MoonMusic(const char* File)
 	//mciSendString(TEXT("play music"), MOON_NULL, 0, MOON_NULL);
 }
 
-_declspec(dllexport) extern int MoonSleep(int timeload)
+extern int MoonSleep(int timeload)
 {
 	SDL_Delay(timeload);
 	return 0;
 }
 
-_declspec(dllexport) extern unsigned int MoonHash(char* text)
+extern unsigned int MoonHash(char* text)
 {
 	if (text == MOON_NULL)return MOON_Error;
 	unsigned int length = (unsigned)strlen(text), hash = 0;
@@ -32,7 +32,7 @@ _declspec(dllexport) extern unsigned int MoonHash(char* text)
 	return hash;
 }
 
-_declspec(dllexport) extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
+extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
 {
 	Timeload->time1 = 0;
 	Timeload->time2 = 0;
@@ -40,7 +40,7 @@ _declspec(dllexport) extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int l
 	Timeload->timeswitch = 0;
 }
 
-_declspec(dllexport) extern _Bool MoonKeyState(unsigned int Key)
+extern _Bool MoonKeyState(unsigned int Key)
 {
 	static unsigned char KEYSTATEbuffer[GLFW_KEY_LAST + 1];
 	int state = glfwGetKey(utility_project->hwnd, Key) || glfwGetMouseButton(utility_project->hwnd, Key);
@@ -49,12 +49,12 @@ _declspec(dllexport) extern _Bool MoonKeyState(unsigned int Key)
 	return MOON_FALSE;
 }
 
-_declspec(dllexport) extern _Bool MoonKeyReal(unsigned int Key)
+extern _Bool MoonKeyReal(unsigned int Key)
 {
 	return glfwGetKey(utility_project->hwnd, Key) || glfwGetMouseButton(utility_project->hwnd, Key);
 }
 
-_declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
+extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 {
 	if (!mode)return MOON_FALSE;
 	else if (Timeload == MOON_NULL)
@@ -79,7 +79,7 @@ _declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 	return Timeload->timeswitch;
 }
 
-_declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid)
+extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid)
 {
 	void* entity = project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex;
 	if (entity == MOON_NULL)
@@ -92,7 +92,7 @@ _declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char*
 	return entity;
 }
 
-_declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name)
+extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name)
 {
 	int index = MOON_NOTFOUND;
 	int hash = MoonHash(nameid) % ENTITYNUMBER;
@@ -120,7 +120,7 @@ _declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, 
 	return index;
 }
 
-_declspec(dllexport) extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p)
+extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p)
 {
 	int d1 = (p.x - b.x) * (a.y - b.y) - (a.x - b.x) * (p.y - b.y);
 	int d2 = (p.x - c.x) * (b.y - c.y) - (b.x - c.x) * (p.y - c.y);
@@ -128,7 +128,7 @@ _declspec(dllexport) extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT
 	return (d1 * d2 > 0) && (d2 * d3 > 0);
 }
 
-_declspec(dllexport) extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height)
+extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int height)
 {
 	button->x = x;
 	button->y = y;
@@ -139,7 +139,7 @@ _declspec(dllexport) extern int MoonButtonInit(MOON_BUTTON* button, int x, int y
 	return 1;
 }
 
-_declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
+extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 {
 	static _Bool mode = 0;
 	if (
@@ -182,27 +182,27 @@ _declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, 
 	}
 }
 
-_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
+extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
 {
 	button->triggermode = key;
 	return key;
 }
 
-_declspec(dllexport) extern int MoonCharToWchar(wchar_t* text1, char* text2 , int len)
+extern int MoonCharToWchar(wchar_t* text1, char* text2 , int len)
 {
 	setlocale(LC_ALL, "");
 	mbstowcs(text1, text2, len);
 	return 1;
 }
 
-_declspec(dllexport) extern int MoonWcharToChar(char* text1, wchar_t* text2, int len)
+extern int MoonWcharToChar(char* text1, wchar_t* text2, int len)
 {
 	setlocale(LC_ALL, "");
 	wcstombs(text1, text2, len);
 	return 1;
 }
 
-_declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode)
+extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 {
 	switch (mode)
 	{
@@ -221,7 +221,7 @@ _declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 	return;
 }
 
-_declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
+extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
 {
 	for (unsigned int index = 0; index < text_size; index++)
 		text[index] = '\0';
@@ -229,6 +229,7 @@ _declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text,
 	FILE* fp = fopen(file_name, "r");
 	if (fp == NULL)
 	{
+		MoonPrompt((char*)"");
 		printf("[FileLoad_TEXT]文件错误\n[%s]文件读取失败\n", file_name);
 		return MOON_FALSE;
 	}
@@ -242,7 +243,11 @@ _declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text,
 		if (chbuffer[0] == 0xEF
 			&& chbuffer[1] == 0xBB
 			&& chbuffer[2] == 0xBF)
+		{
+			MoonPrompt((char*)"");
 			printf("\n[FileLoad_TEXT]检测到BOM开头的的特殊字节码 0xEF 0xBB 0xBF\n");
+		}
+
 		else
 		{
 			ungetc(chbuffer[2], fp);
@@ -265,6 +270,7 @@ _declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text,
 
 	if (text[text_size - 1] != '\0')
 	{
+		MoonPrompt((char*)"");
 		printf("\n[FileLoad_TEXT]函数错误\n[%s]文件,传入的[text_size]空间不足,已清空字符串\n", file_name);
 		for (unsigned int index = 0; index < text_size; index++)
 			text[index] = '\0';
@@ -272,4 +278,61 @@ _declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text,
 	}
 
 	return MOON_TRUE;
+}
+
+extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2)
+{
+	unsigned int index = 0;
+	if (!str_1 || !str_2)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_PrefixIgnore]函数提示,str_1或者str_2参数传入不合理");
+		return MOON_FALSE;
+	}
+
+	while (str_1[index]
+		&& str_1[index] == str_2[index])
+		index++;
+	return index;
+}
+
+extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch)
+{
+	unsigned int
+		index_1 = 0,
+		index_2 = 0,
+		index_all = 0;
+	if (!str_1 || !str_2)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_PrefixIgnore]函数提示,str_1或者str_2参数传入不合理");
+		return MOON_FALSE;
+	}
+
+	while (str_1[index_1] && str_2[index_2])
+	{
+		while (str_1[index_1]
+			&& str_1[index_1] == ch)
+			index_1++;
+		while (str_2[index_2]
+			&& str_2[index_2] == ch)
+			index_2++;
+		if ((!str_1[index_1] || !str_2[index_2])
+			|| str_1[index_1] != str_2[index_2])
+			break;
+		index_all++;
+		index_1++;
+		index_2++;
+	}
+	return index_all;
+}
+
+extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace)
+{
+	if (!str || strlen(str) <= start_index)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_Replace] start_index参数传入不合理");
+		return;
+	}
+	for (unsigned int index = start_index; str[index] && index < start_index + len; index++)
+		if (str[index] == ch_goal)
+			str[index] = ch_replace;
 }

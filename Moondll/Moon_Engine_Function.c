@@ -66,7 +66,7 @@ static MOON_PROJECTMODULE(MoonLogicPause);															//暂停逻辑线程
 static MOON_PROJECTMODULE(MoonDrawingPause);														//暂停绘制线程
 static MOON_CREATETHREADFUNCTION(ProjectLogicThread);												//逻辑线程
 
-extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height)
+_declspec(dllexport) extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height)
 {
 	MOON_HWND* hwnd;
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -93,7 +93,7 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 	return hwnd;
 }
 
-extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps, void (*ProjectSetting_1)(MOON_PROJECTGOD*))
+_declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps, void (*ProjectSetting_1)(MOON_PROJECTGOD*))
 {
 	MoonPrompt((char*)"[ProjectInit]初始化函数进入成功");
 	printf("\n\033[1;33m    ████████████      \n  ████      ████████  \n  ██    ██████    ██  \n████  ██    ████    ███\n██████████████  ██  ███\n██  ██  ██  ██  ██  ███\n██  ██  ███████████████\n██    ████    ██  █████\n  ██    ██████    ██  \n  ████████      ████  \n      ████████████      \n\033[0m\n");
@@ -304,7 +304,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	return 1;
 }
 
-extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
+_declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
 {
 	MoonPrompt((char*)"[ProjectRun]引擎流程函数进入成功!");
 
@@ -388,7 +388,7 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	thread_attr_type = MOON_TRUE;
 }
 
-extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*))
+_declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*))
 {
 	while (1)
 		if (thread_attr_type && thread_draw_type)
@@ -432,7 +432,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 	MoonPrompt((char*)"程序已退出");
 }
 
-extern int MoonProjectError(void* alpha, int degree, char* text)
+_declspec(dllexport) extern int MoonProjectError(void* alpha, int degree, char* text)
 {
 	enum
 	{
@@ -451,14 +451,14 @@ extern int MoonProjectError(void* alpha, int degree, char* text)
 	return degree;
 }
 
-extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*))
+_declspec(dllexport) extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*))
 {
 	if (mode) *function_1 = function_2;
 	else *function_1 = function_3;
 	return 1;
 }
 
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*))
+_declspec(dllexport) extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*))
 {
 	if (function_2 == MOON_NULL)
 	{
@@ -474,7 +474,7 @@ extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJEC
 	}
 }
 
-extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project)
+_declspec(dllexport) extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project)
 {
 	int all_number = 0;
 	printf("\n\033[4;7;105m   序号|地址            |索引      |名称                          |类型                          |Hash      |类型大小  \033[0m\n");
@@ -490,7 +490,7 @@ extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project)
 	return all_number;
 }
 
-extern void MoonPrompt(char* text)
+_declspec(dllexport) extern void MoonPrompt(char* text)
 {
 	printf("\n\033[31m[MoonEngine]提示\033[0m\n");
 	printf("%s\n", text);
@@ -517,7 +517,7 @@ static MOON_PROJECTMODULE(MoonDrawingPause)
 	return MOON_NOTFOUND;
 }
 
-extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata)
+_declspec(dllexport) extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata)
 {
 	static unsigned int
 		message_index_max_draw,
@@ -569,7 +569,7 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 	return MOON_MESSAGE_THREAD_TYPE_FALSE;
 }
 
-extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
+_declspec(dllexport) extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
 {
 	//type的作用
 	//防止随意操作标志导致消息处理紊乱
@@ -586,7 +586,7 @@ extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* mes
 	return MOON_FALSE;
 }
 
-extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
+_declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
 	for (unsigned int index = 0; index < message->message_index; index++)
 	{

@@ -960,7 +960,7 @@ Email:1993346266@qq.com
 * PROJECTGOD game;
 * MoonProjectInit(&game, L"MyGame", 100, 100, 800, 600, 60, GameSetting);
 */
-extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)(MOON_PROJECTGOD*));//创建项目
+_declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)(MOON_PROJECTGOD*));//创建项目
 
 /*
 * 函數 MoonProjectRun
@@ -968,7 +968,7 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 * 使用方法
 * MoonProjectRun(&game, GameInit, GameLogic, GameDrawing);
 */
-extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*));//运行项目
+_declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*));//运行项目
 
 /*
 * 函數 MoonProjectOver
@@ -976,7 +976,7 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 * 使用方法
 * MoonProjectOver(&game, GameCleanup);
 */
-extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*));//结束项目
+_declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*));//结束项目
 
 /*
 * 函數
@@ -1000,7 +1000,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 * 使用方法
 * int count = MoonProjectFindEntityAllNumber(project);
 */
-extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实体总数
+_declspec(dllexport) extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实体总数
 
 
 /*
@@ -1016,6 +1016,6 @@ extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实�
 * 使用方法
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 */
-extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata);
+_declspec(dllexport) extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata);
 
 #endif

@@ -253,6 +253,24 @@ extern int MoonCharToWchar(wchar_t* text1, char* text2, int len);//字符转换
 */
 extern int MoonWcharToChar(char* text1, wchar_t* text2, int len);//字符转换
 
+/*
+* 函數 MoonStrMatch_Prefix
+* 作用 匹配字符串前缀
+*/
+extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2);
+
+/*
+* 函數 MoonStrMatch_PrefixIgnore
+* 作用 匹配字符串前缀,忽略特定字符
+*/
+extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch);
+
+/*
+* 函數 MoonStrMatch_Replace
+* 作用 替换字符
+*/
+extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace);
+
 //------------------------------------按钮控件------------------------------------------------//
 
 /*
@@ -281,11 +299,11 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key);//更改触发方式
 
 /*
-* 函數 MOONBUTTONCREATE
+* 函數 MOON_BUTTON_CREATE
 * 作用 便捷注冊按鈕
 * 使用方法
 * static MOONBUTTON button
-* MOONBUTTONCREATE(project, name, x, y, w, h, 0, 0, 0);
+* MOONBUTTONCREATE(project, name, button, x, y, w, h, 0, 0, 0);
 */
 #define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover)  \
 {	\

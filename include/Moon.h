@@ -941,6 +941,11 @@ Email:1993346266@qq.com
 *									MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, char* name, unsigned char key)
 *								改为
 *									MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
+* 2.1.2.0+		2026.6.11	添加了MoonStrMatch家族函数
+*								MoonStrMatch_Prefix				匹配前缀,返回长度
+*								MoonStrMatch_PrefixIgnore		匹配前缀,忽略特定字符,返回长度
+*								MoonStrMatch_Replace			替换字符
+*								
 */
 
 

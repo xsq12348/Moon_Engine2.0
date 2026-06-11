@@ -591,6 +591,7 @@ extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned int vertex_number, MO
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glad_glBindVertexArray(0);
 	}
+	return MOON_TRUE;
 }
 
 extern void MoonCoreFont(MOON_METADATA* metadata)

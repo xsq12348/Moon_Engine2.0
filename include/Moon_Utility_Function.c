@@ -229,6 +229,7 @@ extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_si
 	FILE* fp = fopen(file_name, "r");
 	if (fp == NULL)
 	{
+		MoonPrompt((char*)"");
 		printf("[FileLoad_TEXT]文件错误\n[%s]文件读取失败\n", file_name);
 		return MOON_FALSE;
 	}
@@ -242,7 +243,11 @@ extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_si
 		if (chbuffer[0] == 0xEF
 			&& chbuffer[1] == 0xBB
 			&& chbuffer[2] == 0xBF)
+		{
+			MoonPrompt((char*)"");
 			printf("\n[FileLoad_TEXT]检测到BOM开头的的特殊字节码 0xEF 0xBB 0xBF\n");
+		}
+
 		else
 		{
 			ungetc(chbuffer[2], fp);
@@ -265,6 +270,7 @@ extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_si
 
 	if (text[text_size - 1] != '\0')
 	{
+		MoonPrompt((char*)"");
 		printf("\n[FileLoad_TEXT]函数错误\n[%s]文件,传入的[text_size]空间不足,已清空字符串\n", file_name);
 		for (unsigned int index = 0; index < text_size; index++)
 			text[index] = '\0';
@@ -272,4 +278,61 @@ extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_si
 	}
 
 	return MOON_TRUE;
+}
+
+extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2)
+{
+	unsigned int index = 0;
+	if (!str_1 || !str_2)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_PrefixIgnore]函数提示,str_1或者str_2参数传入不合理");
+		return MOON_FALSE;
+	}
+
+	while (str_1[index]
+		&& str_1[index] == str_2[index])
+		index++;
+	return index;
+}
+
+extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch)
+{
+	unsigned int
+		index_1 = 0,
+		index_2 = 0,
+		index_all = 0;
+	if (!str_1 || !str_2)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_PrefixIgnore]函数提示,str_1或者str_2参数传入不合理");
+		return MOON_FALSE;
+	}
+
+	while (str_1[index_1] && str_2[index_2])
+	{
+		while (str_1[index_1]
+			&& str_1[index_1] == ch)
+			index_1++;
+		while (str_2[index_2]
+			&& str_2[index_2] == ch)
+			index_2++;
+		if ((!str_1[index_1] || !str_2[index_2])
+			|| str_1[index_1] != str_2[index_2])
+			break;
+		index_all++;
+		index_1++;
+		index_2++;
+	}
+	return index_all;
+}
+
+extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace)
+{
+	if (!str || strlen(str) <= start_index)
+	{
+		MoonPrompt((char*)"[MoonStrMatch_Replace] start_index参数传入不合理");
+		return;
+	}
+	for (unsigned int index = start_index; str[index] && index < start_index + len; index++)
+		if (str[index] == ch_goal)
+			str[index] = ch_replace;
 }

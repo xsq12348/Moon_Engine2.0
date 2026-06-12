@@ -4,7 +4,7 @@ call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build
 REM ========================================
 REM 只需修改这一行的名字！
 REM ========================================
-set DLL_NAME=MoonEngine2_1_1_0
+set DLL_NAME=MoonEngine
 REM ========================================
 
 echo ========================================
@@ -35,6 +35,7 @@ echo.
 echo 清理临时文件...
 del *.obj *.exp 2>nul
 del glad.dll 2>nul
+del glad.lib 2>nul
 
 echo.
 echo ========================================

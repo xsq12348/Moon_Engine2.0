@@ -365,6 +365,89 @@ _declspec(dllexport) extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anim
 	return (int)anime->number;
 }
 
+_declspec(dllexport) extern void MoonDrawBox_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color)
+{
+	int x = MoonMin(x1, x2),
+		y = MoonMin(y1, y2),
+		w = abs(x2 - x1),
+		h = abs(y2 - y1);
+
+	int round_left = x + r,
+		round_top = y + r,
+		round_right = x + w - r,
+		round_bottom = y + h - r;
+
+	//四条直边
+	{
+		MoonDrawLine(image, round_left, y, round_right, y, color);
+		MoonDrawLine(image, round_left, y + h, round_right, y + h, color);
+		MoonDrawLine(image, x, round_top, x, round_bottom, color);
+		MoonDrawLine(image, x + w, round_top, x + w, round_bottom, color);
+	}
+	MOON_POINT2D point[37] = { 0 };
+	for (int i = 0; i < 36; i++)
+	{
+		float rad = MoonDegRad(i * 10);
+		point[i].x = (int)(cos(rad) * r);
+		point[i].y = (int)(sin(rad) * r);
+	}
+
+	point[36].x = (int)(cos(2 * MOON_Pi) * r);
+	point[36].y = (int)(sin(2 * MOON_Pi) * r);
+
+	for (int i = 0; i < 9; i++)
+		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, color);
+
+	for (int i = 9; i < 18; i++)
+		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, color);
+
+	for (int i = 18; i < 27; i++)
+		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, color);
+
+	for (int i = 27; i < 36; i++)
+		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, color);
+}
+
+_declspec(dllexport) extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color)
+{
+	int x = (x2 - x1 > 0 ? x1 : x2),
+		y = (y2 - y1 > 0 ? y1 : y2),
+		w = abs(x2 - x1),
+		h = abs(y2 - y1);
+
+	int round_left = x + r,
+		round_top = y + r,
+		round_right = x + w - r,
+		round_bottom = y + h - r;
+
+	MOON_POINT2D point[37] = { 0 };
+	for (int i = 0; i < 36; i++)
+	{
+		float rad = MoonDegRad(i * 10);
+		point[i].x = (int)(cos(rad) * r);
+		point[i].y = (int)(sin(rad) * r);
+	}
+
+	point[36].x = (int)(cos(2 * MOON_Pi) * r);
+	point[36].y = (int)(sin(2 * MOON_Pi) * r);
+
+	MoonDrawBoxFull(image, round_left, y, round_right, y + h, color);
+	MoonDrawBoxFull(image, x, round_top, x + r, round_bottom, color);
+	MoonDrawBoxFull(image, round_right, round_top, x + w, round_bottom, color);
+
+	for (int i = 0; i < 9; i++)
+		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, round_right, round_bottom, color);
+
+	for (int i = 9; i < 18; i++)
+		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, round_left, round_bottom, color);
+
+	for (int i = 18; i < 27; i++)
+		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, round_left, round_top, color);
+
+	for (int i = 27; i < 36; i++)
+		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, round_right, round_top, color);
+}
+
 _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)
 {
 	MOON_METADATA metadata = { 0 };
@@ -677,7 +760,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
 				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -749,7 +835,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
 				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -799,7 +888,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
 				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -834,7 +926,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_IMAGE_CLEAN:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -849,7 +944,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_PIX:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -877,7 +975,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_LINE:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -912,7 +1013,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_TRI_FULL:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -953,7 +1057,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_TEXT:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
+				{
+					printf("[team index] %d\n", index);
 					break;
+				}
 				MoonCoreFont(&message->message[index].metadata);
 			}
 			break;
@@ -996,15 +1103,16 @@ static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsign
 //此函数仅作为辅助函数
 static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset)
 {
-	MOON_IMAGE* image_new = metadata->draw.image_goal;
+	_Bool out_temp = MOON_TRUE;
+	if(metadata->draw.image_goal)
+	{
+		MOON_IMAGE* image_new = metadata->draw.image_goal;
 
-	if (*image_old != image_new)
-	{
-		MoonImageDesignated(image_new);
-		*image_old = image_new;
-	}
-	
-	{
+		if (*image_old != image_new)
+		{
+			MoonImageDesignated(image_new);
+			*image_old = image_new;
+		}
 		static MOON_POINT2D view;
 		if (view.w != image_new->image_size.w
 			|| view.h != image_new->image_size.h)
@@ -1014,18 +1122,25 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 			view.h = image_new->image_size.h;
 		}
 	}
+	else
+	{
+		MoonPrompt((char*)"[MoonSetTemp] goal传入的空指针错误");
+		out_temp = MOON_FALSE;
+	}
+
 	if (moon_vertex_index >= (unsigned int)MOON_VERTICES_MAX - offset)
 	{
-		MoonPrompt((char*)"图形顶点溢出");
-		return MOON_FALSE;
+		MoonPrompt((char*)"[MoonSetTemp] 图形顶点溢出");
+		out_temp = MOON_FALSE;
 	}
 
 	if (moon_vertex_texture_index >= (unsigned int)MOON_VERTICES_MAX - 6)
 	{
-		MoonPrompt((char*)"纹理顶点溢出");
-		return MOON_FALSE;
+		MoonPrompt((char*)"[MoonSetTemp] 纹理顶点溢出");
+		out_temp = MOON_FALSE;
 	}
-	return MOON_TRUE;
+
+	return out_temp;
 }
 
 //此函数仅作为辅助函数

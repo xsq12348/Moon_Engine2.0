@@ -68,7 +68,7 @@ extern void MoonDrawPix(MOON_IMAGE* image, int x, int y, unsigned int color);//�
 extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制线
 
 /*
-* 函數 MoonBox
+* 函數 MoonDrawBox
 * 作用 在圖像上繪製矩形邊框
 * 使用方法
 * MoonBox(&image, 10, 10, 100, 100, 2, 0xffffffff);
@@ -76,12 +76,28 @@ extern void MoonDrawLine(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsi
 extern void MoonDrawBox(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制矩形
 
 /*
-* 函數 MoonBoxFull
+* 函數 MoonDrawBoxFull
 * 作用 在圖像上繪製填充矩形
 * 使用方法
 * MoonBoxFull(&image, 10, 10, 100, 100, 0xffffffff);
 */
 extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int color);//绘制填充矩形
+
+/*
+* 函數 MoonDrawBox_Round
+* 作用 在圖像上繪製矩形邊框
+* 使用方法
+* MoonBox(&image, 10, 10, 100, 100, 2, 0xffffffff);
+*/
+extern void MoonDrawBox_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color);
+
+/*
+* 函數 MoonDrawBoxFull_Round
+* 作用 在圖像上繪製圆角填充矩形
+* 使用方法
+* MoonBoxFull(&image, 10, 10, 100, 100, 0xffffffff);
+*/
+extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color);
 
 /*
 * 函數 MoonTriFull

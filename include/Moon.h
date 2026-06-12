@@ -443,6 +443,12 @@ Email:1993346266@qq.com
 		在逻辑线程检测按钮易造成按钮本身不灵敏
 		原因是线程间异步
 
+[13]
+	如何在没有控制台的情况下查看版本号?
+	请如下操作
+		unsigned int vsn = MoonVsn();
+		printf("%d.%d.%d.%d\n", vsn & 0xff, (vsn & 0xff00) >> 8, (vsn & 0xff0000) >> 16, (vsn & 0xff000000) >> 24);
+
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -945,7 +951,15 @@ Email:1993346266@qq.com
 *								MoonStrMatch_Prefix				匹配前缀,返回长度
 *								MoonStrMatch_PrefixIgnore		匹配前缀,忽略特定字符,返回长度
 *								MoonStrMatch_Replace			替换字符
-*								
+* 2.1.2.1		2026.6.12	修复了MoonSetTemp函数传入空指针崩溃的BUG
+* 2.1.3.0					添加了函数
+*								MoonDrawBox_Round
+*								MoonDrawBoxFull_Round
+*							用于绘制圆角矩形
+* 2.1.4.0					添加了函数
+*								MoonVsn
+*							用于查看版本号
+*
 */
 
 
@@ -1017,5 +1031,13 @@ extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实�
 		MoonProjectSendMessage(MOON_MESSAGE_ATTR_DEAD, metadata);
 */
 extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOON_METADATA metadata);
+
+/*
+* 函數 MoonVsn
+* 作用 統計項目中已註冊的實體總數
+* 使用方法
+* MoonVsn(vsn);
+*/
+extern unsigned int MoonVsn();
 
 #endif

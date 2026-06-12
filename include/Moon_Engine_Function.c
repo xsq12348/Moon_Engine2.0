@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,2,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,4,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -160,7 +160,8 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 	MoonUtilityLoad(project);
 	MoonDrawLoad(project);
 
-	if (ProjectSetting_1 != MOON_NULL)ProjectSetting_1(project);
+	if (ProjectSetting_1 != MOON_NULL)
+		ProjectSetting_1(project);
 	MoonPrompt((char*)"[ProjectInit]初始化完成");
 }
 
@@ -318,7 +319,8 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	}
 	moon_engine_core.Drawing = ProjectDrawing;
 
-	if (ProjectSetting_2 != MOON_NULL)ProjectSetting_2(project);
+	if (ProjectSetting_2 != MOON_NULL)
+		ProjectSetting_2(project);
 
 	glfwMakeContextCurrent((GLFWwindow*)MOON_NULL);
 
@@ -405,7 +407,8 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 		MoonProjectError(project, 2, (char*)"核心对象[projectgod]丢失!");
 		return;
 	}
-	if (ProjectOverSetting != 0)ProjectOverSetting(project);
+	if (ProjectOverSetting != 0)
+		ProjectOverSetting(project);
 	MoonDrawOver();
 	//SDL_Quit();
 	glad_glDeleteProgram(shader_program_vectex);
@@ -488,6 +491,16 @@ extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project)
 		}
 	printf("\n[ProjectFindEntityAllNumber函数]进入成功!\n统计到的实体总数为[%d]\n", all_number);
 	return all_number;
+}
+
+extern unsigned int MoonVsn()
+{
+	unsigned int vsn =
+		(Moon_Engine_VSn[0] << 0)
+		| (Moon_Engine_VSn[1] << 8)
+		| (Moon_Engine_VSn[2] << 16)
+		| (Moon_Engine_VSn[3] << 24);
+	return vsn;
 }
 
 extern void MoonPrompt(char* text)

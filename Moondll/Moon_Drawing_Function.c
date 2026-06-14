@@ -436,16 +436,16 @@ _declspec(dllexport) extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1
 	MoonDrawBoxFull(image, round_right, round_top, x + w, round_bottom, color);
 
 	for (int i = 0; i < 9; i++)
-		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, round_right, round_bottom, color);
+		MoonDrawTriFull(image, round_right, round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, point[i].x + round_right, point[i].y + round_bottom, color);
 
 	for (int i = 9; i < 18; i++)
-		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, round_left, round_bottom, color);
+		MoonDrawTriFull(image, round_left, round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, point[i].x + round_left, point[i].y + round_bottom, color);
 
 	for (int i = 18; i < 27; i++)
-		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, round_left, round_top, color);
+		MoonDrawTriFull(image, round_left, round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, point[i].x + round_left, point[i].y + round_top, color);
 
 	for (int i = 27; i < 36; i++)
-		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, round_right, round_top, color);
+		MoonDrawTriFull(image, round_right, round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, point[i].x + round_right, point[i].y + round_top, color);
 }
 
 _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)

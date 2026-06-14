@@ -123,6 +123,27 @@ _declspec(dllexport) extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT
 */
 #define MoonRGBA(r,g,b,a) ((r)|((g) << 8)|((b) << 16)|((a) << 24))
 
+/*
+* 函數 MoonAlloc
+* 作用 内存分配,结束时会自动回收
+* 使用方法
+* 支持
+* "malloc"
+* "calloc"
+* "realloc"
+* MoonAlloc(ptr,sizeof(type),num,"malloc");
+*/
+_declspec(dllexport) extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc);
+
+/*
+* 函數 MoonFree
+* 作用 提前将注册的内存回收
+*		注意回收后仍在使用的野指针
+* 使用方法
+* MoonFree(ptr);
+*/
+_declspec(dllexport) extern _Bool MoonFree(void* ptr);
+
 //------------------------------------定时函数--------------------------------------------------//
 
 

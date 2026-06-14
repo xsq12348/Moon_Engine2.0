@@ -978,8 +978,16 @@ Email:1993346266@qq.com
 *							它们不是线程安全的
 * 2.1.5.0		2026.6.14	添加了函数
 *								StrMatch_PrefixIgnoreStr
-*
-*
+* 2.1.6.0					添加了函数
+*								MoonAlloc
+*							支持 malloc/calloc/realloc 三种分配模式
+*							自动注册分配的内存，引擎退出时统一释放
+*							防止内存泄漏，简化内存管理
+* 2.1.7.0					添加了函数
+*								MoonFree
+*							用于提前回收
+*								MoonAlloc
+*							分配的内存
 */
 
 

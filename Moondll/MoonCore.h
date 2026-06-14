@@ -44,6 +44,13 @@ typedef struct
 	float x, y, z, uv_x, uv_y;
 }MOON_TEXTURE_VECTER;		//用于纹理顶点
 
+typedef void* MOON_ALLOC;
+typedef struct
+{
+	MOON_ALLOC* alloc;
+	unsigned int index;
+}MOON_ALLOC_REGISTRY;		//用于纹理顶点
+
 /*
 * 函數 MoonWindow
 * 作用 創建窗口
@@ -85,6 +92,24 @@ _declspec(dllexport) extern int MoonProjectPause(int mode, int (**function_1)(MO
 * MoonUtilityLoad(project);
 */
 _declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonUtilityOver
+* 作用 清理所有内部资源
+* 使用方法
+* MoonUtilityOver();
+*/
+_declspec(dllexport) extern void MoonUtilityOver();
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonAlloc_Registry
+* 作用 内部注册表名单+1
+* 使用方法
+* MoonAlloc_Registry();
+*/
+_declspec(dllexport) extern _Bool MoonAlloc_Registry();
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!

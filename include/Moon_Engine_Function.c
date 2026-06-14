@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,5,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,7,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -421,6 +421,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 	if (ProjectOverSetting != 0)
 		ProjectOverSetting(project);
 	MoonDrawOver();
+	MoonUtilityOver();
 	//SDL_Quit();
 	glad_glDeleteProgram(shader_program_vectex);
 	glad_glDeleteProgram(shader_program_pixel);

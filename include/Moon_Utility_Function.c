@@ -1,10 +1,21 @@
 ﻿#include"MoonCore.h"
 
-MOON_PROJECTGOD* utility_project;
+static MOON_PROJECTGOD* utility_project;
+MOON_ALLOC_REGISTRY moon_alloc;
 
 extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
 {
 	utility_project = project;
+}
+
+extern void MoonUtilityOver()
+{
+	for (unsigned int index = 0; index < moon_alloc.index; index++)
+	{
+		free(moon_alloc.alloc[index]);
+		moon_alloc.alloc[index] = MOON_NULL;
+	}
+	free(moon_alloc.alloc);
 }
 
 extern void MoonMusic(const char* File)
@@ -402,4 +413,110 @@ extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_
 		index_2++;
 	}
 	return index_all;
+}
+
+extern _Bool MoonAlloc_Registry()
+{
+	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));
+	if (alloc_buffer)
+	{
+		moon_alloc.alloc = alloc_buffer;
+		moon_alloc.index += 1;
+	}
+	else
+	{
+		MoonPrompt("[MoonAlloc] 内存分配失败");
+		return MOON_FALSE;
+	}
+	return MOON_TRUE;
+}
+
+extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc)
+{
+	void* ptr_buffer = MOON_NULL;
+	if (strcmp(alloc, "realloc"))
+	{
+		for (unsigned int index = 0; index < moon_alloc.index; index++)
+			if (*ptr == moon_alloc.alloc[index])
+			{
+				char text_buffer[255] = { 0 };
+				snprintf(text_buffer, 255, "[MoonAlloc] 已存在 0x%p", ptr);
+				MoonPrompt(text_buffer);
+				if (strcmp(alloc, "malloc") || strcmp(alloc, "calloc"))
+				{
+					snprintf(text_buffer, 255, "[MoonAlloc] 无效的参数[%s]", alloc);
+					MoonPrompt(text_buffer);
+				}
+				return MOON_FALSE;
+			}
+
+		if (!strcmp(alloc, "malloc"))
+			ptr_buffer = malloc((size_t)(size_len * num));
+		else
+			if (!strcmp(alloc, "calloc"))
+				ptr_buffer = calloc((size_t)num, size_len);
+			else
+			{
+				char text_buffer[255] = { 0 };
+				snprintf(text_buffer, 255, "[MoonAlloc] 无效的参数[%s]", alloc);
+				MoonPrompt(text_buffer);
+				return MOON_FALSE;
+			}
+
+		if (ptr_buffer)
+		{
+			if (MoonAlloc_Registry())
+			{
+				moon_alloc.alloc[moon_alloc.index - 1] = ptr_buffer;
+				*ptr = ptr_buffer;
+			}
+		}
+		else
+		{
+			MoonPrompt("[MoonAlloc] 内存分配失败");
+			return MOON_FALSE;
+		}
+	}
+	else
+	{
+		int re = 0, alloc_index = 0;
+		for (unsigned int index = 0; index < moon_alloc.index; index++)
+			if (*ptr == moon_alloc.alloc[index])
+			{
+				re = MOON_TRUE;
+				alloc_index = index;
+				break;
+			}
+
+		ptr_buffer = realloc(*ptr, (size_t)(size_len * num));
+		if (ptr_buffer)
+		{
+			if (re || MoonAlloc_Registry())
+			{
+				if (!re)
+					moon_alloc.alloc[moon_alloc.index - 1] = ptr_buffer;
+				else
+					moon_alloc.alloc[alloc_index] = ptr_buffer;
+				*ptr = ptr_buffer;
+			}
+		}
+		else
+		{
+			MoonPrompt("[MoonAlloc] 内存分配失败");
+			return MOON_FALSE;
+		}
+	}
+	return MOON_TRUE;
+}
+
+extern _Bool MoonFree(void* ptr)
+{
+	for (unsigned int index = 0; index < moon_alloc.index; index++)
+		if (moon_alloc.alloc[index] == ptr)
+		{
+			free(ptr);
+			moon_alloc.alloc[index] = MOON_NULL;
+			return MOON_TRUE;
+		}
+	return MOON_FALSE;
 }

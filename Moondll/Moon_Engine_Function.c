@@ -1,6 +1,6 @@
 ﻿#include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,4,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,5,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -178,10 +178,15 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 	{
 		runload[0] = clock();
 
-		moon_engine_core.Logic(project);
+		if (moon_engine_core.Logic && moon_engine_core.Logic != MoonLogicPause)
+		{
+			moon_engine_core.Logic(project);
 
-		//自动锁
-		MoonProjectGetMessage(project, &moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+			//自动锁
+			MoonProjectGetMessage(project, &moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+		}
+		else
+			MoonSleep(1);
 		
 		runload[1] = clock();
 		runload[2] = runload[1] - runload[0];
@@ -189,6 +194,8 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 		{
 			MoonPrompt((char*)"[逻辑线程]时间过长,超过2000ms,现在转入暂停");
 			moon_engine_core.power = MOON_Error;
+			moon_engine_core.gamepowermode = MOON_Error;
+			moon_engine_core.Logic = MoonLogicPause;
 		}
 	}
 	return 1;
@@ -216,7 +223,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		-1.f, -1.f, 0.f,  0.f, 0.f,  // 左下
 		-1.f,  1.f, 0.f,  0.f, 1.f,  // 左上
 	};
-	unsigned int vertex_index[6] = { 0,1,2,2,3,0 };
+	unsigned int vertex_index[6] = { 0,2,1,2,0,3 };
 	int runload[3] = { 0 };//帧率计时器
 
 	{
@@ -242,6 +249,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		glad_glEnableVertexAttribArray(1);
 
 		glad_glEnable(GL_BLEND);
+		glad_glEnable(GL_CULL_FACE);
 		glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
@@ -258,6 +266,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 			else { fpsmax2 = fpsmax; fpsmax = 0; }
 		}
 
+		if(moon_engine_core.Drawing && moon_engine_core.Drawing!= MoonDrawingPause)
 		{
 			moon_engine_core.Drawing(project);
 
@@ -290,6 +299,8 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		{
 			MoonPrompt((char*)"[绘制线程]时间过长,超过2000ms,现在转入暂停");
 			moon_engine_core.power = MOON_Error;
+			moon_engine_core.gamepowermode = MOON_Error;
+			moon_engine_core.Drawing = MoonDrawingPause;
 		}
 	}
 
@@ -312,14 +323,14 @@ _declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (
 	//默认在窗口内部
 	glfwSetInputMode(project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 
-	if (ProjectDrawing == MOON_NULL)
+	if (ProjectDrawing == MOON_FALSE)
 	{
 		MoonProjectError(ProjectDrawing, 1, (char*)"绘图函数传入失败!");
 		return;
 	}
 	moon_engine_core.Drawing = ProjectDrawing;
 
-	if (ProjectSetting_2 != MOON_NULL)
+	if (ProjectSetting_2 != MOON_FALSE)
 		ProjectSetting_2(project);
 
 	glfwMakeContextCurrent((GLFWwindow*)MOON_NULL);
@@ -327,7 +338,7 @@ _declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (
 	MOON_CREATETHREAD(ProjectDrawingThread, "DrawingThread", project);//加载属性线程
 
 	//加载逻辑线程
-	if (ProjectLogic != MOON_NULL)
+	if (ProjectLogic != MOON_FALSE)
 	{
 		moon_engine_core.Logic = ProjectLogic;
 		MOON_CREATETHREAD(ProjectLogicThread, "LogicThread", project);
@@ -526,6 +537,18 @@ static MOON_PROJECTMODULE(MoonLogicPause)
 static MOON_PROJECTMODULE(MoonDrawingPause)
 {
 	//printf("[MoonDrawingPause函数]进入成功!\n");
+	/*
+	char text_buffer[255] = { 0 };
+	snprintf(text_buffer, 255, "MoonEngine %d.%d.%d.%d", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
+	MoonDrawTextFont(&projectdoublebuffer, (const char*)text_buffer, 0, 0, 16, 16, MoonRGBA(255, 0, 0, 255));
+	MoonDrawTextFont(&projectdoublebuffer, "PAUSE", 0, 16, 16, 16, MoonRGBA(255, 0, 0, 255));
+	snprintf(text_buffer, 255, "Window w:%d h:%d", project->window_width, project->window_height);
+	MoonDrawTextFont(&projectdoublebuffer, (const char*)text_buffer, 0, 32, 16, 16, MoonRGBA(255, 255, 0, 255));
+	snprintf(text_buffer, 255, "FPS:%d", fpsmax2);
+	MoonDrawTextFont(&projectdoublebuffer, (const char*)text_buffer, 0, 48, 16, 16, MoonRGBA(255, 255, 0, 255));
+	snprintf(text_buffer, 255, "mouse coord:%d %d", projectmousecoord.x, projectmousecoord.y);
+	MoonDrawTextFont(&projectdoublebuffer, (const char*)text_buffer, 0, 64, 16, 16, MoonRGBA(255, 255, 0, 255));
+	*/
 	MoonSleep(1);
 	return MOON_NOTFOUND;
 }
@@ -601,6 +624,7 @@ _declspec(dllexport) extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, 
 
 _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
+	_Bool key_on_bufer[MOON_KEY_LAST] = { 0 };
 	for (unsigned int index = 0; index < message->message_index; index++)
 	{
 		if (*type)
@@ -608,7 +632,7 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 			switch (message->message[index].message)
 			{
 			case MOON_MESSAGE_LOGIC_END: *type = MOON_FALSE; break;
-			//case MOON_MESSAGE_LOGIC_SETLOGIC:				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);				break;
+				//case MOON_MESSAGE_LOGIC_SETLOGIC:				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);				break;
 			case MOON_MESSAGE_SETLOGIC:
 				MoonProjectFunctionSwitch(MOON_MODULE_LOGIC, message->message[index].metadata.function);
 				break;
@@ -618,23 +642,45 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 			case MOON_MESSAGE_LOGIC_OPEN:
 				message->message[index].metadata.function_open(project);
 			case MOON_MESSAGE_DEAD:
-					moon_engine_core.dead = MOON_TRUE;
-					break;
-				case MOON_MESSAGE_POWER:
-				{
-					int buffer = MoonMax(message->message[index].metadata.power,0);
-					moon_engine_core.gamepowermode = buffer;
-				}
-					break;
-				case MOON_MESSAGE_SETFPS:
-				{
-					int fps = (int)(1000.f / message->message[index].metadata.fps);
-					if (fps <= 0)fps = (int)(1000.f / 60);
-					moon_engine_core.timeload.timeload = fps;
-				}
-				case MOON_MESSAGE_ATTR_OPEN:
-					moon_engine_core.Attr = message->message[index].metadata.function_open;
+				moon_engine_core.dead = MOON_TRUE;
 				break;
+			case MOON_MESSAGE_POWER:
+			{
+				int buffer = MoonMax(message->message[index].metadata.power, 0);
+				moon_engine_core.gamepowermode = buffer;
+			}
+			break;
+			case MOON_MESSAGE_SETFPS:
+			{
+				int fps = (int)(1000.f / message->message[index].metadata.fps);
+				if (fps <= 0)fps = (int)(1000.f / 60);
+				moon_engine_core.timeload.timeload = fps;
+			}
+			case MOON_MESSAGE_ATTR_OPEN:
+				moon_engine_core.Attr = message->message[index].metadata.function_open;
+				break;
+			case MOON_MESSAGE_KEY:
+			{
+				static _Bool key_buffer[MOON_KEY_LAST];
+				int token = message->message[index].metadata.key.token;
+				if (!key_on_bufer[token])
+					key_on_bufer[token] = (_Bool)(glfwGetKey(project->hwnd, (int)token) || glfwGetMouseButton(project->hwnd, (int)token));
+				int* state = message->message[index].metadata.key.worth;
+				if (key_on_bufer[token] == MOON_FALSE)
+				{
+					key_buffer[token] = MOON_FALSE;
+					*state = MOON_KEY_MODE_FALSE;
+				}
+				else
+					if (key_on_bufer[token] == MOON_TRUE)
+						if (!key_buffer[token])
+						{
+							key_buffer[token] = MOON_TRUE;
+							*state = MOON_KEY_MODE_PRESS;
+						}
+						else
+							*state = MOON_KEY_MODE_PRESS_LONG;
+			}
 			break;
 			}
 		}

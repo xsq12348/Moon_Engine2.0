@@ -266,6 +266,12 @@ extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2);
 extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch);
 
 /*
+* 函數 StrMatch_PrefixIgnoreStr
+* 作用 忽略字符,比较时忽略 igno_str 中出现的任意字符
+*/
+extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str);
+
+/*
 * 函數 MoonStrMatch_Replace
 * 作用 替换字符
 */
@@ -305,13 +311,14 @@ extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* butto
 * static MOONBUTTON button
 * MOONBUTTONCREATE(project, name, button, x, y, w, h, 0, 0, 0);
 */
-#define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover)  \
+#define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover, False)  \
 {	\
 	MoonButtonInit(&button,(x), (y), (width), (height));                                        \
 	MoonButtonSetTriggerMode(project,&button,MOON_KEY_MOUSE_LEFT);								\
 	button.ButtonModeHover = (Hover);                                                           \
 	button.ButtonModePress = (Press);                                                           \
 	button.ButtonModePressL = (PressL);                                                         \
+	button.ButtonModeFalse = (PressL);                                                          \
 	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
 }
 /*

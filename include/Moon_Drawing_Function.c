@@ -330,13 +330,13 @@ extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, u
 	metadata.draw.shader = solid_color_shader;
 	metadata.draw.graphic.x1 = x1;
 	metadata.draw.graphic.y1 = y1;
-	metadata.draw.graphic.x2 = x2;
-	metadata.draw.graphic.y2 = y1;
-	metadata.draw.graphic.x3 = x1;
-	metadata.draw.graphic.y3 = y2;
+	metadata.draw.graphic.x2 = x1;
+	metadata.draw.graphic.y2 = y2;
+	metadata.draw.graphic.x3 = x2;
+	metadata.draw.graphic.y3 = y1;
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_TRI_FULL, metadata);
 	metadata.draw.graphic.x1 = x2;
-	metadata.draw.graphic.y2 = y2;
+	metadata.draw.graphic.y3 = y2;
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_TRI_FULL, metadata);
 }
 
@@ -814,11 +814,11 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 					}
 
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 0, vx1, vy1, 0.f, 1.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 1, vx4, vy4, 1.f, 1.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 2, vx3, vy3, 0.f, 0.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 1, vx3, vy3, 0.f, 0.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 2, vx4, vy4, 1.f, 1.f);
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 3, vx2, vy2, 1.f, 0.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 4, vx3, vy3, 0.f, 0.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 5, vx4, vy4, 1.f, 1.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 4, vx4, vy4, 1.f, 1.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 5, vx3, vy3, 0.f, 0.f);
 				}
 
 				moon_vertex_texture_index += 6;
@@ -908,11 +908,11 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 						vy4 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[3].y * 1.f / metadata->draw.image_goal->image_size.h);
 
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 0, vx1, vy1, 0.f, 1.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 1, vx4, vy4, 1.f, 1.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 2, vx3, vy3, 0.f, 0.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 1, vx3, vy3, 0.f, 0.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 2, vx4, vy4, 1.f, 1.f);
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 3, vx2, vy2, 1.f, 0.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 4, vx3, vy3, 0.f, 0.f);
-					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 5, vx4, vy4, 1.f, 1.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 4, vx4, vy4, 1.f, 1.f);
+					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 5, vx3, vy3, 0.f, 0.f);
 				}
 			
 				moon_vertex_texture_index += 6;

@@ -113,13 +113,13 @@ typedef struct
 	MOON_TIMELOAD timeload;			//定时器
 }MOON_ANIME;
 
-enum
+typedef enum
 {
 	MOON_BUTTON_FALSE,			//不存在按钮
-	MOON_BUTTON_PRESS = 1,		//按下
+	MOON_BUTTON_PRESS,			//按下
 	MOON_BUTTON_PRESS_LONG,		//长按
 	MOON_BUTTON_RHOVER,			//悬停
-};
+}MOON_BUTTON_TYPE;
 
 typedef struct MOONBUTTON
 {
@@ -127,11 +127,12 @@ typedef struct MOONBUTTON
 	int y;
 	int width;
 	int height;
-	char mode;
-	unsigned char triggermode;
+	MOON_BUTTON_TYPE mode;
+	unsigned int triggermode;
 	int (*ButtonModePress)   (struct MOONBUTTON* buton, void* context);	//按下
 	int (*ButtonModePressL)  (struct MOONBUTTON* buton, void* context);	//长按
 	int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
+	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
 }MOON_BUTTON;
 
 typedef struct
@@ -173,6 +174,13 @@ typedef struct
 				}text;													//纹理
 			};
 		}draw;
+
+		struct
+		{
+			unsigned int token;						//键码
+			int* worth;								//需要修改的值
+		}key;															//按鍵
+		
 		union
 		{
 			int (*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
@@ -186,7 +194,7 @@ typedef struct
 
 typedef enum
 {
-	//MOON_CURSOR_MODE_NULL,			//正常模式
+	//MOON_CURSOR_MODE_NULL,		//正常模式
 	MOON_CURSOR_MODE_HIDDEN,		//在窗口位置隐藏光标,不限制位置
 	MOON_CURSOR_MODE_DISABLED,		//禁用模式,全程隐藏光标并不受主窗口限制
 	MOON_CURSOR_MODE_CAPTURED,		//捕获模式,防止光标跑出窗口,不隐藏
@@ -250,6 +258,7 @@ typedef enum
 	MOON_MESSAGE_DEAD,							//项目退出,不论传入的任何值
 	MOON_MESSAGE_POWER,							//设置高性能模式/暂停/锁帧
 	MOON_MESSAGE_SETFPS,						//设置帧数
+	MOON_MESSAGE_KEY,							//回调按鍵
 	MOON_MESSAGE_LOGIC_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 }MOON_MESSAGE;
 
@@ -390,7 +399,16 @@ enum
 	MOON_KEY_OEM_5 = GLFW_KEY_BACKSLASH,                // 92 (\)
 	MOON_KEY_OEM_6 = GLFW_KEY_RIGHT_BRACKET,            // 93 (])
 	MOON_KEY_OEM_3 = GLFW_KEY_GRAVE_ACCENT,             // 96 (`)
+
+	MOON_KEY_LAST = GLFW_KEY_LAST + 1,
 };
+
+typedef enum
+{
+	MOON_KEY_MODE_FALSE,
+	MOON_KEY_MODE_PRESS,
+	MOON_KEY_MODE_PRESS_LONG,
+}MOON_KEY_MODE;
 
 typedef struct MOON_PROJECTGOD MOON_PROJECTGOD;
 struct MOON_PROJECTGOD

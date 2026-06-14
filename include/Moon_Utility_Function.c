@@ -25,9 +25,11 @@ extern int MoonSleep(int timeload)
 
 extern unsigned int MoonHash(char* text)
 {
-	if (text == MOON_NULL)return MOON_Error;
-	unsigned int length = (unsigned)strlen(text), hash = 0;
-	if (length <= 0)return MOON_Error;
+	if (text == MOON_NULL)
+		return MOON_Error;
+	unsigned int length = (unsigned int)strlen(text), hash = 0;
+	if (length <= 0)
+		return MOON_Error;
 	for (unsigned int index = 0; index < length; index++)hash += text[index] * (index + 1);
 	return hash;
 }
@@ -42,10 +44,16 @@ extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
 
 extern _Bool MoonKeyState(unsigned int Key)
 {
-	static unsigned char KEYSTATEbuffer[GLFW_KEY_LAST + 1];
-	int state = glfwGetKey(utility_project->hwnd, Key) || glfwGetMouseButton(utility_project->hwnd, Key);
-	if (!(state == GLFW_PRESS))KEYSTATEbuffer[Key] = 0;
-	else if (KEYSTATEbuffer[Key] == 0) { KEYSTATEbuffer[Key] = MOON_TRUE; return MOON_TRUE; }
+	static unsigned char KEYSTATEbuffer[MOON_KEY_LAST];
+	int state = glfwGetKey(utility_project->hwnd, (int)Key) || glfwGetMouseButton(utility_project->hwnd, (int)Key);
+	if (state == GLFW_RELEASE)
+		KEYSTATEbuffer[Key] = 0;
+	else 
+		if (state == GLFW_PRESS && KEYSTATEbuffer[Key] == 0)
+	{ 
+		KEYSTATEbuffer[Key] = MOON_TRUE; 
+		return MOON_TRUE; 
+	}
 	return MOON_FALSE;
 }
 
@@ -149,7 +157,13 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		&& button->y + button->height > y
 		)
 	{
-		if (MoonKeyState(button->triggermode))
+		{
+			MOON_METADATA metadata = { MOON_NULL };
+			metadata.key.token = button->triggermode;
+			metadata.key.worth = &((int)button->mode);
+			MoonProjectSendMessage(MOON_MESSAGE_KEY, metadata);
+		}
+		if (button->mode == MOON_KEY_MODE_PRESS)
 		{
 			mode = MOON_TRUE;
 			button->mode = MOON_BUTTON_PRESS;
@@ -158,7 +172,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 			return MOON_BUTTON_PRESS;
 		}
 		else
-			if (mode && MoonKeyReal(button->triggermode))
+			if (mode && button->mode == MOON_KEY_MODE_PRESS_LONG)
 			{
 				if (button->ButtonModePressL)
 					button->ButtonModePressL(button, context);
@@ -178,6 +192,8 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 	{
 		mode = MOON_FALSE;
 		button->mode = MOON_BUTTON_FALSE;
+		if (button->ButtonModeFalse)
+			button->ButtonModeFalse(button, context);
 		return MOON_BUTTON_FALSE;
 	}
 }
@@ -335,4 +351,55 @@ extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned i
 	for (unsigned int index = start_index; str[index] && index < start_index + len; index++)
 		if (str[index] == ch_goal)
 			str[index] = ch_replace;
+}
+
+extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str)
+{
+	unsigned int
+		index_1 = 0,
+		index_2 = 0,
+		index_all = 0;
+	if (!str_1 || !str_2)
+	{
+		MoonPrompt("[StrMatch_PrefixIgnoreStr]函数提示,str_1或者str_2参数传入不合理\n");
+		return 0;
+	}
+
+	unsigned int igno_str_len = (unsigned int)strlen(igno_str);
+
+	while (str_1[index_1] && str_2[index_2])
+	{
+		while (str_1[index_1])
+		{
+			int alpha = 0;
+			for (unsigned int index = 0; index < igno_str_len; index++)
+				if (str_1[index_1] == igno_str[index])
+					alpha = 1;
+			if (alpha)
+				index_1++;
+			else
+				break;
+		}
+
+		while (str_2[index_2])
+		{
+			int alpha = 0;
+			for (unsigned int index = 0; index < igno_str_len; index++)
+				if (str_2[index_2] == igno_str[index])
+					alpha = 1;
+
+			if (alpha)
+				index_2++;
+			else
+				break;
+		}
+
+		if ((!str_1[index_1] || !str_2[index_2])
+			|| str_1[index_1] != str_2[index_2])
+			break;
+		index_all++;
+		index_1++;
+		index_2++;
+	}
+	return index_all;
 }

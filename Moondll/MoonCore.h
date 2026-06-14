@@ -49,7 +49,7 @@ typedef struct
 {
 	MOON_ALLOC* alloc;
 	unsigned int index;
-}MOON_ALLOC_REGISTRY;		//用于纹理顶点
+}MOON_ALLOC_REGISTRY;		//用于内部队列
 
 /*
 * 函數 MoonWindow

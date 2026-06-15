@@ -756,9 +756,6 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 
 			case MOON_MESSAGE_DRAW_IMAGE:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -825,15 +822,11 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 
 			case MOON_MESSAGE_DRAW_IMAGE_UV:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -878,15 +871,11 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE_UV, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 			
 			case MOON_MESSAGE_DRAW_IMAGE_PIG:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -919,7 +908,6 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE_PIG, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 			

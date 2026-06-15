@@ -3,16 +3,6 @@
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
 /*
-* 注意!這個函數對您的代碼可能沒有任何作用!
-* 如果要修改着色器,请如下操作來實現着色器重载 (Shader Hot-reloading),并且通過傳入的
-* 函數 MoonShaderLoad
-* 作用 初始化所有内部繪圖函數
-* 使用方法
-* MoonShaderLoad(shader, shader, program);
-*/
-_declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program);//初始化所有内部繪圖函數
-
-/*
 * 函數 MoonDrawingArea
 * 作用 將image_2繪製到image_1上，不帶透明度
 * 使用方法
@@ -122,35 +112,6 @@ _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char*
 * MoonImageShader( 0, shader);
 */
 _declspec(dllexport) extern void MoonImageShader(unsigned int shader);//设置著色器
-
-//------------------------------------图片------------------------------------------------//
-
-/*
-* 函數 MoonImageDesignated
-* 作用 手動指定當前的渲染目標紋理
-* 使用方法
-* MoonImageDesignated(&backBuffer);
-*/
-_declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
-
-/*
-* 函數 MoonImageLoad
-* 作用 加載BMP圖片到紋理中
-* 使用方法
-* const wchar_t* files[] = {L"1.bmp", L"2.bmp"};
-* MoonImageLoad(&image, files, 2);
-*/
-_declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber);	//加载图片
-
-/*
-* 函數 MoonImageLoadBatch
-* 作用 批量創建紋理並加載圖片
-* 使用方法
-* IMAGE frames[10];
-* const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
-* MoonImageLoadBatch(frames, 10, names, 64, 64);
-*/
-_declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
 
 //------------------------------------动画------------------------------------------------//
 

@@ -43,7 +43,7 @@ typedef GLFWwindow MOON_HWND;
 #define MOON_OFF			MOON_FALSE
 #define MOON_Pi				(3.1415926f)		//Pi
 #define MOON_VERTICES_MAX	(65536)				//顶点上限
-#define MOON_MESSAGE_TEXT_MAX 32				//单条消息最大字符数
+#define MOON_MESSAGE_TEXT_MAX (32)				//单条消息最大字符数
 
 enum
 {
@@ -208,6 +208,42 @@ typedef enum
 	MOON_MESSAGE_THREAD_TYPE_BUSY,
 }MOON_MESSAGE_THREAD_TYPE;
 
+typedef enum
+{
+	MOON_UNIFORM_TYPE_NONE,				//非法
+	MOON_UNIFORM_TYPE_VECTOR1_FLOAT,	//float
+	MOON_UNIFORM_TYPE_VECTOR2_FLOAT,	//2D向量 (x, y)
+	MOON_UNIFORM_TYPE_VECTOR3_FLOAT,	//3D向量 (x, y, z)
+	MOON_UNIFORM_TYPE_VECTOR4_FLOAT,	//4D向量 (x, y, z, w)
+	MOON_UNIFORM_TYPE_VECTOR1_INT,		//int
+	MOON_UNIFORM_TYPE_VECTOR2_INT,		//2D整数向量
+	MOON_UNIFORM_TYPE_VECTOR3_INT,		//3D整数向量
+	MOON_UNIFORM_TYPE_VECTOR4_INT,		//4D整数向量
+	MOON_UNIFORM_TYPE_VECTOR1_UINT,		//unsigned int
+	MOON_UNIFORM_TYPE_VECTOR2_UINT,		//2D无符号整数向量
+	MOON_UNIFORM_TYPE_VECTOR3_UINT,		//3D无符号整数向量
+	MOON_UNIFORM_TYPE_VECTOR4_UINT,		//4D无符号整数向量
+}MOON_UNIFORM_TYPE;
+
+typedef struct
+{
+	MOON_UNIFORM_TYPE type;
+	union
+	{
+		struct
+		{
+			int x, y, z, w;
+		}vec_int;
+		struct
+		{
+			unsigned int x, y, z, w;
+		}vec_uint;
+		struct
+		{
+			float x, y, z, w;
+		}vec_float;
+	};
+}MOON_UNIFORM_DATA;
 
 typedef enum
 {

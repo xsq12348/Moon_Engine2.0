@@ -17,7 +17,7 @@ _declspec(dllexport) extern unsigned int MoonHash(char* text);
 * 使用方法
 * float alpha = cos(DegRad(45));
 */
-#define MoonDegRad(phi) (MOON_Pi * (phi) * 1.f / 180.f)//角度转弧度
+_declspec(dllexport) extern float MoonDegRad(float phi); //角度转弧度
 
 /*
 * 函數 MoonKeyState
@@ -200,7 +200,7 @@ _declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char*
 */
 _declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
 
-//------------------------------------双缓冲函数------------------------------------------------//
+//------------------------------------图像操作函数------------------------------------------------//
 
 
 /*
@@ -220,16 +220,44 @@ _declspec(dllexport) extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth
 */
 _declspec(dllexport) extern void MoonImageDelete(MOON_IMAGE* image);//删除双缓冲绘图绘图区
 
+/*
+* 函數 MoonImageLoad
+* 作用 加載BMP圖片到紋理中
+* 使用方法
+* const wchar_t* files[] = {L"1.bmp", L"2.bmp"};
+* MoonImageLoad(&image, files, 2);
+*/
+_declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber);	//加载图片
+
+/*
+* 函數 MoonImageLoadBatch
+* 作用 批量創建紋理並加載圖片
+* 使用方法
+* IMAGE frames[10];
+* const wchar_t* names[] = {L"frame1.bmp", L"frame2.bmp", ...};
+* MoonImageLoadBatch(frames, 10, names, 64, 64);
+*/
+_declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
+
+/*
+* 这个函数对您来说可能没有用处
+* 函數 MoonImageDesignated
+* 作用 手動指定當前的渲染目標紋理
+* 使用方法
+* MoonImageDesignated(&backBuffer);
+*/
+_declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
+
 //------------------------------------多线程函数------------------------------------------------//
 
 
 /*
 * 函數 创建多线程函数
-* 作用 CREATETHREADFUNCTION
+* 作用 MOON_CREATETHREADFUNCTION
 * 使用方法
-* CREATETHREADFUNCTION(Thread);
+* MOON_CREATETHREADFUNCTION(Thread);
 */
-#define MOON_CREATETHREADFUNCTION(NAME)       MOON_THREAD NAME(void* lparam)				//创建多线程函数
+#define MOON_CREATETHREADFUNCTION(NAME)       MOON_THREAD NAME(void* lparam)//创建多线程函数
 
 /*
 * 函數 CREATETHREAD
@@ -243,7 +271,7 @@ _declspec(dllexport) extern void MoonImageDelete(MOON_IMAGE* image);//删除双�
 * 函數 GETTHREADRESOURCE
 * 作用 获取多綫程函數外部导入的资源
 * 使用方法
-* static CREATETHREADFUNCTION(Thread)
+* static MOON_CREATETHREADFUNCTION(Thread)
 * {
 *	GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
 *	return 1;
@@ -251,7 +279,7 @@ _declspec(dllexport) extern void MoonImageDelete(MOON_IMAGE* image);//删除双�
 */
 #define MOON_GETTHREADRESOURCE(type, resource) type resource = (type)lparam;	//获取外部导入的资源
 
-//------------------------------------字符函数------------------------------------------------//
+//------------------------------------字符串操作函数------------------------------------------------//
 
 
 /*
@@ -298,6 +326,14 @@ _declspec(dllexport) extern unsigned int StrMatch_PrefixIgnoreStr(const char* st
 */
 _declspec(dllexport) extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace);
 
+/*
+* 函數 MoonFileLoad_TEXT
+* 作用 加载文本文件
+* 使用方法
+*	MoonFileLoad_TEXT("a.txt", text, strlen(text));
+*/
+_declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);
+
 //------------------------------------按钮控件------------------------------------------------//
 
 /*
@@ -342,10 +378,23 @@ _declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* projec
 	button.ButtonModeFalse = (PressL);                                                          \
 	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
 }
+//------------------------------------着色器函数------------------------------------------------//
+
 /*
-* 函數 MoonFileLoad_TEXT
-* 作用 加载文本文件
+* 注意!這個函數對您的代碼可能沒有任何作用!
+* 如果要修改着色器,请如下操作來實現着色器重载 (Shader Hot-reloading),并且通過傳入的
+* 函數 MoonShaderLoad
+* 作用 初始化所有内部繪圖函數
 * 使用方法
-*	MoonFileLoad_TEXT("a.txt", text, strlen(text));
+* MoonShaderLoad(shader, shader, program);
 */
-_declspec(dllexport) extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);
+_declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program);//初始化所有内部繪圖函數
+
+/*
+* 注意!這個函數對您的代碼可能沒有任何作用!
+* 函數 MoonShaderUniform
+* 作用 OpenGL的uniform函数
+* 使用方法
+* MoonShaderUniform(shader, var, data);
+*/
+_declspec(dllexport) extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM_DATA* data);

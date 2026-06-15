@@ -396,16 +396,16 @@ extern void MoonDrawBox_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2,
 	point[36].y = (int)(sin(2 * MOON_Pi) * r);
 
 	for (int i = 0; i < 9; i++)
-		MoonDrawTriFull(image, round_right, round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, point[i].x + round_right, point[i].y + round_bottom, color);
+		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, color);
 
 	for (int i = 9; i < 18; i++)
-		MoonDrawTriFull(image, round_left, round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, point[i].x + round_left, point[i].y + round_bottom, color);
+		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, color);
 
 	for (int i = 18; i < 27; i++)
-		MoonDrawTriFull(image, round_left, round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, point[i].x + round_left, point[i].y + round_top, color);
+		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, color);
 
 	for (int i = 27; i < 36; i++)
-		MoonDrawTriFull(image, round_right, round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, point[i].x + round_right, point[i].y + round_top, color);
+		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, color);
 }
 
 extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color)
@@ -436,16 +436,16 @@ extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int
 	MoonDrawBoxFull(image, round_right, round_top, x + w, round_bottom, color);
 
 	for (int i = 0; i < 9; i++)
-		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, round_right, round_bottom, color);
+		MoonDrawTriFull(image, round_right, round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, point[i].x + round_right, point[i].y + round_bottom, color);
 
 	for (int i = 9; i < 18; i++)
-		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, round_left, round_bottom, color);
+		MoonDrawTriFull(image, round_left, round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, point[i].x + round_left, point[i].y + round_bottom, color);
 
 	for (int i = 18; i < 27; i++)
-		MoonDrawTriFull(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, round_left, round_top, color);
+		MoonDrawTriFull(image, round_left, round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, point[i].x + round_left, point[i].y + round_top, color);
 
 	for (int i = 27; i < 36; i++)
-		MoonDrawTriFull(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, round_right, round_top, color);
+		MoonDrawTriFull(image, round_right, round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, point[i].x + round_right, point[i].y + round_top, color);
 }
 
 extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)
@@ -756,9 +756,6 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 			case MOON_MESSAGE_DRAW_IMAGE:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -825,15 +822,11 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 
 			case MOON_MESSAGE_DRAW_IMAGE_UV:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -878,15 +871,11 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE_UV, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 			
 			case MOON_MESSAGE_DRAW_IMAGE_PIG:
 			{
-				MOON_POINT2D old_size = message->message[index].metadata.draw.image.image_resources->image_size;
-				message->message[index].metadata.draw.image.image_resources->image_size.w = message->message[index].metadata.draw.image.width;
-				message->message[index].metadata.draw.image.image_resources->image_size.h = message->message[index].metadata.draw.image.height;
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
 				{
 					printf("[team index] %d\n", index);
@@ -919,7 +908,6 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 				MoonDrawAreaTemp(MOON_MESSAGE_DRAW_IMAGE_PIG, index, message, image_old, image_resource_old);
 
-				message->message[index].metadata.draw.image.image_resources->image_size = old_size;
 			}
 			break;
 			

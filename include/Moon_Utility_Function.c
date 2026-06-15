@@ -37,10 +37,10 @@ extern int MoonSleep(int timeload)
 extern unsigned int MoonHash(char* text)
 {
 	if (text == MOON_NULL)
-		return MOON_Error;
+		return MOON_FALSE;
 	unsigned int length = (unsigned int)strlen(text), hash = 0;
-	if (length <= 0)
-		return MOON_Error;
+	if (length == 0)
+		return MOON_FALSE;
 	for (unsigned int index = 0; index < length; index++)hash += text[index] * (index + 1);
 	return hash;
 }
@@ -519,4 +519,58 @@ extern _Bool MoonFree(void* ptr)
 			return MOON_TRUE;
 		}
 	return MOON_FALSE;
+}
+
+extern inline float MoonDegRad(float phi)
+{
+	return (MOON_Pi * (phi) * 1.f / 180.f);
+}
+
+extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM_DATA* data)
+{
+	int location = glad_glGetUniformLocation(shader, (const GLchar*)var);
+	switch (data->type)
+	{
+	case MOON_UNIFORM_TYPE_NONE:		
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR1_FLOAT:
+		glad_glUniform1f(location, data->vec_float.x);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR2_FLOAT:
+		glad_glUniform2f(location, data->vec_float.x, data->vec_float.y);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR3_FLOAT:
+		glad_glUniform3f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR4_FLOAT:
+		glad_glUniform4f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z, data->vec_float.w);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR1_INT:
+		glad_glUniform1i(location, data->vec_int.x);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR2_INT:
+		glad_glUniform2i(location, data->vec_int.x, data->vec_int.y);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR3_INT:
+		glad_glUniform3i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR4_INT:
+		glad_glUniform4i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z, data->vec_int.w);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR1_UINT:
+		glad_glUniform1ui(location, data->vec_uint.x);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR2_UINT:
+		glad_glUniform2ui(location, data->vec_uint.x, data->vec_uint.y);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR3_UINT:
+		glad_glUniform3ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z);
+		break;
+	case MOON_UNIFORM_TYPE_VECTOR4_UINT:
+		glad_glUniform4ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z, data->vec_uint.w);
+		break;
+	default:
+		MoonPrompt("[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
+		break;
+	}
 }

@@ -21,15 +21,15 @@ typedef GLFWwindow MOON_HWND;
 #if	   MOONMANYENTITY
 #undef MOONSTANDARDENTITY
 #undef MOONFEWENTITY
-#define ENTITYNUMBER	1000003
+#define MOON_ENTITY_NUMBER	1000003
 #elif  MOONSTANDARDENTITY
 #undef MOONMANYENTITY
 #undef MOONFEWENTITY
-#define ENTITYNUMBER	10007
+#define MOON_ENTITY_NUMBER	10007
 #elif  MOONFEWENTITY
 #undef MOONMANYENTITY
 #undef MOONSTANDARDENTITY
-#define ENTITYNUMBER	997
+#define MOON_ENTITY_NUMBER	997
 #endif
 
 #define MOON_TRUE			(1)
@@ -135,6 +135,43 @@ typedef struct MOONBUTTON
 	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
 }MOON_BUTTON;
 
+typedef enum
+{
+	MOON_UNIFORM_TYPE_NONE,				//非法
+	MOON_UNIFORM_TYPE_VECTOR1_FLOAT,	//float
+	MOON_UNIFORM_TYPE_VECTOR2_FLOAT,	//2D向量 (x, y)
+	MOON_UNIFORM_TYPE_VECTOR3_FLOAT,	//3D向量 (x, y, z)
+	MOON_UNIFORM_TYPE_VECTOR4_FLOAT,	//4D向量 (x, y, z, w)
+	MOON_UNIFORM_TYPE_VECTOR1_INT,		//int
+	MOON_UNIFORM_TYPE_VECTOR2_INT,		//2D整数向量
+	MOON_UNIFORM_TYPE_VECTOR3_INT,		//3D整数向量
+	MOON_UNIFORM_TYPE_VECTOR4_INT,		//4D整数向量
+	MOON_UNIFORM_TYPE_VECTOR1_UINT,		//unsigned int
+	MOON_UNIFORM_TYPE_VECTOR2_UINT,		//2D无符号整数向量
+	MOON_UNIFORM_TYPE_VECTOR3_UINT,		//3D无符号整数向量
+	MOON_UNIFORM_TYPE_VECTOR4_UINT,		//4D无符号整数向量
+}MOON_UNIFORM_TYPE;
+
+typedef struct
+{
+	MOON_UNIFORM_TYPE type;
+	union
+	{
+		struct
+		{
+			int x, y, z, w;
+		}vec_int;
+		struct
+		{
+			unsigned int x, y, z, w;
+		}vec_uint;
+		struct
+		{
+			float x, y, z, w;
+		}vec_float;
+	};
+}MOON_UNIFORM_DATA;
+
 typedef struct
 {
 	union
@@ -181,6 +218,13 @@ typedef struct
 			int* worth;								//需要修改的值
 		}key;															//按鍵
 		
+		struct
+		{
+			MOON_UNIFORM_DATA data;					//具体数据
+			unsigned int shader;					//着色器
+			char var[MOON_MESSAGE_TEXT_MAX];	//变量名
+		}uniform;														//uniform
+		
 		union
 		{
 			int (*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
@@ -210,43 +254,6 @@ typedef enum
 
 typedef enum
 {
-	MOON_UNIFORM_TYPE_NONE,				//非法
-	MOON_UNIFORM_TYPE_VECTOR1_FLOAT,	//float
-	MOON_UNIFORM_TYPE_VECTOR2_FLOAT,	//2D向量 (x, y)
-	MOON_UNIFORM_TYPE_VECTOR3_FLOAT,	//3D向量 (x, y, z)
-	MOON_UNIFORM_TYPE_VECTOR4_FLOAT,	//4D向量 (x, y, z, w)
-	MOON_UNIFORM_TYPE_VECTOR1_INT,		//int
-	MOON_UNIFORM_TYPE_VECTOR2_INT,		//2D整数向量
-	MOON_UNIFORM_TYPE_VECTOR3_INT,		//3D整数向量
-	MOON_UNIFORM_TYPE_VECTOR4_INT,		//4D整数向量
-	MOON_UNIFORM_TYPE_VECTOR1_UINT,		//unsigned int
-	MOON_UNIFORM_TYPE_VECTOR2_UINT,		//2D无符号整数向量
-	MOON_UNIFORM_TYPE_VECTOR3_UINT,		//3D无符号整数向量
-	MOON_UNIFORM_TYPE_VECTOR4_UINT,		//4D无符号整数向量
-}MOON_UNIFORM_TYPE;
-
-typedef struct
-{
-	MOON_UNIFORM_TYPE type;
-	union
-	{
-		struct
-		{
-			int x, y, z, w;
-		}vec_int;
-		struct
-		{
-			unsigned int x, y, z, w;
-		}vec_uint;
-		struct
-		{
-			float x, y, z, w;
-		}vec_float;
-	};
-}MOON_UNIFORM_DATA;
-
-typedef enum
-{
 	/*
 	请注意
 	大部分情况下您都不必使用_END类消息,引擎会自动处理
@@ -268,6 +275,7 @@ typedef enum
 	MOON_MESSAGE_DRAW_START,//起始符,无其他含义
 	//MOON_MESSAGE_DRAW_SETDRAW,
 	MOON_MESSAGE_DRAW_OPEN,						//在消息队列注入自定义模块函数,一次性
+	MOON_MESSAGE_DRAW_UNIFORM,					//glad_glUniform
 	MOON_MESSAGE_DRAW_IMAGE,					//绘制纹理图层
 	//MOON_MESSAGE_DRAW_IMAGE_ALPHA,
 	//MOON_MESSAGE_DRAW_IMAGE_ROUND,

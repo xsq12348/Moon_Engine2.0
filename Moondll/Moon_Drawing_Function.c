@@ -1,4 +1,5 @@
 ﻿#define STB_IMAGE_IMPLEMENTATION
+#include"Moon.h"
 #include"MoonCore.h"
 //为了方便和防止冲突,所以改名
 #include"Moon_stb_image.h"
@@ -9,18 +10,18 @@
 
 static MOON_IMAGE* moon_engineback;
 static MOON_IMAGE moon_simple_font;
-static MOON_POINT3D moon_vertex[MOON_VERTICES_MAX];
+static MOON_GRAPHIC_VECTER moon_vertex[MOON_VERTICES_MAX];
 static MOON_TEXTURE_VECTER moon_vertex_texture[MOON_VERTICES_MAX];
 static unsigned int
 solid_color_shader, texture_shader,
 moon_vbo_solid, moon_vao_solid,
 moon_vbo_texture, moon_vao_texture,
 moon_vertex_index, moon_vertex_texture_index;
-static void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);
-static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);
-static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);
-static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);
-static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);
+static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);						//构建图元顶点
+static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);				//构建纹理顶点
+static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);																	//全局设置
+static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);	//MoonCoreDrawArea辅助函数
+static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);								//MoonCoreGraphic辅助函数
 
 _declspec(dllexport) extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 {
@@ -60,7 +61,7 @@ _declspec(dllexport) extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 		glad_glBindVertexArray(moon_vao_solid);
 
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
-		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_POINT3D) * MOON_VERTICES_MAX, NULL, GL_DYNAMIC_DRAW);
+		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_GRAPHIC_VECTER) * MOON_VERTICES_MAX, NULL, GL_DYNAMIC_DRAW);
 
 		glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 		glad_glEnableVertexAttribArray(0);
@@ -387,7 +388,7 @@ _declspec(dllexport) extern void MoonDrawBox_Round(MOON_IMAGE* image, int x1, in
 	MOON_POINT2D point[37] = { 0 };
 	for (int i = 0; i < 36; i++)
 	{
-		float rad = MoonDegRad(i * 10);
+		float rad = MoonDegRad((float)(i * 10));
 		point[i].x = (int)(cos(rad) * r);
 		point[i].y = (int)(sin(rad) * r);
 	}
@@ -423,7 +424,7 @@ _declspec(dllexport) extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1
 	MOON_POINT2D point[37] = { 0 };
 	for (int i = 0; i < 36; i++)
 	{
-		float rad = MoonDegRad(i * 10);
+		float rad = MoonDegRad((float)(i * 10));
 		point[i].x = (int)(cos(rad) * r);
 		point[i].y = (int)(sin(rad) * r);
 	}
@@ -458,14 +459,14 @@ _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char*
 	metadata.draw.text.size_w = sizewidth;
 	metadata.draw.text.size_h = sizeheight;
 	int len = (int)strlen(text);
-	if (len >= MOON_MESSAGE_TEXT_MAX)
+	if (len > MOON_MESSAGE_TEXT_MAX - 1)
 	{
 		char textbuffer[255] = { 0 };
 		snprintf(textbuffer, 255, "单次消息超过最大字符数,或许考虑(拼接|缩短)\n字符串为[%s]", text);
 		MoonPrompt((char*)textbuffer);
 		return;
 	}
-	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
+	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX - 1; index++)
 	{
 		char ch = text[index];
 		if (ch == '\n' || ch == '\0')
@@ -637,7 +638,7 @@ _declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, 
 	}
 }
 
-_declspec(dllexport) extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type)
+_declspec(dllexport) extern int MoonCoreGraphic(MOON_GRAPHIC_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type)
 {
 	if (!metadata->draw.image_goal)
 	{
@@ -669,7 +670,7 @@ _declspec(dllexport) extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned 
 	{
 		glad_glBindVertexArray(moon_vao_solid);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
-		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_POINT3D) * vertex_number, vertexs);
+		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_GRAPHIC_VECTER) * vertex_number, vertexs);
 		glad_glDrawArrays(graphic_mode, 0, vertex_number);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glad_glBindVertexArray(0);
@@ -782,8 +783,8 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 						//这里处理旋转
 
 						float
-							cosrad = (float)cos(MoonDegRad(metadata->draw.image.deg)),
-							sinrad = (float)sin(MoonDegRad(metadata->draw.image.deg));
+							cosrad = (float)cos((double)MoonDegRad((float)(metadata->draw.image.deg))),
+							sinrad = (float)sin((double)MoonDegRad((float)(metadata->draw.image.deg)));
 						MOON_POINT2D points[4];
 						int apx = (int)(-metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w),
 							apy = (int)(-metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h);
@@ -1053,6 +1054,57 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			}
 			break;
 			
+			case MOON_MESSAGE_DRAW_UNIFORM:
+			{
+				MOON_UNIFORM_DATA* data = &message->message[index].metadata.uniform.data;
+				int location = glad_glGetUniformLocation(message->message[index].metadata.uniform.shader, (const GLchar*)message->message[index].metadata.uniform.var);
+				switch (data->type)
+				{
+				case MOON_UNIFORM_TYPE_NONE:
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR1_FLOAT:
+					glad_glUniform1f(location, data->vec_float.x);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR2_FLOAT:
+					glad_glUniform2f(location, data->vec_float.x, data->vec_float.y);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR3_FLOAT:
+					glad_glUniform3f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR4_FLOAT:
+					glad_glUniform4f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z, data->vec_float.w);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR1_INT:
+					glad_glUniform1i(location, data->vec_int.x);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR2_INT:
+					glad_glUniform2i(location, data->vec_int.x, data->vec_int.y);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR3_INT:
+					glad_glUniform3i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR4_INT:
+					glad_glUniform4i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z, data->vec_int.w);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR1_UINT:
+					glad_glUniform1ui(location, data->vec_uint.x);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR2_UINT:
+					glad_glUniform2ui(location, data->vec_uint.x, data->vec_uint.y);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR3_UINT:
+					glad_glUniform3ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z);
+					break;
+				case MOON_UNIFORM_TYPE_VECTOR4_UINT:
+					glad_glUniform4ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z, data->vec_uint.w);
+					break;
+				default:
+					MoonPrompt("[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
+					break;
+				}
+			}
+			break;
+			
 			case MOON_MESSAGE_DRAW_OPEN:
 			{
 				message->message[index].metadata.function_open(project);
@@ -1066,7 +1118,11 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 }
 
 //此函数仅作为辅助函数
-static inline void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a)
+static inline void MoonVertexinitTemp(
+	MOON_GRAPHIC_VECTER* vertex,
+	unsigned int index_offset, 
+	float vx, float vy, 
+	float r, float g, float b, float a)
 {
 	vertex[index_offset].x = vx;
 	vertex[index_offset].y = vy;
@@ -1079,7 +1135,10 @@ static inline void MoonVertexinitTemp(MOON_POINT3D* vertex, unsigned int index_o
 
 
 //此函数仅作为辅助函数
-static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y)
+static inline void MoonTextureVertexinitTemp(
+	MOON_TEXTURE_VECTER* vertex, 
+	unsigned int index_offset, 
+	float vx, float vy, float uv_x, float uv_y)
 {
 	vertex[index_offset].x = vx;
 	vertex[index_offset].y = vy;

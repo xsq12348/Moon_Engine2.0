@@ -1,7 +1,16 @@
-﻿#include"MoonCore.h"
+﻿#include"Moon.h"
+#include"MoonCore.h"
 
 static MOON_PROJECTGOD* utility_project;
 MOON_ALLOC_REGISTRY moon_alloc;
+
+/*
+* 函數 MoonAlloc_Registry
+* 作用 内部注册表名单+1
+* 使用方法
+* MoonAlloc_Registry();
+*/
+static _Bool MoonAlloc_Registry();
 
 _declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
 {
@@ -100,12 +109,12 @@ _declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 
 _declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid)
 {
-	void* entity = project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex;
+	void* entity = project->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex;
 	if (entity == MOON_NULL)
 	{
 		char text[255];
 		snprintf(text, 255, "[MoonFindEntity]空指针错误!来自名称[%s]的实体", nameid);
-		MoonProjectError(project->entityindex[(MoonHash(nameid) % ENTITYNUMBER)].entityindex, 1, text);
+		MoonProjectError(project->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex, 1, text);
 		return MOON_NULL;
 	}
 	return entity;
@@ -114,7 +123,7 @@ _declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char*
 _declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name)
 {
 	int index = MOON_NOTFOUND;
-	int hash = MoonHash(nameid) % ENTITYNUMBER;
+	int hash = MoonHash(nameid) % MOON_ENTITY_NUMBER;
 	if (project->entityindex[hash].entityindex == MOON_NULL)
 	{
 		if (hash != MOON_Error)
@@ -415,7 +424,7 @@ _declspec(dllexport) extern unsigned int StrMatch_PrefixIgnoreStr(const char* st
 	return index_all;
 }
 
-_declspec(dllexport) extern _Bool MoonAlloc_Registry()
+static _Bool MoonAlloc_Registry()
 {
 	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));
 	if (alloc_buffer)
@@ -528,49 +537,41 @@ _declspec(dllexport) extern inline float MoonDegRad(float phi)
 
 _declspec(dllexport) extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM_DATA* data)
 {
-	int location = glad_glGetUniformLocation(shader, (const GLchar*)var);
-	switch (data->type)
+	if (strlen(var) > MOON_MESSAGE_TEXT_MAX - 1)
 	{
-	case MOON_UNIFORM_TYPE_NONE:		
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR1_FLOAT:
-		glad_glUniform1f(location, data->vec_float.x);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR2_FLOAT:
-		glad_glUniform2f(location, data->vec_float.x, data->vec_float.y);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR3_FLOAT:
-		glad_glUniform3f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR4_FLOAT:
-		glad_glUniform4f(location, data->vec_float.x, data->vec_float.y, data->vec_float.z, data->vec_float.w);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR1_INT:
-		glad_glUniform1i(location, data->vec_int.x);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR2_INT:
-		glad_glUniform2i(location, data->vec_int.x, data->vec_int.y);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR3_INT:
-		glad_glUniform3i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR4_INT:
-		glad_glUniform4i(location, data->vec_int.x, data->vec_int.y, data->vec_int.z, data->vec_int.w);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR1_UINT:
-		glad_glUniform1ui(location, data->vec_uint.x);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR2_UINT:
-		glad_glUniform2ui(location, data->vec_uint.x, data->vec_uint.y);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR3_UINT:
-		glad_glUniform3ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z);
-		break;
-	case MOON_UNIFORM_TYPE_VECTOR4_UINT:
-		glad_glUniform4ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z, data->vec_uint.w);
-		break;
-	default:
-		MoonPrompt("[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
-		break;
+		MoonPrompt("[MoonShaderUniform]函数 变量名称超出[MOON_MESSAGE_TEXT_MAX],请尝试缩短变量名");
+		return;
 	}
+	MOON_METADATA metadata = { 0 };
+	//strcpy((char*)metadata.uniform.var, var);
+	for (unsigned int index = 0; index < MOON_MESSAGE_TEXT_MAX - 1; index++)
+		metadata.uniform.var[index] = var[index];
+	metadata.uniform.shader = shader;
+	metadata.uniform.data = *data;
+	MoonProjectSendMessage(MOON_MESSAGE_DRAW_UNIFORM, metadata);
+}
+
+_declspec(dllexport) extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right)
+{
+	if (!mat4_return || !mat4_left || !mat4_right)
+	{
+		MoonPrompt("[MoonMatrix4_4Mul] 空指针");
+		return MOON_FALSE;
+	}
+
+	float mat4_return_buffer[16];
+
+	for (int col = 0; col < 4; ++col)
+		for (int row = 0; row < 4; ++row)
+		{
+			float num = 0;
+			for (int dim = 0; dim < 4; ++dim)
+				num += mat4_left[dim * 4 + row] * mat4_right[col * 4 + dim];
+			mat4_return_buffer[col * 4 + row] = num;
+		}
+
+	for (int index = 0; index < 16; index++)
+		mat4_return[index] = mat4_return_buffer[index];
+
+	return MOON_TRUE;
 }

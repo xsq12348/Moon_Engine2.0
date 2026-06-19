@@ -494,7 +494,7 @@ Email:1993346266@qq.com
 * 1.1.6.0              实现了C++的适配,如果要使用C++版本的,请确保您所有.c的文件后缀已经改成.cpp						.C++ adaptation has been implemented. If you want to use the C++ version, please make sure all your .c file extensions have been changed to .cpp.
 * 1.1.6.1              修复了ProjectFindEntityAllNumber函数的计数错误											.Fixed the counting error in the ProjectFindEntityAllNumber function
 * 1.1.6.2              更新了实体系统,现在不再会有堆栈溢出的问题了。
-					   因为PROJECTGOD里的ENTITYINDEX entityindex[ENTITYNUMBER];变成了ENTITYINDEX* entityindex;.The entity system has been updated, and there will no longer be stack overflow issues because ENTITYINDEX entityindex[ENTITYNUMBER]; in PROJECTGOD has been changed to ENTITYINDEX* entityindex;
+					   因为PROJECTGOD里的ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];变成了ENTITYINDEX* entityindex;.The entity system has been updated, and there will no longer be stack overflow issues because ENTITYINDEX entityindex[MOON_ENTITY_NUMBER]; in PROJECTGOD has been changed to ENTITYINDEX* entityindex;
 * 1.1.6.3  2025.12.2   修复了引擎内部实体类型不正确的BUG															.Fixed a bug where the internal entity type of the engine was incorrect
 * 1.1.6.4              更新了ProjectFindEntityAllNumber函数,现在会打印更详细的内容								.Updated the ProjectFindEntityAllNumber function, it will now print more detailed informatio
 * 1.1.6.5              将Hash槽位改成质数,减少Hash冲突															.Change the hash slots to prime numbers to reduce hash collisions
@@ -994,6 +994,24 @@ Email:1993346266@qq.com
 * 2.1.8.0					添加了函数
 *								MoonShaderUniform
 *							用于自定义着色器
+* 2.1.8.1		2026.6.16	将函数
+*								MoonImageDesignated
+*							移入了核心区
+* 2.1.8.2					将函数
+*								MoonImageShader
+*							移入了核心区
+* 2.1.8.3					ENTITYNUMBER
+*								改名为
+*							MOON_ENTITY_NUMBER
+*							您可以通过开启兼容模式来解决报错问题
+* 2.1.8.4					现在可以通过消息系统来设置
+*								MoonShaderUniform
+* 2.1.8.5					MoonAlloc_Registry
+*								改为了内部函数,dll不再能够导出
+* 2.1.8.6		2026.6.17	MOON_POINT3D和内部渲染脱轨,渲染图元将使用内部的MOON_GRAPHIC_VECTER结构体
+* 2.1.9.0		2026.6.19	添加了函数
+*								MoonMatrix4_4Mul
+*							用于绘制圆角矩形
 */
 
 

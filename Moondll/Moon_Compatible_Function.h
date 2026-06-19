@@ -85,4 +85,5 @@
 #define MoonCreateImage MoonImageCreate
 #define MoonRANGE MoonRange
 #define MoonSETMOUSECOORD glfwSetCursorPos
-#define MOONBUTTONCREATE MOON_BUTTON_CREATE 
+#define MOONBUTTONCREATE MOON_BUTTON_CREATE
+#define ENTITYNUMBER MOON_ENTITY_NUMBER

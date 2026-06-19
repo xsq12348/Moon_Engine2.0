@@ -144,6 +144,15 @@ _declspec(dllexport) extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigne
 */
 _declspec(dllexport) extern _Bool MoonFree(void* ptr);
 
+/*
+* 函數 MoonMatrix4_4Mul
+* 作用  4 * 4 矩阵乘法,列主序
+*		如果mat4_return传入mat4_left或者mat4_right,不影响最终的值
+* 使用方法
+* MoonMatrix4_4Mul(mat4_return, mat4_left, mat4_right);
+*/
+_declspec(dllexport) extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right);
+
 //------------------------------------定时函数--------------------------------------------------//
 
 
@@ -238,15 +247,6 @@ _declspec(dllexport) extern void MoonImageLoad(MOON_IMAGE* image, const char** i
 * MoonImageLoadBatch(frames, 10, names, 64, 64);
 */
 _declspec(dllexport) extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height);//批量加载图片
-
-/*
-* 这个函数对您来说可能没有用处
-* 函數 MoonImageDesignated
-* 作用 手動指定當前的渲染目標紋理
-* 使用方法
-* MoonImageDesignated(&backBuffer);
-*/
-_declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
 
 //------------------------------------多线程函数------------------------------------------------//
 

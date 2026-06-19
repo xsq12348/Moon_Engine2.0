@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include"Moon.h"
+#include"MoonType.h"
 
 /*
 注意!
@@ -43,6 +43,13 @@ typedef struct
 {
 	float x, y, z, uv_x, uv_y;
 }MOON_TEXTURE_VECTER;		//用于纹理顶点
+
+//点结构体
+typedef struct
+{
+	float x, y, z;
+	float r, g, b, a;
+}MOON_GRAPHIC_VECTER;
 
 typedef void* MOON_ALLOC;
 typedef struct
@@ -104,15 +111,6 @@ _declspec(dllexport) extern void MoonUtilityOver();
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
-* 函數 MoonAlloc_Registry
-* 作用 内部注册表名单+1
-* 使用方法
-* MoonAlloc_Registry();
-*/
-_declspec(dllexport) extern _Bool MoonAlloc_Registry();
-
-/*
-* 注意!這個函數對你的代碼可能沒有任何作用!
 * 函數 MoonDrawLoad
 * 作用 初始化所有内部绘图函數
 * 使用方法
@@ -130,6 +128,25 @@ _declspec(dllexport) extern void MoonDrawLoad(MOON_PROJECTGOD* project);
 _declspec(dllexport) extern void MoonDrawOver();
 
 /*
+* 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonImageShader
+* 作用 切換成開發者設定的Shader
+* 使用方法
+* MoonImageShader( 0, shader);
+*/
+_declspec(dllexport) extern void MoonImageShader(unsigned int shader);//设置著色器
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonImageDesignated
+* 作用 手動指定當前的渲染目標紋理
+* 使用方法
+* MoonImageDesignated(&backBuffer);
+*/
+_declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
 * 函數 MoonProjectFunctionSwitch
 * 作用 切換項目中的函數指針
 *		通过第二个参数,指定需要更换的模块

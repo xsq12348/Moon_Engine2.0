@@ -105,14 +105,6 @@ _declspec(dllexport) extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int 
 */
 _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight, unsigned int color);//显示字符
 
-/*
-* 函數 MoonImageShader
-* 作用 切換成開發者設定的Shader
-* 使用方法
-* MoonImageShader( 0, shader);
-*/
-_declspec(dllexport) extern void MoonImageShader(unsigned int shader);//设置著色器
-
 //------------------------------------动画------------------------------------------------//
 
 

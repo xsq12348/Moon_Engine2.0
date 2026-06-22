@@ -2,7 +2,12 @@
 #include"MoonCore.h"
 
 static MOON_PROJECTGOD* utility_project;
-MOON_ALLOC_REGISTRY moon_alloc;
+static MOON_ALLOC_REGISTRY moon_alloc;
+
+static MOON_CORE_MUSIC* moon_music_sound;
+static unsigned int moon_music_index;
+static SDL_AudioDeviceID moon_audio_dev = 0;
+static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
 
 /*
 * 函數 MoonAlloc_Registry
@@ -15,6 +20,54 @@ static _Bool MoonAlloc_Registry();
 _declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
 {
 	utility_project = project;
+	{
+		SDL_AudioSpec audio_spec =
+		{
+			.format = SDL_AUDIO_F32LE,
+			.channels = 1,
+			.freq = MOON_SAMPLE_RATE,
+		};
+
+		{
+			moon_audio_dev = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio_spec);
+			if (moon_audio_dev == MOON_FALSE)
+			{
+				MoonPrompt((char*)"");
+				printf("[ProjectInit] 打开音频设备失败: %s\n", SDL_GetError());
+				MoonProjectDead();
+				return;
+			}
+		}
+
+		{
+			moon_audio_stream = SDL_CreateAudioStream(&audio_spec, NULL);
+			if (!moon_audio_stream)
+			{
+				MoonPrompt((char*)"");
+				printf("[ProjectInit] 创建音频流失败: %s\n", SDL_GetError());
+				SDL_CloseAudioDevice(moon_audio_dev);
+				MoonProjectDead();
+				return;
+			}
+		}
+
+		{
+			if (!SDL_BindAudioStream(moon_audio_dev, moon_audio_stream))
+			{
+				MoonPrompt((char*)"");
+				printf("[ProjectInit] 绑定音频流失败: %s\n", SDL_GetError());
+				SDL_DestroyAudioStream(moon_audio_stream);
+				SDL_CloseAudioDevice(moon_audio_dev);
+				MoonProjectDead();
+				return;
+			}
+		}
+
+		{
+			SDL_ResumeAudioDevice(moon_audio_dev);
+		}
+	}
+
 }
 
 _declspec(dllexport) extern void MoonUtilityOver()
@@ -25,22 +78,169 @@ _declspec(dllexport) extern void MoonUtilityOver()
 		moon_alloc.alloc[index] = MOON_NULL;
 	}
 	free(moon_alloc.alloc);
+
+	SDL_UnbindAudioStream(moon_audio_stream);
+	SDL_DestroyAudioStream(moon_audio_stream);
+	SDL_CloseAudioDevice(moon_audio_dev);
 }
 
-_declspec(dllexport) extern void MoonMusic(const char* File)
+_declspec(dllexport) extern void MoonMusicSet(MOON_MUSIC* music,_Bool on_or_off)
 {
-	//SDL_OpenAudioDeviceStream();
-	//TCHAR cmd[255];
-	//wsprintf(cmd, TEXT("open \%s\ alias music"), File);
-	//mciSendString(TEXT("close music"), 0, 0, 0);
-	//mciSendString(cmd, MOON_NULL, 0, MOON_NULL);
-	//mciSendString(TEXT("play music"), MOON_NULL, 0, MOON_NULL);
+	music->mode = on_or_off;
+}
+
+_declspec(dllexport) extern int MoonMusic(MOON_MUSIC* music)
+{
+	if (!music)
+	{
+		MoonPrompt((char*)"[MoonMusic] 非法的music指针");
+		return MOON_FALSE;
+	}
+
+	if (!music->mode)
+	{
+		SDL_FlushAudioStream(moon_audio_stream);
+		return MOON_FALSE;
+	}
+
+	if ((music->start >= music->end) || (music->start < 0.f || music->start > 1.f) || (music->end < 0.f || music->end > 1.f))
+	{
+		MoonPrompt((char*)"[MoonMusic] 非法的范围");
+		return MOON_FALSE;
+	}
+
+	{
+		if (music->id >= moon_music_index)
+		{
+			MoonPrompt((char*)"[MoonMusic] 无效的音乐ID");
+			return MOON_FALSE;
+		}
+
+		if (!moon_music_sound[music->id].data || moon_music_sound[music->id].length <= 0)
+		{
+			MoonPrompt((char*)"[MoonMusic] 音效数据为空");
+			return MOON_FALSE;
+		}
+		static unsigned int current_music_id = 0xffffffff;
+		unsigned int residual = SDL_GetAudioStreamQueued(moon_audio_stream);
+		if (residual > 0)
+		{
+			if (current_music_id == music->id)
+			{
+				music->mode = MOON_TRUE;
+				return MOON_TRUE;
+			}
+			else
+			{
+				SDL_FlushAudioStream(moon_audio_stream);
+				current_music_id = music->id;
+				music->mode = MOON_TRUE;
+			}
+		}
+		else
+		{
+			if (music->id == current_music_id && music->mode == MOON_TRUE)
+			{
+				music->mode = MOON_FALSE;
+				current_music_id = 0xffffffff;
+				return MOON_FALSE;
+			}
+			current_music_id = music->id;
+			music->mode = MOON_TRUE;
+		}
+
+		{
+			MOON_CORE_MUSIC* current_music = &moon_music_sound[current_music_id];
+			int len = (int)((music->end - music->start) * current_music->length) * sizeof(float);
+			float* start = current_music->data + (int)(music->start * current_music->length);
+			if (!SDL_PutAudioStreamData(moon_audio_stream, start, len))
+			{
+				MoonPrompt((char*)"[MoonMusic] 推入音频数据失败");
+				printf("[MoonMusic] SDL 错误: %s\n", SDL_GetError());
+				return MOON_FALSE;
+			}
+		}
+	}
+
+	return MOON_TRUE;
+}
+
+_declspec(dllexport) extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
+{
+	if (!music)
+	{
+		MoonPrompt((char*)"[MoonMusic] 非法的music指针");
+		return MOON_FALSE;
+	}
+	if (!File)
+	{
+		MoonPrompt((char*)"[MoonMusicInit] 非法的File指针");
+		return MOON_FALSE;
+	}
+	music->start = 0.f;
+	music->end = 1.f;
+	music->mode = MOON_TRUE;
+
+	unsigned char* raw_data = (unsigned char*)MOON_NULL;
+	unsigned int raw_len = MOON_FALSE;
+
+	SDL_AudioSpec file_spec = { 0 };
+
+	if (!SDL_LoadWAV(File, &file_spec, &raw_data, &raw_len)) 
+	{
+		MoonPrompt((char*)"");
+		printf("[MoonMusicInit] 加载失败: %s\n", SDL_GetError());
+		return MOON_FALSE;
+	}
+
+	{
+		SDL_AudioSpec device_spec =
+		{
+			.format = SDL_AUDIO_F32LE,
+			.channels = 1,
+			.freq = MOON_SAMPLE_RATE,
+		};
+
+		SDL_AudioStream* converter = SDL_CreateAudioStream(&file_spec, &device_spec);
+		if (!converter) 
+		{
+			MoonPrompt((char*)"[MoonMusicInit] 创建转换流失败");
+			SDL_free(raw_data);
+			return MOON_FALSE;
+		}
+
+		SDL_PutAudioStreamData(converter, raw_data, raw_len);
+
+		int converted_len = SDL_GetAudioStreamAvailable(converter);
+		if (converted_len <= 0) 
+		{
+			MoonPrompt((char*)"[MoonMusicInit] 转换失败或无数据\n");
+			SDL_DestroyAudioStream(converter);
+			SDL_free(raw_data);
+			return MOON_FALSE;
+		}
+
+		MoonAlloc(&moon_music_sound, sizeof(MOON_CORE_MUSIC), moon_music_index + 1, "realloc");
+		MoonAlloc(&moon_music_sound[moon_music_index].data, converted_len, 1, "malloc");
+		moon_music_sound[moon_music_index].length = converted_len / sizeof(float);
+		SDL_GetAudioStreamData(converter, moon_music_sound[moon_music_index].data, converted_len);
+		SDL_DestroyAudioStream(converter);
+
+		MoonPrompt((char*)"[MoonMusicInit] 转换完成");
+
+		music->id = moon_music_index;
+		moon_music_index++;
+	}
+	
+	SDL_free(raw_data);
+
+	return MOON_TRUE;
 }
 
 _declspec(dllexport) extern int MoonSleep(int timeload)
 {
 	SDL_Delay(timeload);
-	return 0;
+	return timeload;
 }
 
 _declspec(dllexport) extern unsigned int MoonHash(char* text)
@@ -524,6 +724,7 @@ _declspec(dllexport) extern _Bool MoonFree(void* ptr)
 		if (moon_alloc.alloc[index] == ptr)
 		{
 			free(ptr);
+			ptr = MOON_NULL;
 			moon_alloc.alloc[index] = MOON_NULL;
 			return MOON_TRUE;
 		}

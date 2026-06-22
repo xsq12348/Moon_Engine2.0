@@ -85,13 +85,33 @@ _declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠
 #define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))//随机数获取
 
 /*
+* 函數 MoonMusicSet
+* 作用 设置音樂播放状态
+* 使用方法
+* MoonMusicSet(music, on);
+*/
+_declspec(dllexport) extern void MoonMusicSet(MOON_MUSIC* music, _Bool on_or_off);
+
+/*
 * 函數 MoonMusic
 * 作用 播放音樂
 * 使用方法
-* MoonMusic("music.mp3");
+*   MOON_MUSIC music;
+*   music.id = 0;
+*   music.start = 0.3f;			// 从 30% 位置开始
+*   music.end = 0.8f;			// 到 80% 位置结束
+*   music.loop = MOON_TRUE;		//开启循环
+* MoonMusic(&music);
 */
-_declspec(dllexport) extern void MoonMusic(const char* File);//播放音乐
+_declspec(dllexport) extern int MoonMusic(MOON_MUSIC* music);//播放音乐
 
+/*
+* 函數 MoonMusicInit_Wav
+* 作用 初始化音樂
+* 使用方法
+* MoonMusicInit_Wav(music, "music.mp3");
+*/
+_declspec(dllexport) extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File);
 /*
 * 函數 MoonTriangleDetection
 * 作用 檢測點與三角形的位置關係
@@ -375,7 +395,7 @@ _declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* projec
 	button.ButtonModeHover = (Hover);                                                           \
 	button.ButtonModePress = (Press);                                                           \
 	button.ButtonModePressL = (PressL);                                                         \
-	button.ButtonModeFalse = (PressL);                                                          \
+	button.ButtonModeFalse = (False);                                                          \
 	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
 }
 //------------------------------------着色器函数------------------------------------------------//

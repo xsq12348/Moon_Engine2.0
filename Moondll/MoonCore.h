@@ -7,6 +7,14 @@
 
 */
 
+#define MOON_SAMPLE_RATE 48000		//音频频率
+
+typedef struct
+{
+	float* data;
+	int length;
+}MOON_CORE_MUSIC;
+
 typedef struct MOON_MESSAGE_SPECIFIC
 {
 	unsigned int message;				//消息类型
@@ -160,6 +168,15 @@ _declspec(dllexport) extern void MoonProjectFunctionSwitch(char module, int (*fu
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonProjectDead
+* 作用 在内核快速杀死项目
+* 使用方法
+* MoonProjectDead();
+*/
+_declspec(dllexport) extern void MoonProjectDead();
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
 * 函數 MoonProjectGetMessage
 * 作用 初始化所有内部工具函數
 * 使用方法
@@ -172,5 +189,5 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
 _declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//画板
-_declspec(dllexport) extern int MoonCoreGraphic(MOON_POINT3D* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type);	//绘制图案
+_declspec(dllexport) extern int MoonCoreGraphic(MOON_GRAPHIC_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type);	//绘制图案
 _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata);																					//渲染默认字体

@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,9,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,12,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -9,70 +9,6 @@ static MOON_POINT2D projectmousecoord;
 static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
 static MOON_ENGINECORE moon_engine_core;
 static _Bool thread_draw_type, thread_attr_type;
-
-/*
-static const char* moon_vertex_shader3d_code =
-"#version 330 core\n"
-MoonString(
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec4 color;
-out vec4 vcolor;
-mat4 projection;
-mat4 model;
-uniform vec4 moon_projection_matrix_a;
-uniform vec4 moon_projection_matrix_b;
-uniform vec4 moon_projection_matrix_c;
-uniform vec4 moon_projection_matrix_d;
-uniform vec4 moon_model_matrix_a;
-uniform vec4 moon_model_matrix_b;
-uniform vec4 moon_model_matrix_c;
-uniform vec4 moon_model_matrix_d;
-void main()
-{
-	vcolor = color;
-	projection = mat4(moon_projection_matrix_a, moon_projection_matrix_b, moon_projection_matrix_c, moon_projection_matrix_d);
-	model = mat4(moon_model_matrix_a, moon_model_matrix_b, moon_model_matrix_c, moon_model_matrix_d)
-	gl_Position = projection * vec4(position, 1.0);
-}
-);
-
-static const char* moon_pixel_shader3d_code =
-"#version 330 core\n"
-MoonString(
-out vec4 pixel_color;
-in vec4 vcolor;
-void main()
-{
-	pixel_color = vcolor;
-}
-);
-
-static const char* moon_vertex_shader3d_texture_code =
-"#version 330 core\n"
-MoonString(
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 atex_uv;
-out vec2 tex_uv;
-void main()
-{
-	tex_uv = atex_uv;
-	gl_Position = vec4(position, 1.0);
-}
-);
-
-static const char* moon_pixel_shader3d_texture_code =
-"#version 330 core\n"
-MoonString(
-in vec2 tex_uv;
-out vec4 pixel_color;
-uniform sampler2D moon_utexture;
-uniform vec4 moon_ucolor;
-void main()
-{
-	pixel_color = texture(moon_utexture, tex_uv) * moon_ucolor;
-}
-);
-*/
 
 static const char* moon_vertex_shader2d_code =
 "#version 330 core\n"
@@ -162,7 +98,7 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 {
 	MoonPrompt((char*)"[ProjectInit]初始化函数进入成功");
 	printf("\n\033[1;33m    ████████████      \n  ████      ████████  \n  ██    ██████    ██  \n████  ██    ████    ███\n██████████████  ██  ███\n██  ██  ██  ██  ██  ███\n██  ██  ███████████████\n██    ████    ██  █████\n  ██    ██████    ██  \n  ████████      ████  \n      ████████████      \n\033[0m\n");
-	printf("MoonEngine[%d.%d.%d.%d]\n", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
+	printf("MoonEngine[%x.%x.%x.%x]\n", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
 	/*
 	  ██████████
   ████      ████████
@@ -202,7 +138,7 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 		return;
 	}
 
-	//SDL_Init(SDL_INIT_AUDIO);
+	SDL_Init(SDL_INIT_AUDIO);
 
 	MoonPrompt((char*)"projectgod初始化成功");
 	project->project_name = project_name;
@@ -220,7 +156,7 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 
 	MoonCreateEntityIndex(project, &shader_program_vectex, (char*)"ProjectShader_SolidColor", sizeof(unsigned int), (char*)"unsigned int");
 	MoonCreateEntityIndex(project, &shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
-	MoonShaderLoad((char**) & moon_vertex_shader2d_code, (char**) & moon_pixel_shader2d_code, &shader_program_vectex);				//加载渲染器
+	MoonShaderLoad((char**) & moon_vertex_shader2d_code, (char**) & moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
 	MoonShaderLoad((char**) & moon_vertex_shader2d_texture_code, (char**) & moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
 	MoonUtilityLoad(project);
 	MoonDrawLoad(project);
@@ -385,6 +321,12 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 
 _declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
 {
+	if (moon_engine_core.dead)
+	{
+		MoonPrompt((char*)"[ProjectRun]引擎流程函数进入失败!");
+		return;
+	}
+
 	MoonPrompt((char*)"[ProjectRun]引擎流程函数进入成功!");
 
 	//默认在窗口内部
@@ -487,12 +429,21 @@ _declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void 
 	}
 	if (ProjectOverSetting != 0)
 		ProjectOverSetting(project);
-	MoonDrawOver();
-	MoonUtilityOver();
-	//SDL_Quit();
-	glad_glDeleteProgram(shader_program_vectex);
-	glad_glDeleteProgram(shader_program_pixel);
-	glfwTerminate();
+
+	{
+		MoonDrawOver();
+		MoonUtilityOver();
+	}
+
+	{
+		SDL_Quit();
+	}
+
+	{
+		glad_glDeleteProgram(shader_program_vectex);
+		glad_glDeleteProgram(shader_program_pixel);
+		glfwTerminate();
+	}
 
 	//释放消息队列
 	{
@@ -501,7 +452,7 @@ _declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void 
 	}
 
 	//釋放所有實體
-	for (int index = 0; index < MOON_ENTITY_NUMBER; index++)
+	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
 	{
 		if (project->entityindex[index].type_name != 0)
 			if (!strcmp(project->entityindex[index].type_name, (char*)"MOON_IMAGE"))MoonImageDelete((MOON_IMAGE*)project->entityindex[index].entityindex);
@@ -560,7 +511,7 @@ _declspec(dllexport) extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* 
 {
 	int all_number = 0;
 	printf("\n\033[4;7;105m   序号|地址            |索引      |名称                          |类型                          |Hash      |类型大小  \033[0m\n");
-	for (int index = 0; index < MOON_ENTITY_NUMBER; index++)
+	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
 		if (project->entityindex[index].length != 0)
 		{
 			all_number++;
@@ -693,10 +644,10 @@ _declspec(dllexport) extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, 
 _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
 {
 	_Bool key_on_bufer[MOON_KEY_LAST] = { 0 };
-	for (unsigned int index = 0; index < message->message_index; index++)
+	static _Bool key_buffer[MOON_KEY_LAST];
+	for (unsigned int index = 0; index < message->message_index; ++index)
 	{
 		if (*type)
-		{
 			switch (message->message[index].message)
 			{
 			case MOON_MESSAGE_LOGIC_END: *type = MOON_FALSE; break;
@@ -707,8 +658,7 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 			case MOON_MESSAGE_SETDRAW:
 				MoonProjectFunctionSwitch(MOON_MODULE_DRAW, message->message[index].metadata.function);
 				break;
-			case MOON_MESSAGE_LOGIC_OPEN:
-				message->message[index].metadata.function_open(project);
+				//case MOON_MESSAGE_LOGIC_OPEN:				message->message[index].metadata.function_open(project); break;
 			case MOON_MESSAGE_DEAD:
 				moon_engine_core.dead = MOON_TRUE;
 				break;
@@ -729,29 +679,44 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 				break;
 			case MOON_MESSAGE_KEY:
 			{
-				static _Bool key_buffer[MOON_KEY_LAST];
-				int token = message->message[index].metadata.key.token;
+				int token = message->message[index].metadata.key.token,
+					* state = message->message[index].metadata.key.worth;
+
 				if (!key_on_bufer[token])
 					key_on_bufer[token] = (_Bool)(glfwGetKey(project->hwnd, (int)token) || glfwGetMouseButton(project->hwnd, (int)token));
-				int* state = message->message[index].metadata.key.worth;
-				if (key_on_bufer[token] == MOON_FALSE)
+
+
+				if (!key_on_bufer[token])
 				{
 					key_buffer[token] = MOON_FALSE;
 					*state = MOON_KEY_MODE_FALSE;
 				}
 				else
-					if (key_on_bufer[token] == MOON_TRUE)
-						if (!key_buffer[token])
-						{
-							key_buffer[token] = MOON_TRUE;
-							*state = MOON_KEY_MODE_PRESS;
-						}
-						else
-							*state = MOON_KEY_MODE_PRESS_LONG;
+					if (!key_buffer[token])
+						*state = MOON_KEY_MODE_PRESS;
+					else
+						*state = MOON_KEY_MODE_PRESS_LONG;
 			}
 			break;
 			}
-		}
-		else return;
+		else
+			return;
 	}
+	for (unsigned int index = 0; index < MOON_KEY_LAST; ++index)
+		if (key_on_bufer[index] == MOON_TRUE)
+			if (!key_buffer[index])
+				key_buffer[index] = MOON_TRUE;
+}
+
+_declspec(dllexport) extern void MoonProjectDead()
+{
+	moon_engine_core.dead = MOON_TRUE;
+	thread_attr_type = MOON_TRUE;
+	thread_draw_type = MOON_TRUE;
+}
+
+_declspec(dllexport) extern void MoonDead()
+{
+	MOON_METADATA metadata = { 0 };
+	MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 }

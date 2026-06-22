@@ -167,7 +167,6 @@ Email:1993346266@qq.com
 [6]
 			如果要嵌入自定义消息队列
 			请使用消息
-				MOON_MESSAGE_LOGIC_OPEN
 				MOON_MESSAGE_ATTR_OPEN
 				MOON_MESSAGE_DRAW_OPEN
 			并发送到
@@ -1011,7 +1010,43 @@ Email:1993346266@qq.com
 * 2.1.8.6		2026.6.17	MOON_POINT3D和内部渲染脱轨,渲染图元将使用内部的MOON_GRAPHIC_VECTER结构体
 * 2.1.9.0		2026.6.19	添加了函数
 *								MoonMatrix4_4Mul
-*							用于绘制圆角矩形
+*							用于矩阵计算
+* 2.1.9.1		2026.6.21	修复了按钮宏初始化时的错误
+* 2.1.9.2					添加了uniform可能有时失效的BUG
+* 2.1.9.3					修复了
+*								MoonCoreGraphic
+*							声明与形参不同的BUG
+* 2.1.9.4					修复了
+*								按键消息单次按鍵的单帧不连续性
+*							现在按下一个按钮在单帧内一定输出确定的,持久性的消息
+*							而不是之前的读取MOON_KEY_MODE_PRESS后
+*							后续读取的到MOON_KEY_MODE_FALSE的问题
+* 2.1.9.5					取消了消息
+*								MOON_MESSAGE_LOGIC_OPEN
+*							因为看起来似乎没什么用
+* 2.1.9.6					修复了
+*								MoonFree
+*							释放内存后可能存在的野指针问题
+* 2.1.9.7-		2026.6.22	修改了MoonMusic的参数
+*								由
+*									MoonMusic(const char* File)
+*								改为
+*									MoonMusic(MOON_MUSIC* music)
+* 2.1.9.8-					MOON_METADATA中
+*								dead成员被认为是多余的
+*							已注释掉
+* 2.1.9.9					添加了MOON_MUSIC结构体
+* 2.1.9.10					MoonMusic的返回值改为int
+* 2.1.9.11					MoonMusic函数可以使用了
+* 2.1.10.0					添加了函数
+*								MoonMusicInit_Wav
+*							用于初始化音频
+* 2.1.11.0					添加了函数
+*								MoonDead
+*							用于杀死项目
+* 2.1.12.0					添加了函数
+*								MoonMusicSet
+*							用于设置音频状态
 */
 
 
@@ -1091,5 +1126,13 @@ _declspec(dllexport) extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON
 * MoonVsn(vsn);
 */
 _declspec(dllexport) extern unsigned int MoonVsn();
+
+/*
+* 函數 MoonDead
+* 作用 杀死项目
+* 使用方法
+* MoonDead();
+*/
+_declspec(dllexport) extern void MoonDead();
 
 #endif

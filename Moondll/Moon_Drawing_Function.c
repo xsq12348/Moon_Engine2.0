@@ -124,8 +124,7 @@ _declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pix
 		glad_glGetShaderInfoLog(vertex_shader_uint, 1024, (GLsizei*)MOON_NULL, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(shader_program, 1, (char*)"[MoonRendererLoad]函数错误,顶点着色器编译失败!");
-		MOON_METADATA metadata = { 0 };
-		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
+		MoonProjectDead();
 		return;
 	}
 	success = 0;
@@ -142,8 +141,7 @@ _declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pix
 		glad_glGetShaderInfoLog(pixel_shader_uint, 1024, (GLsizei*)MOON_NULL, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(shader_program, 1, (char*)"[MoonRendererLoad]函数错误,像素着色器编译失败!");
-		MOON_METADATA metadata = { 0 };
-		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
+		MoonProjectDead();
 		return;
 	}
 	success = 0;
@@ -164,8 +162,7 @@ _declspec(dllexport) extern void MoonShaderLoad(char** vertex_shader, char** pix
 		glad_glGetProgramInfoLog(*shader_program, 1024, 0, error_log);
 		MoonPrompt(error_log);
 		MoonProjectError(shader_program, 1, (char*)"[MoonRendererLoad]函数错误,着色器鏈接失败!");
-		MOON_METADATA metadata = { 0 };
-		MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
+		MoonProjectDead();
 		return;
 	}
 	success = 0;
@@ -1057,6 +1054,7 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project,
 			case MOON_MESSAGE_DRAW_UNIFORM:
 			{
 				MOON_UNIFORM_DATA* data = &message->message[index].metadata.uniform.data;
+				MoonImageShader(message->message[index].metadata.uniform.shader);
 				int location = glad_glGetUniformLocation(message->message[index].metadata.uniform.shader, (const GLchar*)message->message[index].metadata.uniform.var);
 				switch (data->type)
 				{

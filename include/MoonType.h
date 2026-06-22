@@ -135,6 +135,13 @@ typedef struct MOONBUTTON
 	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
 }MOON_BUTTON;
 
+typedef struct
+{
+	unsigned int id;	//音乐
+	float start, end;	//音频起点和终点,范围0.f~1.f
+	_Bool mode;
+}MOON_MUSIC;
+
 typedef enum
 {
 	MOON_UNIFORM_TYPE_NONE,				//非法
@@ -231,7 +238,7 @@ typedef struct
 			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
 			int power;
 			int fps;
-			int dead;
+			//int dead;
 		};
 	};
 }MOON_METADATA;
@@ -297,7 +304,7 @@ typedef enum
 	MOON_MESSAGE_LOGIC_START,//起始符,无其他含义
 	MOON_MESSAGE_SETLOGIC,						//设置逻辑模块
 	MOON_MESSAGE_SETDRAW,						//设置绘图模块
-	MOON_MESSAGE_LOGIC_OPEN,					//在消息队列注入自定义模块函数,一次性
+	//MOON_MESSAGE_LOGIC_OPEN,					//在消息队列注入自定义模块函数,一次性
 	MOON_MESSAGE_ATTR_OPEN,						//在属性线程注入自定义模块函数,长期,可以传入MOON_NULL来禁用注入的函数
 	MOON_MESSAGE_DEAD,							//项目退出,不论传入的任何值
 	MOON_MESSAGE_POWER,							//设置高性能模式/暂停/锁帧

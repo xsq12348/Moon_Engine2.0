@@ -91,6 +91,7 @@ _declspec(dllexport) extern void MoonMusicSet(MOON_MUSIC* music,_Bool on_or_off)
 
 _declspec(dllexport) extern int MoonMusic(MOON_MUSIC* music)
 {
+	static unsigned int current_music_id = 0xffffffff;
 	if (!music)
 	{
 		MoonPrompt((char*)"[MoonMusic] 非法的music指针");
@@ -99,6 +100,7 @@ _declspec(dllexport) extern int MoonMusic(MOON_MUSIC* music)
 
 	if (!music->mode)
 	{
+		current_music_id = 0xffffffff;
 		SDL_FlushAudioStream(moon_audio_stream);
 		return MOON_FALSE;
 	}
@@ -121,7 +123,6 @@ _declspec(dllexport) extern int MoonMusic(MOON_MUSIC* music)
 			MoonPrompt((char*)"[MoonMusic] 音效数据为空");
 			return MOON_FALSE;
 		}
-		static unsigned int current_music_id = 0xffffffff;
 		unsigned int residual = SDL_GetAudioStreamQueued(moon_audio_stream);
 		if (residual > 0)
 		{

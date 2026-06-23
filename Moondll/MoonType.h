@@ -134,12 +134,18 @@ typedef struct MOONBUTTON
 	int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
 	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
 }MOON_BUTTON;
+typedef enum
+{
+	MOON_MUSIC_MODE_FALSE,	//不播放
+	MOON_MUSIC_MODE_RUN,	//继续播放
+	MOON_MUSIC_MODE_AGAIN,	//重新开始
+}MOON_MUSIC_MODE;
 
 typedef struct
 {
 	unsigned int id;	//音乐
 	float start, end;	//音频起点和终点,范围0.f~1.f
-	_Bool mode;
+	MOON_MUSIC_MODE	mode;
 }MOON_MUSIC;
 
 typedef enum

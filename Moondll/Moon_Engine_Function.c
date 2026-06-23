@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,12,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,13,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;

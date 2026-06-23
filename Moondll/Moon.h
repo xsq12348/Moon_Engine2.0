@@ -1047,6 +1047,18 @@ Email:1993346266@qq.com
 * 2.1.12.0					添加了函数
 *								MoonMusicSet
 *							用于设置音频状态
+* 2.1.12.1-		2026.6.23	修改了MoonDrawTextFont的参数
+*								由
+*									MoonMusicSet(MOON_MUSIC* music, _Bool on_or_off)
+*								改为
+*									MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, float start, float end)
+* 2.1.12.2					添加了枚举
+*								MOON_MUSIC_MODE
+* 2.1.12.3					优化了音频播放
+* 2.1.13.0+					添加了函数
+*								MoonMusicAgain
+*							用于从头播放音乐
+* 
 */
 
 

@@ -608,7 +608,7 @@ extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned i
 			str[index] = ch_replace;
 }
 
-extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str)
+extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str)
 {
 	unsigned int
 		index_1 = 0,

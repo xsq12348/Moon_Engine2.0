@@ -346,7 +346,7 @@ extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str
 * 函數 StrMatch_PrefixIgnoreStr
 * 作用 忽略字符,比较时忽略 igno_str 中出现的任意字符
 */
-extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str);
+extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str);
 
 /*
 * 函數 MoonStrMatch_Replace

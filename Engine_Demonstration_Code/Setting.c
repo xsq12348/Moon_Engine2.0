@@ -1,14 +1,16 @@
-#include "Project_All.h"
+ï»¿#include "Project_All.h"
 
 extern MOON_PROJECTSETTING(SettingAll)
 {
 	{
 		MoonHashFindEntity(project, "LogicTps", MOON_TIMELOAD, logicTps);
-		MoonTimeLoadInit(logicTps, 1000.f / 60.f); // 60 FPSÂß¼­Ö¡
+		MoonTimeLoadInit(logicTps, 1000.f / 60.f); // 60 FPSé€»è¾‘å¸§
 	}
+	GameDrawLoad(project);
+	GameLogicLoad(project);
 }
 
 extern MOON_PROJECTSETTING(SettingOver)
 {
-	// ¿ÉÌí¼ÓÇåÀí´ú´a£¨Èç¹ûĞèÒª£©
+	// å¯æ·»åŠ æ¸…ç†ä»£ç¢¼ï¼ˆå¦‚æœéœ€è¦ï¼‰
 }

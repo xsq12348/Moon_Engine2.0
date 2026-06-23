@@ -1,53 +1,53 @@
-#pragma once
+ï»¿#pragma once
 #include"Moon.h"
 #include"Type.h"
 
 #define NewKeyState(vKey) GetAsyncKeyState(vKey)
 
 /*
-* í—Ä¿„“½¨•rég : 
-* ÈÕÖ¾
+* é …ç›®å‰µå»ºæ™‚é–“ : 
+* æ—¥å¿—
 * 
 */
 
 /*
-* º¯”µ GameDrawAll
-* ×÷ÓÃ Ö÷ÀLÑuº¯”µ
+* å‡½æ•¸ GameDrawAll
+* ä½œç”¨ ä¸»ç¹ªè£½å‡½æ•¸
 */
 extern MOON_PROJECTMODULE(GameDrawAll);
 
 /*
-* º¯”µ GameDrawLoad
-* ×÷ÓÃ Ö÷ÀLÑuº¯”µ¼Óİd
+* å‡½æ•¸ GameDrawLoad
+* ä½œç”¨ ä¸»ç¹ªè£½å‡½æ•¸åŠ è¼‰
 */
 extern MOON_PROJECTMODULE(GameDrawLoad);
 
 /*
-* º¯”µ GameLogicAll
-* ×÷ÓÃ Ö÷ß‰İ‹º¯”µ
+* å‡½æ•¸ GameLogicAll
+* ä½œç”¨ ä¸»é‚è¼¯å‡½æ•¸
 */
 extern MOON_PROJECTMODULE(GameLogicAll);
 
 /*
-* º¯”µ GameLogicLoad
-* ×÷ÓÃ Ö÷ß‰İ‹º¯”µ¼Óİd
+* å‡½æ•¸ GameLogicLoad
+* ä½œç”¨ ä¸»é‚è¼¯å‡½æ•¸åŠ è¼‰
 */
 extern MOON_PROJECTMODULE(GameLogicLoad);
 
 /*
-* º¯”µ _Resource
-* ×÷ÓÃ Ö÷¼ÓİdÙYÔ´º¯”µ
+* å‡½æ•¸ _Resource
+* ä½œç”¨ ä¸»åŠ è¼‰è³‡æºå‡½æ•¸
 */
 extern MOON_PROJECTSETTING(_Resource);
 
 /*
-* º¯”µ SettingAll
-* ×÷ÓÃ ÓÎ‘òé_Ê¼Ç°ÔOÖÃ
+* å‡½æ•¸ SettingAll
+* ä½œç”¨ æ¸¸æˆ²é–‹å§‹å‰è¨­ç½®
 */
 extern MOON_PROJECTSETTING(SettingAll);
 
 /*
-* º¯”µ SettingOver
-* ×÷ÓÃ ÓÎ‘ò½YÊøÌÀí
+* å‡½æ•¸ SettingOver
+* ä½œç”¨ æ¸¸æˆ²çµæŸè™•ç†
 */
 extern MOON_PROJECTSETTING(SettingOver);

@@ -88,9 +88,17 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
 * 函數 MoonMusicSet
 * 作用 设置音樂播放状态
 * 使用方法
-* MoonMusicSet(music, on);
+* MoonMusicSet(music, false, 0, 1);
 */
-extern void MoonMusicSet(MOON_MUSIC* music, _Bool on_or_off);
+extern inline void MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, float start, float end);
+
+/*
+* 函數 MoonMusicAgain
+* 作用 设置音樂播放状态,再次播放
+* 使用方法
+* MoonMusicAgain(music);
+*/
+extern inline void MoonMusicAgain(MOON_MUSIC* music);
 
 /*
 * 函數 MoonMusic

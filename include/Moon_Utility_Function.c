@@ -84,23 +84,28 @@ extern void MoonUtilityOver()
 	SDL_CloseAudioDevice(moon_audio_dev);
 }
 
-extern void MoonMusicSet(MOON_MUSIC* music,_Bool on_or_off)
+extern inline void MoonMusicSet(MOON_MUSIC* music,MOON_MUSIC_MODE on_or_off,float start,float end)
 {
 	music->mode = on_or_off;
+	music->start = start;
+	music->end = end;
+}
+
+extern inline void MoonMusicAgain(MOON_MUSIC* music)
+{
+	music->mode = MOON_MUSIC_MODE_AGAIN;
 }
 
 extern int MoonMusic(MOON_MUSIC* music)
 {
-	static unsigned int current_music_id = 0xffffffff;
 	if (!music)
 	{
 		MoonPrompt((char*)"[MoonMusic] 非法的music指针");
 		return MOON_FALSE;
 	}
 
-	if (!music->mode)
+	if (music->mode == MOON_MUSIC_MODE_FALSE)
 	{
-		current_music_id = 0xffffffff;
 		SDL_FlushAudioStream(moon_audio_stream);
 		return MOON_FALSE;
 	}
@@ -123,42 +128,71 @@ extern int MoonMusic(MOON_MUSIC* music)
 			MoonPrompt((char*)"[MoonMusic] 音效数据为空");
 			return MOON_FALSE;
 		}
-		unsigned int residual = SDL_GetAudioStreamQueued(moon_audio_stream);
-		if (residual > 0)
+		int avail = SDL_GetAudioStreamAvailable(moon_audio_stream);
+		static unsigned int current_music_id = 0xffffffff;
 		{
-			if (current_music_id == music->id)
+			switch (music->mode)
 			{
-				music->mode = MOON_TRUE;
-				return MOON_TRUE;
-			}
-			else
+			case MOON_MUSIC_MODE_AGAIN:
 			{
 				SDL_FlushAudioStream(moon_audio_stream);
-				current_music_id = music->id;
-				music->mode = MOON_TRUE;
-			}
-		}
-		else
-		{
-			if (music->id == current_music_id && music->mode == MOON_TRUE)
-			{
-				music->mode = MOON_FALSE;
-				current_music_id = 0xffffffff;
-				return MOON_FALSE;
-			}
-			current_music_id = music->id;
-			music->mode = MOON_TRUE;
-		}
 
-		{
-			MOON_CORE_MUSIC* current_music = &moon_music_sound[current_music_id];
-			int len = (int)((music->end - music->start) * current_music->length) * sizeof(float);
-			float* start = current_music->data + (int)(music->start * current_music->length);
-			if (!SDL_PutAudioStreamData(moon_audio_stream, start, len))
+				if (avail > 0)
+				{
+					unsigned char* dummy = (unsigned char*)malloc(avail);
+					SDL_GetAudioStreamData(moon_audio_stream, dummy, avail);
+					free(dummy);
+				}
+
+				current_music_id = music->id;
+				music->mode = MOON_MUSIC_MODE_RUN;
+			}
+			break;
+			case MOON_MUSIC_MODE_RUN:
 			{
-				MoonPrompt((char*)"[MoonMusic] 推入音频数据失败");
-				printf("[MoonMusic] SDL 错误: %s\n", SDL_GetError());
-				return MOON_FALSE;
+				unsigned int residual = SDL_GetAudioStreamQueued(moon_audio_stream);
+				if (residual > 0)
+				{
+					//如果相同id且正在播放,那么退出
+					if (current_music_id == music->id)
+						return MOON_TRUE;
+					//如果不同id,那么清空当前音乐
+
+					if (avail > 0)
+					{
+						unsigned char* dummy = (unsigned char*)malloc(avail);
+						SDL_GetAudioStreamData(moon_audio_stream, dummy, avail);
+						free(dummy);
+					}
+
+					current_music_id = music->id;
+				}
+				else
+				{
+					if (music->id == current_music_id)
+					{
+						//如果播放完毕,那么直接退出
+						current_music_id = 0xffffffff;
+						music->mode = MOON_MUSIC_MODE_FALSE;
+						return MOON_FALSE;
+					}
+					//首次播放
+					current_music_id = music->id;
+				}
+			}
+			break;
+			}
+
+			{
+				MOON_CORE_MUSIC* current_music = &moon_music_sound[current_music_id];
+				int len = (int)((music->end - music->start) * current_music->length) * sizeof(float);
+				float* start = current_music->data + (int)(music->start * current_music->length);
+				if (!SDL_PutAudioStreamData(moon_audio_stream, start, len))
+				{
+					MoonPrompt((char*)"[MoonMusic] 推入音频数据失败");
+					printf("[MoonMusic] SDL 错误: %s\n", SDL_GetError());
+					return MOON_FALSE;
+				}
 			}
 		}
 	}
@@ -180,7 +214,7 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 	}
 	music->start = 0.f;
 	music->end = 1.f;
-	music->mode = MOON_TRUE;
+	music->mode = MOON_MUSIC_MODE_FALSE;
 
 	unsigned char* raw_data = (unsigned char*)MOON_NULL;
 	unsigned int raw_len = MOON_FALSE;

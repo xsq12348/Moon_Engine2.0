@@ -608,7 +608,7 @@ _declspec(dllexport) extern void MoonStrMatch_Replace(char* str, unsigned int st
 			str[index] = ch_replace;
 }
 
-_declspec(dllexport) extern unsigned int StrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str)
+_declspec(dllexport) extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str)
 {
 	unsigned int
 		index_1 = 0,

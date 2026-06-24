@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,13,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,15,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -60,7 +60,7 @@ void main()
 }
 );
 
-static GLuint shader_program_vectex, shader_program_pixel;
+static unsigned int shader_program_vectex, shader_program_pixel;
 
 static _Bool ProjectConsole(MOON_PROJECTGOD* project, int (*developerconsole)(MOON_PROJECTGOD*));	//控制台
 static MOON_PROJECTMODULE(MoonLogicPause);															//暂停逻辑线程
@@ -113,7 +113,7 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 	  ██████████
 
 	*/
-	
+
 	if (!glfwInit())
 	{
 		MoonProjectError(glfwInit, 1, (char*)"[MoonWindow]严重错误,glfwInit初始化失败");
@@ -130,10 +130,10 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 		y = (moon_screen->height - height) / 2;
 	}
 
-	project->hwnd = MoonWindow(project_name, x, y, width, height);
-	if (project->hwnd == MOON_NULL)
+	moon_engine_core.hwnd = MoonWindow(project_name, x, y, width, height);
+	if (moon_engine_core.hwnd == MOON_NULL)
 	{
-		MoonProjectError(project->hwnd, 1, (char*)"[MoonWindow]严重错误,窗口创建失败");
+		MoonProjectError(moon_engine_core.hwnd, 1, (char*)"[MoonWindow]严重错误,窗口创建失败");
 		moon_engine_core.dead = MOON_TRUE;
 		return;
 	}
@@ -156,9 +156,9 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 
 	MoonCreateEntityIndex(project, &shader_program_vectex, (char*)"ProjectShader_SolidColor", sizeof(unsigned int), (char*)"unsigned int");
 	MoonCreateEntityIndex(project, &shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
-	MoonShaderLoad((char**) & moon_vertex_shader2d_code, (char**) & moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
-	MoonShaderLoad((char**) & moon_vertex_shader2d_texture_code, (char**) & moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
-	MoonUtilityLoad(project);
+	MoonShaderLoad((char**)&moon_vertex_shader2d_code, (char**)&moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
+	MoonShaderLoad((char**)&moon_vertex_shader2d_texture_code, (char**)&moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
+	MoonUtilityLoad(&moon_engine_core);
 	MoonDrawLoad(project);
 
 	if (ProjectSetting_1 != MOON_NULL)
@@ -207,14 +207,14 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	//绘制线程
 	//OpenGL
 	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
-	glfwMakeContextCurrent(project->hwnd);
+	glfwMakeContextCurrent(moon_engine_core.hwnd);
 
-	MoonUtilityLoad(project);	//重新绑定
+	MoonUtilityLoad(&moon_engine_core);	//重新绑定
 
 	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, projectbitmap);
-	MoonHashFindEntity(project, "ProjectShader_SolidColor", GLuint, shader_program_1);
-	MoonHashFindEntity(project, "ProjectShader_Texture", GLuint, shader_program_2);
-	GLuint moon_vbo, moon_ebo, moon_vao, solid_color_shader, texture_shader;
+	MoonHashFindEntity(project, "ProjectShader_SolidColor", unsigned int, shader_program_1);
+	MoonHashFindEntity(project, "ProjectShader_Texture", unsigned int, shader_program_2);
+	unsigned int moon_vbo, moon_ebo, moon_vao, solid_color_shader, texture_shader;
 	solid_color_shader = (*shader_program_1);
 	texture_shader = (*shader_program_2);
 	float vertexs[20] =
@@ -286,7 +286,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 			glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
 			glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
 			glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glfwSwapBuffers(project->hwnd);
+			glfwSwapBuffers(moon_engine_core.hwnd);
 			MoonImageDesignated(projectbitmap);
 			glad_glClearColor(0.f, 0.f, 0.f, 1.f);
 			glad_glClear(GL_COLOR_BUFFER_BIT);
@@ -330,7 +330,7 @@ _declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (
 	MoonPrompt((char*)"[ProjectRun]引擎流程函数进入成功!");
 
 	//默认在窗口内部
-	glfwSetInputMode(project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+	glfwSetInputMode(moon_engine_core.hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 
 	if (ProjectDrawing == MOON_FALSE)
 	{
@@ -373,12 +373,12 @@ _declspec(dllexport) extern void MoonProjectRun(MOON_PROJECTGOD* project, void (
 			logic = moon_engine_core.Logic;
 		if (moon_engine_core.Drawing != MoonDrawingPause)
 			drawing = moon_engine_core.Drawing;
-		moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(project->hwnd));
-		moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(project->hwnd, GLFW_FOCUSED));
+		moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd));
+		moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
 		glfwPollEvents();
 
 		{
-			glfwGetCursorPos(project->hwnd, &mousecoord_x_2, &mousecoord_y_2);
+			glfwGetCursorPos(moon_engine_core.hwnd, &mousecoord_x_2, &mousecoord_y_2);
 			mousecoord->x = (int)mousecoord_x_2;
 			mousecoord->y = (int)mousecoord_y_2;
 
@@ -415,7 +415,7 @@ _declspec(dllexport) extern void MoonProjectOver(MOON_PROJECTGOD* project, void 
 	while (1)
 		if (thread_attr_type && thread_draw_type)
 		{
-			glfwMakeContextCurrent(project->hwnd);
+			glfwMakeContextCurrent(moon_engine_core.hwnd);
 			break;
 		}
 		else
@@ -683,7 +683,7 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project
 					* state = message->message[index].metadata.key.worth;
 
 				if (!key_on_bufer[token])
-					key_on_bufer[token] = (_Bool)(glfwGetKey(project->hwnd, (int)token) || glfwGetMouseButton(project->hwnd, (int)token));
+					key_on_bufer[token] = (_Bool)(glfwGetKey(moon_engine_core.hwnd, (int)token) || glfwGetMouseButton(moon_engine_core.hwnd, (int)token));
 
 
 				if (!key_on_bufer[token])

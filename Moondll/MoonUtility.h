@@ -85,6 +85,26 @@ _declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠
 #define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))//随机数获取
 
 /*
+* 函數 MoonMatrix4_4Mul
+* 作用  4 * 4 矩阵乘法,列主序
+*		如果mat4_return传入mat4_left或者mat4_right,不影响最终的值
+* 使用方法
+* MoonMatrix4_4Mul(mat4_return, mat4_left, mat4_right);
+*/
+_declspec(dllexport) extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right);
+
+/*
+* 函數 MoonGetFps
+* 作用 获取Fps
+* 使用方法
+* int fps = MoonGetFps();
+*/
+_declspec(dllexport) extern int MoonGetFps();
+
+//------------------------------------音乐函数--------------------------------------------------//
+
+
+/*
 * 函數 MoonMusicSet
 * 作用 设置音樂播放状态
 * 使用方法
@@ -171,15 +191,6 @@ _declspec(dllexport) extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigne
 * MoonFree(ptr);
 */
 _declspec(dllexport) extern _Bool MoonFree(void* ptr);
-
-/*
-* 函數 MoonMatrix4_4Mul
-* 作用  4 * 4 矩阵乘法,列主序
-*		如果mat4_return传入mat4_left或者mat4_right,不影响最终的值
-* 使用方法
-* MoonMatrix4_4Mul(mat4_return, mat4_left, mat4_right);
-*/
-_declspec(dllexport) extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right);
 
 //------------------------------------定时函数--------------------------------------------------//
 

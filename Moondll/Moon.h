@@ -2,9 +2,14 @@
 #ifndef MOON_ENGINE
 #define MOON_ENGINE
 #define _CRT_SECURE_NO_WARNINGS
+
+#ifdef MOON_ENGINE_CONFIG
+
 #include"Moon_Configuration.h"
 
-#if MOONCOMPATIBLE
+#endif
+
+#ifdef MOONCOMPATIBLE
 
 #include"Moon_Compatible_Function.h"
 
@@ -34,6 +39,7 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.6.9
 最后一次更新日期 : 2026.6.10
 最后一次更新日期 : 2026.6.14
+最后一次更新日期 : 2026.6.24
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -456,6 +462,30 @@ Email:1993346266@qq.com
 		MoonKeyReal
 		不是线程安全的
 		在多线程使用MoonKeyState检测同一个按鍵会非常不灵敏
+		按键消息是线程安全的,所以您不必担心按钮控件会遇到这种问题
+
+[15]
+	[15.1]
+		加载音乐很简单
+		您只需要
+			MOON_MUSIC music;
+			MoonMusicInit(&music);
+
+	[15.2]
+		使用音乐
+			MoonMusic(&music);
+
+	[15.3]
+		默认是播放整首
+		您可以通过
+			MoonMusicSet(&music, .5f, 1.f);
+		来调整播放区间
+
+	[15.4]
+		您可以写下如下代码来实现循环播放
+			if(music.mode == MOON_MUSIC_MODE_FALSE)
+				MoonMusicAgain(&music);
+
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -1058,7 +1088,27 @@ Email:1993346266@qq.com
 * 2.1.13.0+					添加了函数
 *								MoonMusicAgain
 *							用于从头播放音乐
-* 
+* 2.1.13.1		2026.6.24	修复了部分语法规范
+* 2.1.13.2					摆脱了Moon_Compatible_Function.h的依赖
+*								运行引擎现在不必需要Moon_Compatible_Function.h
+* 2.1.13.3					删除了
+*								#pragma comment(lib, "SDL3.lib")
+*								#pragma comment(lib, "glfw3.lib")
+*								#pragma comment(lib, "opengl32.lib")
+*							因为在IDE中配置更加便捷
+* 2.1.13.4					MOON_PROJECTGOD中移除了hwnd成员
+*								因为用不到,引擎不应该暴露这种底层
+* 2.1.13.5					将案件枚举囊括为了MOON_KEY_TYPE
+* 2.1.13.6					设置了image_resources和goal的检查
+*								image_resources和goal不得相同
+* 2.1.14.0					添加了函数
+*								MoonDrawCircleFull
+*								MoonDrawCircle
+*							用于绘制圆
+* 2.1.15.0					添加了函数
+*								MoonGetFps
+*							用于获取帧率
+*
 */
 
 

@@ -5,8 +5,6 @@
 #include"Moon_stb_image.h"
 #include"MoonFontttf.h"
 
-//临时备忘录
-//需要提供一个直接操作uniform的API
 
 static MOON_IMAGE* moon_engineback;
 static MOON_IMAGE moon_simple_font;

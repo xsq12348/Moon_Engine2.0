@@ -5,7 +5,6 @@
 #include"Moon_stb_image.h"
 #include"MoonFontttf.h"
 
-
 static MOON_IMAGE* moon_engineback;
 static MOON_IMAGE moon_simple_font;
 static MOON_GRAPHIC_VECTER moon_vertex[MOON_VERTICES_MAX];
@@ -15,7 +14,7 @@ solid_color_shader, texture_shader,
 moon_vbo_solid, moon_vao_solid,
 moon_vbo_texture, moon_vao_texture,
 moon_vertex_index, moon_vertex_texture_index;
-static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);						//构建图元顶点
+static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);					//构建图元顶点
 static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);				//构建纹理顶点
 static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);																	//全局设置
 static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);	//MoonCoreDrawArea辅助函数
@@ -24,8 +23,8 @@ static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, M
 extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 {
 	//获取引擎核心着色器
-	MoonHashFindEntity(project, "ProjectShader_SolidColor", GLuint, shader_program_1);
-	MoonHashFindEntity(project, "ProjectShader_Texture", GLuint, shader_program_2);
+	MoonHashFindEntity(project, "ProjectShader_SolidColor", unsigned int, shader_program_1);
+	MoonHashFindEntity(project, "ProjectShader_Texture", unsigned int, shader_program_2);
 	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, engineback_2);
 	moon_engineback = engineback_2;
 	solid_color_shader = *shader_program_1;
@@ -112,7 +111,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 	GLint success;
 
 	//編譯頂點著色器
-	GLuint vertex_shader_uint = glad_glCreateShader(GL_VERTEX_SHADER);
+	unsigned int vertex_shader_uint = glad_glCreateShader(GL_VERTEX_SHADER);
 	glad_glShaderSource(vertex_shader_uint, 1, vertex_shader, (const GLint*)MOON_NULL);
 	glad_glCompileShader(vertex_shader_uint);
 	glad_glGetShaderiv(vertex_shader_uint, GL_COMPILE_STATUS, &success);
@@ -129,7 +128,7 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 	MoonPrompt((char*)"顶点着色器编译完成");
 
 	//編譯像素著色器
-	GLuint pixel_shader_uint = glad_glCreateShader(GL_FRAGMENT_SHADER);
+	unsigned int pixel_shader_uint = glad_glCreateShader(GL_FRAGMENT_SHADER);
 	glad_glShaderSource(pixel_shader_uint, 1, pixel_shader, (const GLint*)MOON_NULL);
 	glad_glCompileShader(pixel_shader_uint);
 	glad_glGetShaderiv(pixel_shader_uint, GL_COMPILE_STATUS, &success);
@@ -380,28 +379,27 @@ extern void MoonDrawBox_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2,
 		MoonDrawLine(image, x, round_top, x, round_bottom, color);
 		MoonDrawLine(image, x + w, round_top, x + w, round_bottom, color);
 	}
-	MOON_POINT2D point[37] = { 0 };
-	for (int i = 0; i < 36; i++)
+	MOON_POINT2D point[37];
+	for (int index = 0; index < 36; ++index)
 	{
-		float rad = MoonDegRad((float)(i * 10));
-		point[i].x = (int)(cos(rad) * r);
-		point[i].y = (int)(sin(rad) * r);
+		float rad = MoonDegRad((float)(index * 10));
+		point[index].x = (int)(cosf(rad) * r);
+		point[index].y = (int)(sinf(rad) * r);
 	}
 
-	point[36].x = (int)(cos(2 * MOON_Pi) * r);
-	point[36].y = (int)(sin(2 * MOON_Pi) * r);
+	point[36] = point[0];
 
-	for (int i = 0; i < 9; i++)
-		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, color);
+	for (int index = 0; index < 9; ++index)
+		MoonDrawLine(image, point[index].x + round_right, point[index].y + round_bottom, point[index + 1].x + round_right, point[index + 1].y + round_bottom, color);
 
-	for (int i = 9; i < 18; i++)
-		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, color);
+	for (int index = 9; index < 18; ++index)
+		MoonDrawLine(image, point[index].x + round_left, point[index].y + round_bottom, point[index + 1].x + round_left, point[index + 1].y + round_bottom, color);
 
-	for (int i = 18; i < 27; i++)
-		MoonDrawLine(image, point[i].x + round_left, point[i].y + round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, color);
+	for (int index = 18; index < 27; ++index)
+		MoonDrawLine(image, point[index].x + round_left, point[index].y + round_top, point[index + 1].x + round_left, point[index + 1].y + round_top, color);
 
-	for (int i = 27; i < 36; i++)
-		MoonDrawLine(image, point[i].x + round_right, point[i].y + round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, color);
+	for (int index = 27; index < 36; ++index)
+		MoonDrawLine(image, point[index].x + round_right, point[index].y + round_top, point[index + 1].x + round_right, point[index + 1].y + round_top, color);
 }
 
 extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int y2, unsigned int r, unsigned int color)
@@ -416,33 +414,65 @@ extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int
 		round_right = x + w - r,
 		round_bottom = y + h - r;
 
-	MOON_POINT2D point[37] = { 0 };
-	for (int i = 0; i < 36; i++)
+	MOON_POINT2D point[37];
+	for (int index = 0; index < 36; ++index)
 	{
-		float rad = MoonDegRad((float)(i * 10));
-		point[i].x = (int)(cos(rad) * r);
-		point[i].y = (int)(sin(rad) * r);
+		float rad = MoonDegRad((float)(index * 10));
+		point[index].x = (int)(cosf(rad) * r);
+		point[index].y = (int)(sinf(rad) * r);
 	}
 
-	point[36].x = (int)(cos(2 * MOON_Pi) * r);
-	point[36].y = (int)(sin(2 * MOON_Pi) * r);
+	point[36] = point[0];
 
 	MoonDrawBoxFull(image, round_left, y, round_right, y + h, color);
 	MoonDrawBoxFull(image, x, round_top, x + r, round_bottom, color);
 	MoonDrawBoxFull(image, round_right, round_top, x + w, round_bottom, color);
 
-	for (int i = 0; i < 9; i++)
-		MoonDrawTriFull(image, round_right, round_bottom, point[i + 1].x + round_right, point[i + 1].y + round_bottom, point[i].x + round_right, point[i].y + round_bottom, color);
+	for (int index = 0; index < 9; ++index)
+		MoonDrawTriFull(image, round_right, round_bottom, point[index + 1].x + round_right, point[index + 1].y + round_bottom, point[index].x + round_right, point[index].y + round_bottom, color);
 
-	for (int i = 9; i < 18; i++)
-		MoonDrawTriFull(image, round_left, round_bottom, point[i + 1].x + round_left, point[i + 1].y + round_bottom, point[i].x + round_left, point[i].y + round_bottom, color);
+	for (int index = 9; index < 18; ++index)
+		MoonDrawTriFull(image, round_left, round_bottom, point[index + 1].x + round_left, point[index + 1].y + round_bottom, point[index].x + round_left, point[index].y + round_bottom, color);
 
-	for (int i = 18; i < 27; i++)
-		MoonDrawTriFull(image, round_left, round_top, point[i + 1].x + round_left, point[i + 1].y + round_top, point[i].x + round_left, point[i].y + round_top, color);
+	for (int index = 18; index < 27; ++index)
+		MoonDrawTriFull(image, round_left, round_top, point[index + 1].x + round_left, point[index + 1].y + round_top, point[index].x + round_left, point[index].y + round_top, color);
 
-	for (int i = 27; i < 36; i++)
-		MoonDrawTriFull(image, round_right, round_top, point[i + 1].x + round_right, point[i + 1].y + round_top, point[i].x + round_right, point[i].y + round_top, color);
+	for (int index = 27; index < 36; ++index)
+		MoonDrawTriFull(image, round_right, round_top, point[index + 1].x + round_right, point[index + 1].y + round_top, point[index].x + round_right, point[index].y + round_top, color);
 }
+
+extern void MoonDrawCircleFull(MOON_IMAGE* image, int x, int y, int r, unsigned int color)
+{
+	MOON_POINT2D point[37];
+	for (int index = 0; index < 36; ++index)
+	{
+		float rad = MoonDegRad((float)(index * 10));
+		point[index].x = (int)(cosf(rad) * r);
+		point[index].y = (int)(sinf(rad) * r);
+	}
+
+	point[36] = point[0];
+
+	for (int index = 0; index < 36; index++)
+		MoonDrawTriFull(image, x, y, point[index + 1].x + x, point[index + 1].y + y, point[index].x + x, point[index].y + y, color);
+}
+
+
+extern void MoonDrawCircle(MOON_IMAGE* image, int x, int y, int r, unsigned int color)
+{
+	if (r <= 0)
+		return;
+	MOON_POINT2D points[37];
+	for (int index = 0; index < 36; ++index)
+	{
+		points[index].x = (int)(cosf(MoonDegRad(index * 10)) * r) + x;
+		points[index].y = (int)(sinf(MoonDegRad(index * 10)) * r) + y;
+	}
+	points[36] = points[0];
+	for (int index = 0; index < 36; ++index)
+		MoonDrawLine(image, points[index].x, points[index].y, points[index + 1].x, points[index + 1].y, color);
+}
+
 
 extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)
 {
@@ -597,7 +627,7 @@ extern void MoonImageDesignated(MOON_IMAGE* image)
 {
 	//glad_glBindFramebuffer	紋理作爲畫布(寫入)
 	//glad_glBindTexture		紋理作爲資源(讀取)
-	glad_glBindFramebuffer(GL_FRAMEBUFFER, (GLuint)image->image.fbo);
+	glad_glBindFramebuffer(GL_FRAMEBUFFER, (unsigned int)image->image.fbo);
 }
 
 extern void MoonImageShader(unsigned int shader)
@@ -753,10 +783,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			case MOON_MESSAGE_DRAW_IMAGE:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
 					break;
-				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -778,8 +805,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 						//这里处理旋转
 
 						float
-							cosrad = (float)cos((double)MoonDegRad((float)(metadata->draw.image.deg))),
-							sinrad = (float)sin((double)MoonDegRad((float)(metadata->draw.image.deg)));
+							cosrad = (float)cosf(MoonDegRad((float)(metadata->draw.image.deg))),
+							sinrad = (float)sinf(MoonDegRad((float)(metadata->draw.image.deg)));
 						MOON_POINT2D points[4];
 						int apx = (int)(-metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w),
 							apy = (int)(-metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h);
@@ -824,10 +851,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			case MOON_MESSAGE_DRAW_IMAGE_UV:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
 					break;
-				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -873,10 +897,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			case MOON_MESSAGE_DRAW_IMAGE_PIG:
 			{
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
 					break;
-				}
 				image_resource_old = message->message[index].metadata.draw.image.image_resources;
 
 				MOON_METADATA* metadata = &message->message[index].metadata;
@@ -909,11 +930,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			
 			case MOON_MESSAGE_DRAW_IMAGE_CLEAN:
 			{
-				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
+				if (!MoonSetTemp(&image_old, &message->message[index].metadata, -1))
 					break;
-				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -927,11 +945,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			
 			case MOON_MESSAGE_DRAW_PIX:
 			{
-				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
+				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 1))
 					break;
-				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -958,11 +973,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 			case MOON_MESSAGE_DRAW_LINE:
 			{
-				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
+				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 2))
 					break;
-				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -996,11 +1008,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 			case MOON_MESSAGE_DRAW_TRI_FULL:
 			{
-				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
+				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 3))
 					break;
-				}
 
 				float
 					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
@@ -1040,11 +1049,8 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 
 			case MOON_MESSAGE_DRAW_TEXT:
 			{
-				if (!MoonSetTemp(&image_old, &message->message[index].metadata, 0))
-				{
-					printf("[team index] %d\n", index);
+				if (!MoonSetTemp(&image_old, &message->message[index].metadata, -1))
 					break;
-				}
 				MoonCoreFont(&message->message[index].metadata);
 			}
 			break;
@@ -1095,7 +1101,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 					glad_glUniform4ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z, data->vec_uint.w);
 					break;
 				default:
-					MoonPrompt("[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
+					MoonPrompt((char*)"[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
 					break;
 				}
 			}
@@ -1147,7 +1153,7 @@ static inline void MoonTextureVertexinitTemp(
 static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset)
 {
 	_Bool out_temp = MOON_TRUE;
-	if(metadata->draw.image_goal)
+	if (metadata->draw.image_goal)
 	{
 		MOON_IMAGE* image_new = metadata->draw.image_goal;
 
@@ -1161,8 +1167,7 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 			|| view.h != image_new->image_size.h)
 		{
 			glad_glViewport(0, 0, image_new->image_size.w, image_new->image_size.h);
-			view.w = image_new->image_size.w;
-			view.h = image_new->image_size.h;
+			view = image_new->image_size;
 		}
 	}
 	else
@@ -1171,12 +1176,30 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 		out_temp = MOON_FALSE;
 	}
 
-	if (moon_vertex_index >= (unsigned int)MOON_VERTICES_MAX - offset)
+	//没有偏移,是纹理
+	if (!offset)
 	{
-		MoonPrompt((char*)"[MoonSetTemp] 图形顶点溢出");
-		out_temp = MOON_FALSE;
+		if (!metadata->draw.image.image_resources)
+		{
+			MoonPrompt((char*)"[MoonSetTemp] image_resources传入的空指针错误");
+			out_temp = MOON_FALSE;
+		}
+		else
+			if (*image_old == metadata->draw.image.image_resources)
+			{
+				MoonPrompt((char*)"[MoonSetTemp] 禁止将image_resources设定为goal");
+				out_temp = MOON_FALSE;
+			}
 	}
+	else
+		//检查图元顶点
+		if (offset > 0 && moon_vertex_index >= (unsigned int)MOON_VERTICES_MAX - offset)
+		{
+			MoonPrompt((char*)"[MoonSetTemp] 图形顶点溢出");
+			out_temp = MOON_FALSE;
+		}
 
+	//检查纹理顶点
 	if (moon_vertex_texture_index >= (unsigned int)MOON_VERTICES_MAX - 6)
 	{
 		MoonPrompt((char*)"[MoonSetTemp] 纹理顶点溢出");

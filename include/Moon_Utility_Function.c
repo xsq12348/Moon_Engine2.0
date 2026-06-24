@@ -1,13 +1,14 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static MOON_PROJECTGOD* utility_project;
+static MOON_ENGINECORE* utility_project;
 static MOON_ALLOC_REGISTRY moon_alloc;
 
 static MOON_CORE_MUSIC* moon_music_sound;
 static unsigned int moon_music_index;
 static SDL_AudioDeviceID moon_audio_dev = 0;
 static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
+static int* fps;
 
 /*
 * 函數 MoonAlloc_Registry
@@ -17,7 +18,7 @@ static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
 */
 static _Bool MoonAlloc_Registry();
 
-extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
+extern void MoonUtilityLoad(MOON_ENGINECORE* project)
 {
 	utility_project = project;
 	{
@@ -66,6 +67,12 @@ extern void MoonUtilityLoad(MOON_PROJECTGOD* project)
 		{
 			SDL_ResumeAudioDevice(moon_audio_dev);
 		}
+	}
+
+	{
+
+		MoonHashFindEntity(project, (char*)"ProjectFPS", int, fpsnumber);
+		fps = fpsnumber;
 	}
 
 }
@@ -237,7 +244,7 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 		};
 
 		SDL_AudioStream* converter = SDL_CreateAudioStream(&file_spec, &device_spec);
-		if (!converter) 
+		if (!converter)
 		{
 			MoonPrompt((char*)"[MoonMusicInit] 创建转换流失败");
 			SDL_free(raw_data);
@@ -247,7 +254,7 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 		SDL_PutAudioStreamData(converter, raw_data, raw_len);
 
 		int converted_len = SDL_GetAudioStreamAvailable(converter);
-		if (converted_len <= 0) 
+		if (converted_len <= 0)
 		{
 			MoonPrompt((char*)"[MoonMusicInit] 转换失败或无数据\n");
 			SDL_DestroyAudioStream(converter);
@@ -255,8 +262,8 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 			return MOON_FALSE;
 		}
 
-		MoonAlloc(&moon_music_sound, sizeof(MOON_CORE_MUSIC), moon_music_index + 1, "realloc");
-		MoonAlloc(&moon_music_sound[moon_music_index].data, converted_len, 1, "malloc");
+		MoonAlloc((void**)&moon_music_sound, sizeof(MOON_CORE_MUSIC), moon_music_index + 1, "realloc");
+		MoonAlloc((void**)&moon_music_sound[moon_music_index].data, converted_len, 1, "malloc");
 		moon_music_sound[moon_music_index].length = converted_len / sizeof(float);
 		SDL_GetAudioStreamData(converter, moon_music_sound[moon_music_index].data, converted_len);
 		SDL_DestroyAudioStream(converter);
@@ -397,7 +404,7 @@ extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int heig
 	button->y = y;
 	button->width = width;
 	button->height = height;
-	button->mode = MOON_FALSE;
+	button->mode = (MOON_BUTTON_TYPE)MOON_FALSE;
 	button->triggermode = 1;
 	return 1;
 }
@@ -413,9 +420,9 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		)
 	{
 		{
-			MOON_METADATA metadata = { MOON_NULL };
+			MOON_METADATA metadata = { 0 };
 			metadata.key.token = button->triggermode;
-			metadata.key.worth = &((int)button->mode);
+			metadata.key.worth = (int*)&(button->mode);
 			MoonProjectSendMessage(MOON_MESSAGE_KEY, metadata);
 		}
 		if (button->mode == MOON_KEY_MODE_PRESS)
@@ -616,7 +623,7 @@ extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* 
 		index_all = 0;
 	if (!str_1 || !str_2)
 	{
-		MoonPrompt("[StrMatch_PrefixIgnoreStr]函数提示,str_1或者str_2参数传入不合理\n");
+		MoonPrompt((char*)"[StrMatch_PrefixIgnoreStr]函数提示,str_1或者str_2参数传入不合理\n");
 		return 0;
 	}
 
@@ -664,12 +671,12 @@ static _Bool MoonAlloc_Registry()
 	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));
 	if (alloc_buffer)
 	{
-		moon_alloc.alloc = alloc_buffer;
+		moon_alloc.alloc = (void**)alloc_buffer;
 		moon_alloc.index += 1;
 	}
 	else
 	{
-		MoonPrompt("[MoonAlloc] 内存分配失败");
+		MoonPrompt((char*)"[MoonAlloc] 内存分配失败");
 		return MOON_FALSE;
 	}
 	return MOON_TRUE;
@@ -717,7 +724,7 @@ extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char
 		}
 		else
 		{
-			MoonPrompt("[MoonAlloc] 内存分配失败");
+			MoonPrompt((char*)"[MoonAlloc] 内存分配失败");
 			return MOON_FALSE;
 		}
 	}
@@ -746,7 +753,7 @@ extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char
 		}
 		else
 		{
-			MoonPrompt("[MoonAlloc] 内存分配失败");
+			MoonPrompt((char*)"[MoonAlloc] 内存分配失败");
 			return MOON_FALSE;
 		}
 	}
@@ -775,7 +782,7 @@ extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM
 {
 	if (strlen(var) > MOON_MESSAGE_TEXT_MAX - 1)
 	{
-		MoonPrompt("[MoonShaderUniform]函数 变量名称超出[MOON_MESSAGE_TEXT_MAX],请尝试缩短变量名");
+		MoonPrompt((char*)"[MoonShaderUniform]函数 变量名称超出[MOON_MESSAGE_TEXT_MAX],请尝试缩短变量名");
 		return;
 	}
 	MOON_METADATA metadata = { 0 };
@@ -791,7 +798,7 @@ extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_
 {
 	if (!mat4_return || !mat4_left || !mat4_right)
 	{
-		MoonPrompt("[MoonMatrix4_4Mul] 空指针");
+		MoonPrompt((char*)"[MoonMatrix4_4Mul] 空指针");
 		return MOON_FALSE;
 	}
 
@@ -810,4 +817,9 @@ extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_
 		mat4_return[index] = mat4_return_buffer[index];
 
 	return MOON_TRUE;
+}
+
+extern int MoonGetFps()
+{
+	return *fps;
 }

@@ -98,6 +98,22 @@ extern void MoonDrawBoxFull_Round(MOON_IMAGE* image, int x1, int y1, int x2, int
 extern void MoonDrawTriFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, int x3, int y3, unsigned int color);//绘制三角形
 
 /*
+* 函數 MoonDrawCircleFull
+* 作用 在圖像上繪製填充圆
+* 使用方法
+* MoonDrawCircleFull(&image, 10, 10, 200, 0xffffffff);
+*/
+extern void MoonDrawCircleFull(MOON_IMAGE* image, int x, int y, int r, unsigned int color);//绘制圆
+
+/*
+* 函數 MoonDrawCircle
+* 作用 在圖像上繪製圆
+* 使用方法
+* MoonDrawCircle(&image, 10, 10, 200, 0xffffffff);
+*/
+extern void MoonDrawCircle(MOON_IMAGE* image, int x, int y, int r, unsigned int color);//绘制圆
+
+/*
 * 函數 MoonDeawTextFont
 * 作用 在圖像上顯示文字
 * 使用方法

@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include <SDL3/SDL.h>
+#include<GLAD/glad.h>
+#include<GLFW/glfw3.h>
 #include"MoonType.h"
 
 /*
@@ -8,6 +11,8 @@
 */
 
 #define MOON_SAMPLE_RATE 48000		//音频频率
+
+typedef GLFWwindow MOON_HWND;		//句柄
 
 typedef struct
 {
@@ -29,6 +34,7 @@ typedef struct
 
 typedef struct MOON_ENGINECORE
 {
+	MOON_HWND* hwnd;			//窗口句柄
 	_Bool dead;					//项目状态
 	_Bool thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
 	_Bool thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
@@ -43,7 +49,6 @@ typedef struct MOON_ENGINECORE
 	MOON_MESSAGE_ALL message_draw;//绘制消息队列
 	MOON_MESSAGE_ALL message_logic;//逻辑消息队列
 	//MOON_MESSAGE_ALL message_attr;//属性消息队列
-
 	MOON_TIMELOAD timeload;		//计时器
 }MOON_ENGINECORE;
 
@@ -106,7 +111,7 @@ extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int 
 * 使用方法
 * MoonUtilityLoad(project);
 */
-extern void MoonUtilityLoad(MOON_PROJECTGOD* project);
+extern void MoonUtilityLoad(MOON_ENGINECORE* project);
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!

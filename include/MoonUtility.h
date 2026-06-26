@@ -350,20 +350,29 @@ extern unsigned int MoonStrMatch_Prefix(const char* str_1, const char* str_2);
 /*
 * 函數 MoonStrMatch_PrefixIgnore
 * 作用 匹配字符串前缀,忽略特定字符
+* 使用方法
+*	MoonStrMatch_PrefixIgnore(str,str_2,'\n');
 */
 extern unsigned int MoonStrMatch_PrefixIgnore(const char* str_1, const char* str_2, char ch);
 
 /*
 * 函數 StrMatch_PrefixIgnoreStr
 * 作用 忽略字符,比较时忽略 igno_str 中出现的任意字符
+* 使用方法
+*	MoonStrMatch_PrefixIgnoreStr(str,str_2, "\n \t");
 */
 extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* str_2, const char* igno_str);
 
 /*
 * 函數 MoonStrMatch_Replace
 * 作用 替换字符
+* 使用方法
+*	MoonStrMatch_Replace(str,start,len,'\n', ' ');
 */
 extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace);
+
+//------------------------------------文件处理------------------------------------------------//
+
 
 /*
 * 函數 MoonFileLoad_TEXT
@@ -371,7 +380,24 @@ extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned i
 * 使用方法
 *	MoonFileLoad_TEXT("a.txt", text, strlen(text));
 */
-extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size);
+extern _Bool MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size);
+
+/*
+* 函數 MoonFileRead_TEXT
+* 作用 加载文本文件并存储到file
+* 使用方法
+*	MoonFileRead_TEXT(file, name);
+*/
+extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name);
+
+/*
+* 函數 MoonFileRead_Line
+* 作用 读取已经加载的文本文件的任意一行
+* 使用方法
+*	MoonFileRead_Line(file, text, 1);
+*/
+extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line);
+
 
 //------------------------------------按钮控件------------------------------------------------//
 

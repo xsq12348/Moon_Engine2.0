@@ -48,17 +48,10 @@
 #define MOON_VERTICES_MAX	(65536)				//顶点上限
 #define MOON_MESSAGE_TEXT_MAX (32)				//单条消息最大字符数
 
-enum
-{
-	MOON_MODULE_DRAW = 1,
-	MOON_MODULE_LOGIC,
-	MOON_MODULE_ATTR,
-};
-
 //创建线程函数关键字
 typedef int MOON_THREAD;
 
-//定时器
+//--------------------------定时器--------------------------//
 typedef struct
 {
 	unsigned int time1;
@@ -67,7 +60,7 @@ typedef struct
 	_Bool timeswitch;
 }MOON_TIMELOAD;
 
-//对象
+//--------------------------对象--------------------------//
 typedef struct
 {
 	char* nameid;
@@ -76,7 +69,7 @@ typedef struct
 	void* entityindex;
 }MOON_ENTITYINDEX;					//实体
 
-//点结构体
+//--------------------------点结构体--------------------------//
 typedef struct
 {
 	float x, y, z;
@@ -94,20 +87,20 @@ typedef struct
 	};
 }MOON_POINT2D;
 
-//双缓冲绘图
+//--------------------------双缓冲绘图--------------------------//
 typedef struct
 {
 	unsigned int texture, fbo;
 }MOON_DOUBLEBUFFER;
 
-//图片
+//--------------------------图片--------------------------//
 typedef struct
 {
 	MOON_POINT2D image_size;		//物理尺寸
 	MOON_DOUBLEBUFFER image;		//图片
 }MOON_IMAGE;
 
-//动画结构体
+//--------------------------动画结构体--------------------------//
 typedef struct
 {
 	MOON_IMAGE* sequenceframes;		//序列帧数组
@@ -116,6 +109,7 @@ typedef struct
 	MOON_TIMELOAD timeload;			//定时器
 }MOON_ANIME;
 
+//--------------------------按钮状态--------------------------//
 typedef enum
 {
 	MOON_BUTTON_FALSE,			//不存在按钮
@@ -124,6 +118,7 @@ typedef enum
 	MOON_BUTTON_RHOVER,			//悬停
 }MOON_BUTTON_TYPE;
 
+//--------------------------按钮控件--------------------------//
 typedef struct MOONBUTTON
 {
 	int x;
@@ -137,6 +132,18 @@ typedef struct MOONBUTTON
 	int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
 	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
 }MOON_BUTTON;
+
+//--------------------------文件结构体--------------------------//
+
+typedef struct
+{
+	char* file_buffer;			//文件具体内容
+	unsigned int file_size;		//文件长度
+	unsigned int* line_index;		//每行起始索引
+	unsigned int line_all;		//总行数
+}MOON_FILE;
+
+//--------------------------音乐状态--------------------------//
 typedef enum
 {
 	MOON_MUSIC_MODE_FALSE,	//不播放
@@ -144,6 +151,7 @@ typedef enum
 	MOON_MUSIC_MODE_AGAIN,	//重新开始
 }MOON_MUSIC_MODE;
 
+//--------------------------音乐--------------------------//
 typedef struct
 {
 	unsigned int id;	//音乐
@@ -151,6 +159,7 @@ typedef struct
 	MOON_MUSIC_MODE	mode;
 }MOON_MUSIC;
 
+//--------------------------uniform type--------------------------//
 typedef enum
 {
 	MOON_UNIFORM_TYPE_NONE,				//非法
@@ -168,6 +177,7 @@ typedef enum
 	MOON_UNIFORM_TYPE_VECTOR4_UINT,		//4D无符号整数向量
 }MOON_UNIFORM_TYPE;
 
+//--------------------------uniform--------------------------//
 typedef struct
 {
 	MOON_UNIFORM_TYPE type;
@@ -188,6 +198,7 @@ typedef struct
 	};
 }MOON_UNIFORM_DATA;
 
+//--------------------------MOON_METADATA--------------------------//
 typedef struct
 {
 	union
@@ -252,6 +263,7 @@ typedef struct
 	};
 }MOON_METADATA;
 
+//--------------------------光标状态--------------------------//
 typedef enum
 {
 	//MOON_CURSOR_MODE_NULL,		//正常模式
@@ -268,6 +280,7 @@ typedef enum
 	MOON_MESSAGE_THREAD_TYPE_BUSY,
 }MOON_MESSAGE_THREAD_TYPE;
 
+//--------------------------支持的消息类型--------------------------//
 typedef enum
 {
 	/*
@@ -322,7 +335,7 @@ typedef enum
 	MOON_MESSAGE_LOGIC_END,//终止符,提前返回队列,提前解锁,需要很小心的使用,最好只在本线程使用,只在绘制线程使用,因为是串行,会提前处理,所以没问题,其他线程使用可能会破坏自动锁
 }MOON_MESSAGE;
 
-//鍵盤掃描碼
+//--------------------------鍵盤掃描碼--------------------------//
 
 enum
 {
@@ -463,6 +476,7 @@ enum
 	MOON_KEY_LAST = 349   //GLFW_KEY_LAST + 1
 } MOON_KEY_TYPE;
 
+//--------------------------按键消息回调--------------------------//
 typedef enum
 {
 	MOON_KEY_MODE_FALSE,
@@ -470,6 +484,7 @@ typedef enum
 	MOON_KEY_MODE_PRESS_LONG,
 }MOON_KEY_MODE;
 
+//--------------------------中心结构体--------------------------//
 typedef struct MOON_PROJECTGOD MOON_PROJECTGOD;
 struct MOON_PROJECTGOD
 {

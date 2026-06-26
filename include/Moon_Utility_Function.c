@@ -1,7 +1,8 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static MOON_ENGINECORE* utility_project;
+static MOON_PROJECTGOD* utility_project;
+static MOON_ENGINECORE* utility_core;
 static MOON_ALLOC_REGISTRY moon_alloc;
 
 static MOON_CORE_MUSIC* moon_music_sound;
@@ -18,8 +19,9 @@ static int* fps;
 */
 static _Bool MoonAlloc_Registry();
 
-extern void MoonUtilityLoad(MOON_ENGINECORE* project)
+extern void MoonUtilityLoad(MOON_PROJECTGOD* project, MOON_ENGINECORE* core)
 {
+	utility_core = core;
 	utility_project = project;
 	{
 		SDL_AudioSpec audio_spec =
@@ -71,7 +73,7 @@ extern void MoonUtilityLoad(MOON_ENGINECORE* project)
 
 	{
 
-		MoonHashFindEntity(project, (char*)"ProjectFPS", int, fpsnumber);
+		MoonHashFindEntity(project, "ProjectFPS", int, fpsnumber);
 		fps = fpsnumber;
 	}
 
@@ -307,7 +309,7 @@ extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
 extern _Bool MoonKeyState(unsigned int Key)
 {
 	static unsigned char KEYSTATEbuffer[MOON_KEY_LAST];
-	int state = glfwGetKey(utility_project->hwnd, (int)Key) || glfwGetMouseButton(utility_project->hwnd, (int)Key);
+	int state = glfwGetKey(utility_core->hwnd, (int)Key) || glfwGetMouseButton(utility_core->hwnd, (int)Key);
 	if (state == GLFW_RELEASE)
 		KEYSTATEbuffer[Key] = 0;
 	else 
@@ -321,7 +323,7 @@ extern _Bool MoonKeyState(unsigned int Key)
 
 extern _Bool MoonKeyReal(unsigned int Key)
 {
-	return glfwGetKey(utility_project->hwnd, Key) || glfwGetMouseButton(utility_project->hwnd, Key);
+	return glfwGetKey(utility_core->hwnd, Key) || glfwGetMouseButton(utility_core->hwnd, Key);
 }
 
 extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
@@ -485,21 +487,131 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 	switch (mode)
 	{
 	case MOON_CURSOR_MODE_HIDDEN:
-		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		glfwSetInputMode(utility_core->hwnd, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		break;
 		
 	case MOON_CURSOR_MODE_DISABLED:
-		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(utility_core->hwnd, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		break;
 		
 	case MOON_CURSOR_MODE_CAPTURED:
-		glfwSetInputMode(utility_project->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+		glfwSetInputMode(utility_core->hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
 		break;
 	}
 	return;
 }
 
-extern _Bool MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
+extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line)
+{
+	if (!line || line > file->line_all)
+	{
+		MoonPrompt((char*)"[MoonFileRead_Line] 非法的行数");
+		return MOON_FALSE;
+	}
+	unsigned int line_size = file->line_index[line] - file->line_index[line - 1];
+	char* buffer = (char*)malloc((line_size + 1) * sizeof(char));
+	if (!buffer)
+	{
+		MoonPrompt((char*)"[MoonFileRead_Line] 缓冲分配失败");
+		return MOON_FALSE;
+	}
+	for (unsigned int index = 0; index < line_size; ++index)
+		buffer[index] = file->file_buffer[file->line_index[line - 1] + index];
+	strcpy(file_buffer, (const char*)buffer);
+	free(buffer);
+	return MOON_TRUE;
+}
+
+extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name)
+{
+	int file_size = 0;
+
+	{
+		if (!file)
+		{
+			MoonPrompt((char*)"[MoonFileRead_TEXT] 非法的[MOON_FILE]");
+			return MOON_FALSE;
+		}
+		file->file_size = 0;
+		file->line_all = 0;
+	}
+
+	{
+		FILE* fp = fopen(file_name, "rb");
+
+		if (!fp)
+		{
+			MoonProjectError(fp, 2, (char*)"[MoonFileRead_TEXT] 文件读取失败\n[MoonFileLoad] 为了防止进一步的失败,引擎将退出");
+			MoonProjectDead();
+			return MOON_FALSE;
+		}
+
+		fseek(fp, 0, SEEK_END);
+		file_size = ftell(fp);
+
+		if (file_size <= 0)
+		{
+			MoonProjectError(fp, 2, (char*)"[MoonFileRead_TEXT] 文件为空\n[MoonFileLoad] 为了防止进一步的失败,引擎将退出");
+			MoonProjectDead();
+			return MOON_FALSE;
+		}
+
+		fclose(fp);
+	}
+
+	{
+		file->file_size = (unsigned int)file_size;
+
+		if (!MoonAlloc((void**)&file->file_buffer, sizeof(char), file->file_size + 1, "malloc"))
+			return MOON_FALSE;
+
+		if (!MoonFileLoad_TEXT(file_name, (char*)file->file_buffer, file->file_size + 1))
+		{
+			if (!MoonFree(file->file_buffer))
+			{
+				MoonProjectError((void*)file->file_buffer, 3, (char*)"[MoonFileRead_TEXT] 找不到注册的字符串,内存无法释放");
+				MoonProjectDead();
+			}
+			return MOON_FALSE;
+		}
+
+		MoonStrMatch_Replace((char*)file->file_buffer, 0, file->file_size, '\r', ' ');
+
+		{
+			file->line_all = 1;
+
+			for (unsigned int index = 0; index < file->file_size; ++index)
+				if (file->file_buffer[index] == '\n')
+					++file->line_all;
+
+			if (!MoonAlloc((void**)&file->line_index, sizeof(unsigned int), file->line_all + 1, "malloc"))
+			{
+				if (!MoonFree(file->file_buffer))
+				{
+					MoonProjectError((void*)file->file_buffer, 1, (char*)"[MoonFileRead_TEXT] 找不到注册的字符串,内存无法释放");
+					MoonProjectDead();
+				}
+				return MOON_FALSE;
+			}
+
+			file->line_index[0] = 0;
+
+			{
+				int line_index = 1;
+				for (unsigned int index = 0; index < file->file_size; ++index)
+					if (file->file_buffer[index] == '\n')
+					{
+						file->line_index[line_index] = index + 1;
+						line_index++;
+					}
+			}
+			file->line_index[file->line_all] = file->file_size;
+		}
+	}
+	return MOON_TRUE;
+}
+
+extern _Bool MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size)
 {
 	for (unsigned int index = 0; index < text_size; index++)
 		text[index] = '\0';

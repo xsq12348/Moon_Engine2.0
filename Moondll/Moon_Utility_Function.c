@@ -509,7 +509,7 @@ _declspec(dllexport) extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_
 		return MOON_FALSE;
 	}
 	unsigned int line_size = file->line_index[line] - file->line_index[line - 1];
-	char* buffer = (char*)malloc((line_size + 1) * sizeof(char));
+	char* buffer = (char*)calloc((line_size + 1) , sizeof(char));
 	if (!buffer)
 	{
 		MoonPrompt((char*)"[MoonFileRead_Line] 缓冲分配失败");

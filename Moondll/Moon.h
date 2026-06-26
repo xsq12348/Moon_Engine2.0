@@ -40,6 +40,7 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.6.10
 最后一次更新日期 : 2026.6.14
 最后一次更新日期 : 2026.6.24
+最后一次更新日期 : 2026.6.26
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -486,6 +487,80 @@ Email:1993346266@qq.com
 			if(music.mode == MOON_MUSIC_MODE_FALSE)
 				MoonMusicAgain(&music);
 
+[16]{ 警告!!本条目为AI自动填充,如有错误,作者不对此负有主要责任 }
+		文件的加载与使用
+
+		MoonEngine 提供了轻量级的文本文件加载与行索引工具，专为脚本解析和配置文件读取设计。
+		与直接将整个文件切分为字符串数组不同，引擎采用“完整文本块 + 行偏移索引”的方式，
+		在保持内存连续性的同时，提供了 O(1) 的行定位能力。
+
+	[16.1]
+		核心数据结构
+
+		MOON_FILE 是文件内容在内存中的镜像，包含原始文本缓冲区和每行的起始偏移量：
+
+		typedef struct
+		{
+			char* file_buffer;				// 文件完整内容（连续内存块）
+			unsigned int file_size;			// 文件总长度（字节数）
+			unsigned int* line_index;		// 每行起始偏移量数组
+			unsigned int line_all;			// 总行数
+		}MOON_FILE;
+
+		行号从 1 开始编号（而非 0），方便人类阅读和调试。
+		line_index[0] = 0		第一行起点
+		line_index[1] = 2		第二行起点
+		...
+		line_index[line_all - 1]	最后一行的起点
+		line_index[line_all]		= file_size（哨兵，用于计算最后一行长度）
+
+	[16.2]
+		文件加载函数
+
+		[16.2.1]
+			MoonFileLoad_TEXT（基础函数）
+			功能：将文本文件读入用户提供的缓冲区，自动处理 BOM 头。
+			原型：MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size);
+			参数：
+				file_name	文件路径
+				text		用户分配的缓冲区
+				text_size	缓冲区大小（必须足够容纳文件内容 + 结尾 '\0'）
+			返回值：成功 MOON_TRUE，失败 MOON_FALSE
+			注意：此函数仅做原始读取，不构建行索引。
+
+		[16.2.2]
+			MoonFileRead_TEXT（推荐使用）
+			功能：加载文本文件并自动构建 MOON_FILE 结构体，包含完整的行索引。
+			原型：MoonFileRead_TEXT(MOON_FILE* file, const char* file_name);
+			参数：
+				file		指向 MOON_FILE 的指针（需提前声明）
+				file_name	文件路径
+			返回值：成功 MOON_TRUE，失败 MOON_FALSE
+			内部处理：
+				- 自动跳过 UTF-8 BOM（0xEF 0xBB 0xBF）
+				- 将 CRLF（\r\n）中的 \r 替换为空格，保持文件长度不变
+				- 为每行建立起始偏移索引，最后一行的终点指向 file_size
+			内存管理：
+				- 使用 MoonAlloc 分配内存，由引擎注册表自动回收
+				- 失败时自动回滚已分配的资源
+
+		[16.2.3]
+			MoonFileRead_Line（读取指定行）
+			功能：从已加载的 MOON_FILE 中提取指定行的内容。
+			原型：MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line);
+			参数：
+				file		已加载的 MOON_FILE
+				file_buffer	用户分配的缓冲区（需确保足够容纳该行 + '\0'）
+				line		行号（从 1 开始）
+			返回值：成功 MOON_TRUE，失败 MOON_FALSE
+			注意：
+				- 行号从 1 开始，对应文件的第一行
+				- 如果 line 超出范围（line > file->line_all），返回 MOON_FALSE 并打印提示
+				- 缓冲区由调用者管理，引擎不负责检查其大小
+
+		引擎退出时，MoonAlloc 注册表会自动释放 file.file_buffer 和 file.line_index，
+		您无需手动调用 MoonFree（但也可以在不再使用时主动释放以减少内存占用）。
+	
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -1108,6 +1183,19 @@ Email:1993346266@qq.com
 * 2.1.15.0					添加了函数
 *								MoonGetFps
 *							用于获取帧率
+* 2.1.15.1		2026.6.25	修复了MoonUtilityLoad的参数不匹配的BUG
+* 2.1.15.2					修改了MoonFileLoad_TEXT的参数
+*								由
+*									MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
+*								改为
+*									MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size)
+* 2.1.15.3					添加了MOON_FILE结构体,用于文件管理
+* 2.1.16.0					添加了函数
+*								MoonFileRead_TEXT
+*							用于加载文件
+* 2.1.17.0		2026.6.26	添加了函数
+*								MoonFileRead_Line
+*							用于读取文件中任意一行
 *
 */
 

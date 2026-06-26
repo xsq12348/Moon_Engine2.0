@@ -14,6 +14,13 @@
 
 typedef GLFWwindow MOON_HWND;		//句柄
 
+enum
+{
+	MOON_MODULE_DRAW = 1,
+	MOON_MODULE_LOGIC,
+	MOON_MODULE_ATTR,
+}MOON_MODULE_FUNCTION;
+
 typedef struct
 {
 	float* data;
@@ -42,9 +49,9 @@ typedef struct MOON_ENGINECORE
 	_Bool gamepowermode;		//记录高性能模式旧模式
 	char power;					//高性能模式
 	int focus;					//焦点
-	int(*Logic)(struct MOON_PROJECTGOD*);				//多线程逻辑函数
-	int(*Drawing)(struct MOON_PROJECTGOD*);				//主线程绘图函数
-	int(*Attr)(struct MOON_PROJECTGOD*);				//属性函数
+	int(*Logic)(MOON_PROJECTGOD*);				//多线程逻辑函数
+	int(*Drawing)(MOON_PROJECTGOD*);			//主线程绘图函数
+	int(*Attr)(MOON_PROJECTGOD*);				//属性函数
 
 	MOON_MESSAGE_ALL message_draw;//绘制消息队列
 	MOON_MESSAGE_ALL message_logic;//逻辑消息队列
@@ -111,7 +118,7 @@ _declspec(dllexport) extern int MoonProjectPause(int mode, int (**function_1)(MO
 * 使用方法
 * MoonUtilityLoad(project);
 */
-_declspec(dllexport) extern void MoonUtilityLoad(MOON_ENGINECORE* project);
+_declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project, MOON_ENGINECORE* core);
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!

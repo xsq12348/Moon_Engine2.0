@@ -465,8 +465,8 @@ _declspec(dllexport) extern void MoonDrawCircle(MOON_IMAGE* image, int x, int y,
 	MOON_POINT2D points[37];
 	for (int index = 0; index < 36; ++index)
 	{
-		points[index].x = (int)(cosf(MoonDegRad(index * 10)) * r) + x;
-		points[index].y = (int)(sinf(MoonDegRad(index * 10)) * r) + y;
+		points[index].x = (int)(cosf(MoonDegRad((float)(index * 10))) * r) + x;
+		points[index].y = (int)(sinf(MoonDegRad((float)(index * 10))) * r) + y;
 	}
 	points[36] = points[0];
 	for (int index = 0; index < 36; ++index)

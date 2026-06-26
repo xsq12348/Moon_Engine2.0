@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,15,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,1,17,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -158,7 +158,7 @@ _declspec(dllexport) extern void MoonProjectInit(MOON_PROJECTGOD* project, const
 	MoonCreateEntityIndex(project, &shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
 	MoonShaderLoad((char**)&moon_vertex_shader2d_code, (char**)&moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
 	MoonShaderLoad((char**)&moon_vertex_shader2d_texture_code, (char**)&moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
-	MoonUtilityLoad(&moon_engine_core);
+	MoonUtilityLoad(project, &moon_engine_core);
 	MoonDrawLoad(project);
 
 	if (ProjectSetting_1 != MOON_NULL)
@@ -209,7 +209,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
 	glfwMakeContextCurrent(moon_engine_core.hwnd);
 
-	MoonUtilityLoad(&moon_engine_core);	//重新绑定
+	MoonUtilityLoad(project, &moon_engine_core);//重新绑定
 
 	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, projectbitmap);
 	MoonHashFindEntity(project, "ProjectShader_SolidColor", unsigned int, shader_program_1);
@@ -476,11 +476,19 @@ _declspec(dllexport) extern int MoonProjectError(void* alpha, int degree, char* 
 	printf("\n来自[%p]的[%s]发生错误!现在转入错误处理函数[ProjectError]", alpha, text);
 	switch (degree)
 	{
-	case Serious:printf("\t等级[Serious/严重]\n"); break;
-	case General:printf("\t等级[General/一般]\n"); break;
-	case Mild:printf("\t等级[Mild/轻微]\n"); break;
+	case Serious:
+		printf("\t等级[Serious/严重]\n"); 
+		break;
+	case General:
+		printf("\t等级[General/一般]\n"); 
+		break;
+	case Mild:
+		printf("\t等级[Mild/轻微]\n"); 
+		break;
 	}
-	while (!MoonKeyState(MOON_KEY_ESCAPE)) MoonSleep(1);
+	printf("按下[esc]退出");
+	while (!MoonKeyState(MOON_KEY_ESCAPE))
+		MoonSleep(1);
 	return degree;
 }
 

@@ -132,10 +132,19 @@ extern int MoonProjectPause(int mode, int (**function_1)(), int (*function_2)(),
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
-* 函數 MoonUtilityLoad
+* 函數 MoonUtilityFidCore
 * 作用 初始化所有内部工具函數
 * 使用方法
-* MoonUtilityLoad(project);
+* MoonUtilityFidCore(core);
+*/
+extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core);
+
+/*
+* 注意!這個函數對你的代碼可能沒有任何作用!
+* 函數 MoonUtilityLoad
+* 作用 链接工具库
+* 使用方法
+* MoonUtilityLoad(core);
 */
 extern void MoonUtilityLoad(MOON_ENGINECORE* core);
 

@@ -22,6 +22,10 @@ static _Bool MoonAlloc_Registry();
 extern void MoonUtilityLoad(MOON_ENGINECORE* core)
 {
 	utility_core = core;
+}
+
+extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
+{
 	{
 		SDL_AudioSpec audio_spec =
 		{

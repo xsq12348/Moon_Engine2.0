@@ -4,8 +4,8 @@ static MOON_TIMELOAD logictps;
 
 extern MOON_PROJECTSETTING(_Resource)
 {
-	MoonCreateEntityIndex(project, &logictps, (char*)"LogicTps", sizeof(MOON_TIMELOAD), (char*)"MOON_TIMELOAD");
+	MoonCreateEntityIndex(&logictps, (char*)"LogicTps", sizeof(MOON_TIMELOAD), (char*)"MOON_TIMELOAD");
 	
-	MoonProjectFindEntityAllNumber(project);
+	MoonProjectFindEntityAllNumber();
 
 }

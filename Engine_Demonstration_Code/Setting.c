@@ -3,11 +3,14 @@
 extern MOON_PROJECTSETTING(SettingAll)
 {
 	{
-		MoonHashFindEntity(project, "LogicTps", MOON_TIMELOAD, logicTps);
-		MoonTimeLoadInit(logicTps, 1000.f / 60.f); // 60 FPS逻辑帧
+		MoonHashFindEntity("LogicTps", MOON_TIMELOAD, logicTps);
+		MoonTimeLoadInit(logicTps, 1000 / 60); // 60 FPS逻辑帧
 	}
-	GameDrawLoad(project);
-	GameLogicLoad(project);
+
+	{
+		GameDrawLoad();
+		GameLogicLoad();
+	}
 }
 
 extern MOON_PROJECTSETTING(SettingOver)

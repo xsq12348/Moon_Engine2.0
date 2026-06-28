@@ -15,6 +15,7 @@
 * 作用 主繪製函數
 */
 extern MOON_PROJECTMODULE(GameDrawAll);
+extern MOON_PROJECTMODULE(GameDrawAll_2);
 
 /*
 * 函數 GameDrawLoad
@@ -27,6 +28,7 @@ extern MOON_PROJECTMODULE(GameDrawLoad);
 * 作用 主邏輯函數
 */
 extern MOON_PROJECTMODULE(GameLogicAll);
+extern MOON_PROJECTMODULE(GameLogicAll_2);
 
 /*
 * 函數 GameLogicLoad

@@ -14,6 +14,16 @@
 
 typedef GLFWwindow MOON_HWND;		//句柄
 
+//--------------------------对象--------------------------//
+typedef struct
+{
+	char* nameid;
+	char* type_name;
+	int length;
+	void* entityindex;
+}MOON_ENTITYINDEX;					//实体
+
+//--------------------------模块切换--------------------------//
 enum
 {
 	MOON_MODULE_DRAW = 1,
@@ -21,49 +31,57 @@ enum
 	MOON_MODULE_ATTR,
 }MOON_MODULE_FUNCTION;
 
+//--------------------------内核音乐数据--------------------------//
 typedef struct
 {
 	float* data;
 	int length;
 }MOON_CORE_MUSIC;
 
+//--------------------------消息队列单体--------------------------//
 typedef struct MOON_MESSAGE_SPECIFIC
 {
 	unsigned int message;				//消息类型
 	MOON_METADATA metadata;				//数据元
 }MOON_MESSAGE_SPECIFIC;
 
+//--------------------------消息队列--------------------------//
 typedef struct
 {
 	MOON_MESSAGE_SPECIFIC* message;
 	unsigned int message_index;
 }MOON_MESSAGE_ALL;
 
+//--------------------------内核唯一单例--------------------------//
 typedef struct MOON_ENGINECORE
 {
 	MOON_HWND* hwnd;			//窗口句柄
+	int window_width;									//宽度
+	int window_height;									//高度
 	_Bool dead;					//项目状态
 	_Bool thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
 	_Bool thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
 	//_Bool thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
-	_Bool gamepowermode;		//记录高性能模式旧模式
+	char gamepowermode;		//记录高性能模式旧模式
 	char power;					//高性能模式
 	int focus;					//焦点
-	int(*Logic)(MOON_PROJECTGOD*);				//多线程逻辑函数
-	int(*Drawing)(MOON_PROJECTGOD*);			//主线程绘图函数
-	int(*Attr)(MOON_PROJECTGOD*);				//属性函数
-
+	int(*Logic)();				//多线程逻辑函数
+	int(*Drawing)();			//主线程绘图函数
+	int(*Attr)();				//属性函数
+	MOON_ENTITYINDEX* entityindex;						//对象池注册表
 	MOON_MESSAGE_ALL message_draw;//绘制消息队列
 	MOON_MESSAGE_ALL message_logic;//逻辑消息队列
 	//MOON_MESSAGE_ALL message_attr;//属性消息队列
 	MOON_TIMELOAD timeload;		//计时器
 }MOON_ENGINECORE;
 
+//--------------------------纹理顶点--------------------------//
 typedef struct
 {
 	float x, y, z, uv_x, uv_y;
 }MOON_TEXTURE_VECTER;		//用于纹理顶点
 
+//--------------------------图元顶点--------------------------//
 //点结构体
 typedef struct
 {
@@ -71,6 +89,7 @@ typedef struct
 	float r, g, b, a;
 }MOON_GRAPHIC_VECTER;
 
+//--------------------------自动内存分配--------------------------//
 typedef void* MOON_ALLOC;
 typedef struct
 {
@@ -109,7 +128,7 @@ extern int MoonProjectError(void* alpha, int degree, char* text);	//错误处理
 * 使用方法
 * MoonProjectPause(1, &project->Logic, NULL, NULL);
 */
-extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*));		//暂停函数
+extern int MoonProjectPause(int mode, int (**function_1)(), int (*function_2)(), int (*function_3)());		//暂停函数
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -118,7 +137,7 @@ extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int 
 * 使用方法
 * MoonUtilityLoad(project);
 */
-extern void MoonUtilityLoad(MOON_PROJECTGOD* project, MOON_ENGINECORE* core);
+extern void MoonUtilityLoad(MOON_ENGINECORE* core);
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -136,7 +155,7 @@ extern void MoonUtilityOver();
 * 使用方法
 * MoonDrawLoad(project);
 */
-extern void MoonDrawLoad(MOON_PROJECTGOD* project);
+extern void MoonDrawLoad();
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -176,7 +195,7 @@ extern void MoonImageDesignated(MOON_IMAGE* image);//设置绘图对象
 * 使用方法
 * MoonProjectFunctionSwitch(project, MOON_MODULE_DRAW, NewDrawingFunction);
 */
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*));//函数切换
+extern void MoonProjectFunctionSwitch(char module, int (*function_2)());//函数切换
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -194,9 +213,9 @@ extern void MoonProjectDead();
 * 使用方法
 * MoonProjectGetMessage(message, handle);
 */
-extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*));	//获取消息
-extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
-extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
+extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_MESSAGE_ALL*, _Bool*));	//获取消息
+extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
+extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
 
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 

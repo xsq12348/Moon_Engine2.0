@@ -1,14 +1,16 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,1,17,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,0,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
 static MOON_POINT2D projectmousecoord;
 static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
 static MOON_ENGINECORE moon_engine_core;
+static MOON_MESSAGE_ALL logic_message_cache;
 static _Bool thread_draw_type, thread_attr_type;
+static unsigned char moon_key_type[MOON_KEY_LAST];
 
 static const char* moon_vertex_shader2d_code =
 "#version 330 core\n"
@@ -62,10 +64,13 @@ void main()
 
 static unsigned int shader_program_vectex, shader_program_pixel;
 
-static _Bool ProjectConsole(MOON_PROJECTGOD* project, int (*developerconsole)(MOON_PROJECTGOD*));	//控制台
 static MOON_PROJECTMODULE(MoonLogicPause);															//暂停逻辑线程
 static MOON_PROJECTMODULE(MoonDrawingPause);														//暂停绘制线程
 static MOON_CREATETHREADFUNCTION(ProjectLogicThread);												//逻辑线程
+static void MoonKeyCallback(GLFWwindow* hwnd, int key, int scancode, int action, int mods);			//键盘按键回调
+static void MoonMouseCallback(GLFWwindow* hwnd, int button, int action, int mods);					//鼠标按键回调
+static inline void MoonPollButton();																//轮询按鍵
+static MOON_PROJECTMODULE(MoonLogicNull);															//当不存在逻辑函数时,设置为此函数
 
 extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_coord_y, int window_width, int window_height)
 {
@@ -84,6 +89,8 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 		return 0;
 	}
 	//glfwShowWindow(hwnd);
+	glfwSetKeyCallback(hwnd, MoonKeyCallback);
+	glfwSetMouseButtonCallback(hwnd, MoonMouseCallback);
 	printf("OpenGL: %s\n", glGetString(GL_VERSION));
 	unsigned int vao;
 	glad_glGenVertexArrays(1, &vao);
@@ -94,11 +101,11 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 	return hwnd;
 }
 
-extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps, void (*ProjectSetting_1)(MOON_PROJECTGOD*))
+extern void MoonProjectInit(const char* project_name, int x, int y, int width, int height, int fps, void (*ProjectSetting_1)())
 {
 	MoonPrompt((char*)"[ProjectInit]初始化函数进入成功");
 	printf("\n\033[1;33m    ████████████      \n  ████      ████████  \n  ██    ██████    ██  \n████  ██    ████    ███\n██████████████  ██  ███\n██  ██  ██  ██  ██  ███\n██  ██  ███████████████\n██    ████    ██  █████\n  ██    ██████    ██  \n  ████████      ████  \n      ████████████      \n\033[0m\n");
-	printf("MoonEngine[%x.%x.%x.%x]\n", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
+	printf("MoonEngine[%d.%d.%d.%d]\n", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
 	/*
 	  ██████████
   ████      ████████
@@ -138,31 +145,31 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 		return;
 	}
 
+	MoonUtilityLoad(&moon_engine_core);
 	SDL_Init(SDL_INIT_AUDIO);
 
 	MoonPrompt((char*)"projectgod初始化成功");
-	project->project_name = project_name;
-	project->window_height = height;
-	project->window_width = width;
+	moon_engine_core.window_height = height;
+	moon_engine_core.window_width = width;
 	moon_engine_core.dead = MOON_FALSE;
-	project->entityindex = entityindex;
+	moon_engine_core.entityindex = entityindex;
 	MoonTimeLoadInit(&moon_engine_core.timeload, (int)(1000.f / (fps > 0 ? fps : 60)));
 	MoonTimeLoadInit(&projectfps, 1000);
-	MoonCreateEntityIndex(project, &fpsmax2, (char*)"ProjectFPS", sizeof(int), (char*)"int");
-	MoonCreateEntityIndex(project, &projectmousecoord, (char*)"ProjectMouseCoord", sizeof(MOON_POINT2D), (char*)"MOON_POINT2D");
-	MoonCreateEntityIndex(project, &projectdoublebuffer, (char*)"ProjectBitmap", sizeof(MOON_IMAGE), (char*)"MOON_IMAGE");
+	MoonCreateEntityIndex(&fpsmax2, (char*)"ProjectFPS", sizeof(int), (char*)"int");
+	MoonCreateEntityIndex(&projectmousecoord, (char*)"ProjectMouseCoord", sizeof(MOON_POINT2D), (char*)"MOON_POINT2D");
+	MoonCreateEntityIndex(&projectdoublebuffer, (char*)"ProjectBitmap", sizeof(MOON_IMAGE), (char*)"MOON_IMAGE");
+	MoonCreateEntityIndex(moon_key_type, (char*)"ProjectKey", sizeof(unsigned char), (char*)"unsigned char");
 
-	MoonImageCreate(&projectdoublebuffer, project->window_width, project->window_height);
+	MoonImageCreate(&projectdoublebuffer, moon_engine_core.window_width, moon_engine_core.window_height);
 
-	MoonCreateEntityIndex(project, &shader_program_vectex, (char*)"ProjectShader_SolidColor", sizeof(unsigned int), (char*)"unsigned int");
-	MoonCreateEntityIndex(project, &shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
+	MoonCreateEntityIndex(&shader_program_vectex, (char*)"ProjectShader_SolidColor", sizeof(unsigned int), (char*)"unsigned int");
+	MoonCreateEntityIndex(&shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
 	MoonShaderLoad((char**)&moon_vertex_shader2d_code, (char**)&moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
 	MoonShaderLoad((char**)&moon_vertex_shader2d_texture_code, (char**)&moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
-	MoonUtilityLoad(project, &moon_engine_core);
-	MoonDrawLoad(project);
+	MoonDrawLoad();
 
 	if (ProjectSetting_1 != MOON_NULL)
-		ProjectSetting_1(project);
+		ProjectSetting_1();
 	MoonPrompt((char*)"[ProjectInit]初始化完成");
 }
 
@@ -171,7 +178,7 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 	int runload[3] = { 0 };//帧率计时器
 
 	//逻辑线程
-	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
+	MOON_GETTHREADRESOURCE(MOON_ENGINECORE*, core);
 
 	MoonPrompt((char*)"加载了逻辑线程");
 
@@ -179,15 +186,18 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 	{
 		runload[0] = clock();
 
-		if (moon_engine_core.Logic && moon_engine_core.Logic != MoonLogicPause)
+		if (moon_engine_core.Logic)
 		{
-			moon_engine_core.Logic(project);
-
-			//自动锁
-			MoonProjectGetMessage(project, &moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+			moon_engine_core.Logic();
+			if (moon_engine_core.Logic != MoonLogicPause)
+			{
+				//自动锁
+				MoonProjectGetMessage(&moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+				MOON_MESSAGE_ALL buffer = logic_message_cache;
+				logic_message_cache = moon_engine_core.message_logic;
+				moon_engine_core.message_logic = buffer;
+			}
 		}
-		else
-			MoonSleep(1);
 		
 		runload[1] = clock();
 		runload[2] = runload[1] - runload[0];
@@ -206,14 +216,14 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 {
 	//绘制线程
 	//OpenGL
-	MOON_GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
-	glfwMakeContextCurrent(moon_engine_core.hwnd);
+	MOON_GETTHREADRESOURCE(MOON_ENGINECORE*, core);
+	glfwMakeContextCurrent(core->hwnd);
 
-	MoonUtilityLoad(project, &moon_engine_core);//重新绑定
+	MoonUtilityLoad(core);//重新绑定
 
-	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, projectbitmap);
-	MoonHashFindEntity(project, "ProjectShader_SolidColor", unsigned int, shader_program_1);
-	MoonHashFindEntity(project, "ProjectShader_Texture", unsigned int, shader_program_2);
+	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, projectbitmap);
+	MoonHashFindEntity("ProjectShader_SolidColor", unsigned int, shader_program_1);
+	MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
 	unsigned int moon_vbo, moon_ebo, moon_vao, solid_color_shader, texture_shader;
 	solid_color_shader = (*shader_program_1);
 	texture_shader = (*shader_program_2);
@@ -265,31 +275,34 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	{
 		runload[0] = clock();
 		{
-			if (!MoonTimeLoad(&projectfps, MOON_TRUE))fpsmax++;
+			if (!MoonTimeLoad(&projectfps, MOON_TRUE))++fpsmax;
 			else { fpsmax2 = fpsmax; fpsmax = 0; }
 		}
 
-		if(moon_engine_core.Drawing && moon_engine_core.Drawing!= MoonDrawingPause)
+		if(moon_engine_core.Drawing)
 		{
-			moon_engine_core.Drawing(project);
+			moon_engine_core.Drawing();
+			if (moon_engine_core.Drawing != MoonDrawingPause)
+			{
 
-			//自动锁
-			MoonProjectGetMessage(project, &moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
+				//自动锁
+				MoonProjectGetMessage(&moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
 
-			glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
-			glad_glBindTexture(GL_TEXTURE_2D, projectbitmap->image.texture);
-			MoonImageShader(texture_shader);
-			glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), 1.0f, 1.0f, 1.0f, 1.0f);
-			glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
-			glad_glBindVertexArray(moon_vao);
-			glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
-			glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
-			glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-			glfwSwapBuffers(moon_engine_core.hwnd);
-			MoonImageDesignated(projectbitmap);
-			glad_glClearColor(0.f, 0.f, 0.f, 1.f);
-			glad_glClear(GL_COLOR_BUFFER_BIT);
+				glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
+				glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
+				glad_glBindTexture(GL_TEXTURE_2D, projectbitmap->image.texture);
+				MoonImageShader(texture_shader);
+				glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), 1.0f, 1.0f, 1.0f, 1.0f);
+				glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
+				glad_glBindVertexArray(moon_vao);
+				glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
+				glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
+				glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+				glfwSwapBuffers(moon_engine_core.hwnd);
+				MoonImageDesignated(projectbitmap);
+				glad_glClearColor(0.f, 0.f, 0.f, 1.f);
+				glad_glClear(GL_COLOR_BUFFER_BIT);
+			}
 		}
 
 		runload[1] = clock();
@@ -319,7 +332,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	return 1;
 }
 
-extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*))
+extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)())
 {
 	if (moon_engine_core.dead)
 	{
@@ -339,28 +352,27 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	}
 	moon_engine_core.Drawing = ProjectDrawing;
 
-	if (ProjectSetting_2 != MOON_FALSE)
-		ProjectSetting_2(project);
+	if (ProjectSetting_2)
+		ProjectSetting_2();
 
 	glfwMakeContextCurrent((GLFWwindow*)MOON_NULL);
 
-	MOON_CREATETHREAD(ProjectDrawingThread, "DrawingThread", project);//加载属性线程
 
 	//加载逻辑线程
-	if (ProjectLogic != MOON_FALSE)
-	{
+	if (ProjectLogic)
 		moon_engine_core.Logic = ProjectLogic;
-		MOON_CREATETHREAD(ProjectLogicThread, "LogicThread", project);
-	}
 	else
-		moon_engine_core.thread_message_type_logic = MOON_TRUE;
+		moon_engine_core.Logic = MoonLogicNull;
+
+	MOON_CREATETHREAD(ProjectDrawingThread, "DrawingThread", &moon_engine_core);	//加载绘制线程
+	MOON_CREATETHREAD(ProjectLogicThread, "LogicThread", &moon_engine_core);		//加载逻辑线程
 
 	MoonPrompt((char*)"加载了属性线程");
 
-	MoonHashFindEntity(project, (char*)"ProjectMouseCoord", MOON_POINT2D, mousecoord);
-	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, projectbitmap);
-	MoonHashFindEntity(project, (char*)"ProjectFPS", int, fpsnumber);
-	static int(*drawing)(MOON_PROJECTGOD*) = 0, (*logic)(MOON_PROJECTGOD*) = 0, developer = MOON_FALSE;
+	MoonHashFindEntity((char*)"ProjectMouseCoord", MOON_POINT2D, mousecoord);
+	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, projectbitmap);
+	MoonHashFindEntity((char*)"ProjectFPS", int, fpsnumber);
+	static int(*drawing)() = 0, (*logic)() = 0;
 	drawing = moon_engine_core.Drawing;
 	logic = moon_engine_core.Logic;
 	static double mousecoord_x_2, mousecoord_y_2;
@@ -369,48 +381,54 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 	//属性线程
 	while (!moon_engine_core.dead)
 	{
-		if (moon_engine_core.Logic != MoonLogicPause)
-			logic = moon_engine_core.Logic;
-		if (moon_engine_core.Drawing != MoonDrawingPause)
-			drawing = moon_engine_core.Drawing;
-		moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd));
-		moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
 		glfwPollEvents();
 
 		{
-			glfwGetCursorPos(moon_engine_core.hwnd, &mousecoord_x_2, &mousecoord_y_2);
-			mousecoord->x = (int)mousecoord_x_2;
-			mousecoord->y = (int)mousecoord_y_2;
+			if (moon_engine_core.Logic != MoonLogicPause)
+				logic = moon_engine_core.Logic;
+			if (moon_engine_core.Drawing != MoonDrawingPause)
+				drawing = moon_engine_core.Drawing;
+			moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd));
+			moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
+		}
 
-			if (developer || moon_engine_core.focus)
-				moon_engine_core.power = MOON_NOTFOUND;
-			else
-				moon_engine_core.power = moon_engine_core.gamepowermode;
+		//轮询按鍵
+		{
+			MoonPollButton();
+		}
+
+		{
+			{
+				glfwGetCursorPos(moon_engine_core.hwnd, &mousecoord_x_2, &mousecoord_y_2);
+				mousecoord->x = (int)mousecoord_x_2;
+				mousecoord->y = (int)mousecoord_y_2;
+			}
+
+			{
+				if (moon_engine_core.focus)
+					moon_engine_core.power = MOON_NOTFOUND;
+				else
+					moon_engine_core.power = moon_engine_core.gamepowermode;
+			}
 
 			//当Power改变时
-			if (moon_engine_core.power != modetemp)
 			{
-				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
-				MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
-			}
-			modetemp = moon_engine_core.power;
-			if (!developer && MoonKeyState(MOON_KEY_OEM_3))
-				developer = MOON_TRUE;
-			if (developer)
-			{
-				ProjectConsole(project, project->developerconsole);
-				if (MoonKeyState(MOON_KEY_OEM_3))
-					developer = MOON_FALSE;
+				if (moon_engine_core.power != modetemp)
+				{
+					MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
+					MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
+				}
+				modetemp = moon_engine_core.power;
 			}
 		}
 		if (moon_engine_core.Attr)
-			moon_engine_core.Attr(project);
+			moon_engine_core.Attr();
 		MoonSleep(1);
 	}
 	thread_attr_type = MOON_TRUE;
 }
 
-extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*))
+extern void MoonProjectOver(void (*ProjectOverSetting)())
 {
 	while (1)
 		if (thread_attr_type && thread_draw_type)
@@ -422,13 +440,9 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 			MoonSleep(1);
 
 	MoonPrompt((char*)"[ProjectOver]引擎流程结束!\n[ProjectOver]结束函数进入成功");
-	if (project == MOON_NULL)
-	{
-		MoonProjectError(project, 2, (char*)"核心对象[projectgod]丢失!");
-		return;
-	}
-	if (ProjectOverSetting != 0)
-		ProjectOverSetting(project);
+
+	if (ProjectOverSetting)
+		ProjectOverSetting();
 
 	{
 		MoonDrawOver();
@@ -454,12 +468,12 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 	//釋放所有實體
 	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
 	{
-		if (project->entityindex[index].type_name != 0)
-			if (!strcmp(project->entityindex[index].type_name, (char*)"MOON_IMAGE"))MoonImageDelete((MOON_IMAGE*)project->entityindex[index].entityindex);
-			else if (!strcmp(project->entityindex[index].type_name, (char*)"MOON_ANIME"))MoonAnimeDelete((MOON_ANIME*)project->entityindex[index].entityindex);
-		project->entityindex[index].length = 0;
-		project->entityindex[index].nameid = (char*)MOON_NULL;
-		project->entityindex[index].entityindex = MOON_NULL;
+		if (moon_engine_core.entityindex[index].type_name != 0)
+			if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_IMAGE"))MoonImageDelete((MOON_IMAGE*)moon_engine_core.entityindex[index].entityindex);
+			else if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_ANIME"))MoonAnimeDelete((MOON_ANIME*)moon_engine_core.entityindex[index].entityindex);
+		moon_engine_core.entityindex[index].length = 0;
+		moon_engine_core.entityindex[index].nameid = (char*)MOON_NULL;
+		moon_engine_core.entityindex[index].entityindex = MOON_NULL;
 	}
 	MoonPrompt((char*)"[ProjectOver]资源清理完成");
 	MoonPrompt((char*)"程序已退出");
@@ -492,14 +506,14 @@ extern int MoonProjectError(void* alpha, int degree, char* text)
 	return degree;
 }
 
-extern int MoonProjectPause(int mode, int (**function_1)(MOON_PROJECTGOD*), int (*function_2)(MOON_PROJECTGOD*), int (*function_3)(MOON_PROJECTGOD*))
+extern int MoonProjectPause(int mode, int (**function_1)(), int (*function_2)(), int (*function_3)())
 {
 	if (mode) *function_1 = function_2;
 	else *function_1 = function_3;
 	return 1;
 }
 
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJECTGOD*))
+extern void MoonProjectFunctionSwitch(char module, int (*function_2)())
 {
 	if (function_2 == MOON_NULL)
 	{
@@ -515,17 +529,17 @@ extern void MoonProjectFunctionSwitch(char module, int (*function_2)(MOON_PROJEC
 	}
 }
 
-extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project)
+extern int MoonProjectFindEntityAllNumber()
 {
 	int all_number = 0;
 	printf("\n\033[4;7;105m   序号|地址            |索引      |名称                          |类型                          |Hash      |类型大小  \033[0m\n");
 	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
-		if (project->entityindex[index].length != 0)
+		if (moon_engine_core.entityindex[index].length != 0)
 		{
-			all_number++;
+			++all_number;
 			printf("\033[4;7;105m%-7d|%p|%-10d|%-30s|%-30s|%-10d|%-10d\033[0m\n", 
-				all_number, project->entityindex[index].entityindex, index, project->entityindex[index].nameid, 
-				project->entityindex[index].type_name, MoonHash(project->entityindex[index].nameid), project->entityindex[index].length);
+				all_number, moon_engine_core.entityindex[index].entityindex, index, moon_engine_core.entityindex[index].nameid, 
+				moon_engine_core.entityindex[index].type_name, MoonHash(moon_engine_core.entityindex[index].nameid), moon_engine_core.entityindex[index].length);
 		}
 	printf("\n[ProjectFindEntityAllNumber函数]进入成功!\n统计到的实体总数为[%d]\n", all_number);
 	return all_number;
@@ -545,13 +559,6 @@ extern void MoonPrompt(char* text)
 {
 	printf("\n\033[31m[MoonEngine]提示\033[0m\n");
 	printf("%s\n", text);
-}
-
-static _Bool ProjectConsole(MOON_PROJECTGOD* project, int (*developerconsole)(MOON_PROJECTGOD*))
-{
-	if (developerconsole == MOON_NULL)return MOON_FALSE;
-	developerconsole(project);
-	return MOON_TRUE;
 }
 
 static MOON_PROJECTMODULE(MoonLogicPause)
@@ -612,7 +619,9 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 		{
 			if (moon_engine_core.message_logic.message_index >= message_index_max_logic)
 			{
+				logic_message_cache.message_index = moon_engine_core.message_logic.message_index;
 				MOON_MESSAGE_SPECIFIC* buffer = (MOON_MESSAGE_SPECIFIC*)realloc(moon_engine_core.message_logic.message, (moon_engine_core.message_logic.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
+				MOON_MESSAGE_SPECIFIC* buffer_2 = (MOON_MESSAGE_SPECIFIC*)realloc(logic_message_cache.message, (logic_message_cache.message_index + 1) * sizeof(MOON_MESSAGE_SPECIFIC));
 				if (!buffer)
 					return MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE;
 				else
@@ -620,6 +629,8 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 					message_index_max_logic += 1;
 					moon_engine_core.message_logic.message = buffer;
 				}
+				if (buffer_2)
+					logic_message_cache.message = buffer_2;
 			}
 			moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].message = message;
 			moon_engine_core.message_logic.message[moon_engine_core.message_logic.message_index].metadata = metadata;
@@ -627,12 +638,17 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 			return MOON_MESSAGE_THREAD_TYPE_TRUE;
 		}
 		else
-			return MOON_MESSAGE_THREAD_TYPE_BUSY;
+		{
+			logic_message_cache.message[logic_message_cache.message_index].message = message;
+			logic_message_cache.message[logic_message_cache.message_index].metadata = metadata;
+			logic_message_cache.message_index += 1;
+			return MOON_MESSAGE_THREAD_TYPE_CACHE;
+		}
 
 	return MOON_MESSAGE_THREAD_TYPE_FALSE;
 }
 
-extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_PROJECTGOD*, MOON_MESSAGE_ALL*, _Bool*))
+extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_MESSAGE_ALL*, _Bool*))
 {
 	//type的作用
 	//防止随意操作标志导致消息处理紊乱
@@ -640,7 +656,7 @@ extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* mes
 	if (Handle)
 	{
 		//Handle内部应该处理完所有消息,因为该函数结束后,线程循环也差不多结束
-		Handle(project, message, type);
+		Handle(message, type);
 		if (message->message)
 			memset(message->message, 0, sizeof(MOON_MESSAGE_SPECIFIC) * message->message_index);
 		message->message_index = 0;
@@ -649,10 +665,8 @@ extern int MoonProjectGetMessage(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* mes
 	return MOON_FALSE;
 }
 
-extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
+extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
 {
-	_Bool key_on_bufer[MOON_KEY_LAST] = { 0 };
-	static _Bool key_buffer[MOON_KEY_LAST];
 	for (unsigned int index = 0; index < message->message_index; ++index)
 	{
 		if (*type)
@@ -689,32 +703,22 @@ extern void MoonlogicMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* m
 			{
 				int token = message->message[index].metadata.key.token,
 					* state = message->message[index].metadata.key.worth;
-
-				if (!key_on_bufer[token])
-					key_on_bufer[token] = (_Bool)(glfwGetKey(moon_engine_core.hwnd, (int)token) || glfwGetMouseButton(moon_engine_core.hwnd, (int)token));
-
-
-				if (!key_on_bufer[token])
-				{
-					key_buffer[token] = MOON_FALSE;
-					*state = MOON_KEY_MODE_FALSE;
-				}
-				else
-					if (!key_buffer[token])
-						*state = MOON_KEY_MODE_PRESS;
-					else
-						*state = MOON_KEY_MODE_PRESS_LONG;
+				*state = moon_key_type[token];
 			}
 			break;
 			}
 		else
 			return;
 	}
+	/*
 	for (unsigned int index = 0; index < MOON_KEY_LAST; ++index)
-		if (key_on_bufer[index] == MOON_TRUE)
-			if (!key_buffer[index])
-				key_buffer[index] = MOON_TRUE;
-}
+	{
+		if (key_on_bufer[index] && !moon_key_type[index])
+			moon_key_type[index] = MOON_KEY_MODE_PRESS;
+		key_on_bufer[index] = MOON_FALSE;
+	}
+*/
+};
 
 extern void MoonProjectDead()
 {
@@ -728,3 +732,203 @@ extern void MoonDead()
 	MOON_METADATA metadata = { 0 };
 	MoonProjectSendMessage(MOON_MESSAGE_DEAD, metadata);
 }
+
+static void MoonKeyCallback(GLFWwindow* hwnd, int key, int scancode, int action, int mods)
+{
+	switch (action)
+	{
+
+	case GLFW_RELEASE:
+		moon_key_type[key] = MOON_KEY_MODE_FALSE;
+		break;
+
+	case GLFW_PRESS:
+		moon_key_type[key] = MOON_KEY_MODE_PRESS;
+		break;
+	}
+
+}
+
+static void MoonMouseCallback(GLFWwindow* hwnd, int button, int action, int mods)
+{
+	switch (action)
+	{
+	case GLFW_RELEASE:
+		moon_key_type[button] = MOON_KEY_MODE_FALSE;
+		break;
+
+	case GLFW_PRESS:
+		moon_key_type[button] = MOON_KEY_MODE_PRESS;
+		break;
+	}
+}
+
+static inline void MoonPollButton()
+{
+	static int moon_key_press_time[MOON_KEY_LAST];
+	static const short int press_tps = 17;//单次检测持续的时间,~13.5ms
+	for (unsigned int index = 0; index < MOON_KEY_LAST; ++index)
+	{
+		switch (moon_key_type[index])
+		{
+		case GLFW_MOUSE_BUTTON_LEFT:
+		case GLFW_MOUSE_BUTTON_RIGHT:
+		case GLFW_KEY_A:
+		case GLFW_KEY_B:
+		case GLFW_KEY_C:
+		case GLFW_KEY_D:
+		case GLFW_KEY_E:
+		case GLFW_KEY_F:
+		case GLFW_KEY_G:
+		case GLFW_KEY_H:
+		case GLFW_KEY_I:
+		case GLFW_KEY_J:
+		case GLFW_KEY_K:
+		case GLFW_KEY_L:
+		case GLFW_KEY_M:
+		case GLFW_KEY_N:
+		case GLFW_KEY_O:
+		case GLFW_KEY_P:
+		case GLFW_KEY_Q:
+		case GLFW_KEY_R:
+		case GLFW_KEY_S:
+		case GLFW_KEY_T:
+		case GLFW_KEY_U:
+		case GLFW_KEY_V:
+		case GLFW_KEY_W:
+		case GLFW_KEY_X:
+		case GLFW_KEY_Y:
+		case GLFW_KEY_Z:
+		case GLFW_KEY_0:
+		case GLFW_KEY_1:
+		case GLFW_KEY_2:
+		case GLFW_KEY_3:
+		case GLFW_KEY_4:
+		case GLFW_KEY_5:
+		case GLFW_KEY_6:
+		case GLFW_KEY_7:
+		case GLFW_KEY_8:
+		case GLFW_KEY_9:
+		case GLFW_KEY_F1:
+		case GLFW_KEY_F2:
+		case GLFW_KEY_F3:
+		case GLFW_KEY_F4:
+		case GLFW_KEY_F5:
+		case GLFW_KEY_F6:
+		case GLFW_KEY_F7:
+		case GLFW_KEY_F8:
+		case GLFW_KEY_F9:
+		case GLFW_KEY_F10:
+		case GLFW_KEY_F11:
+		case GLFW_KEY_F12:
+		case GLFW_KEY_F13:
+		case GLFW_KEY_F14:
+		case GLFW_KEY_F15:
+		case GLFW_KEY_F16:
+		case GLFW_KEY_F17:
+		case GLFW_KEY_F18:
+		case GLFW_KEY_F19:
+		case GLFW_KEY_F20:
+		case GLFW_KEY_F21:
+		case GLFW_KEY_F22:
+		case GLFW_KEY_F23:
+		case GLFW_KEY_F24:
+		case GLFW_KEY_F25:
+		case GLFW_KEY_UP:
+		case GLFW_KEY_DOWN:
+		case GLFW_KEY_LEFT:
+		case GLFW_KEY_RIGHT:
+		case GLFW_KEY_HOME:
+		case GLFW_KEY_END:
+		case GLFW_KEY_PAGE_UP:
+		case GLFW_KEY_PAGE_DOWN:
+		case GLFW_KEY_INSERT:
+		case GLFW_KEY_DELETE:
+		case GLFW_KEY_SPACE:
+		case GLFW_KEY_APOSTROPHE:// '
+		case GLFW_KEY_COMMA:// ,
+		case GLFW_KEY_MINUS:// -
+		case GLFW_KEY_PERIOD:// .
+		case GLFW_KEY_SLASH:// /
+		case GLFW_KEY_SEMICOLON:// ;
+		case GLFW_KEY_EQUAL:// =
+		case GLFW_KEY_LEFT_BRACKET:// [
+		case GLFW_KEY_BACKSLASH:// '\'
+		case GLFW_KEY_RIGHT_BRACKET:// ]
+		case GLFW_KEY_GRAVE_ACCENT:// `
+		case GLFW_KEY_WORLD_1:
+		case GLFW_KEY_WORLD_2:
+		case GLFW_KEY_KP_0:
+		case GLFW_KEY_KP_1:
+		case GLFW_KEY_KP_2:
+		case GLFW_KEY_KP_3:
+		case GLFW_KEY_KP_4:
+		case GLFW_KEY_KP_5:
+		case GLFW_KEY_KP_6:
+		case GLFW_KEY_KP_7:
+		case GLFW_KEY_KP_8:
+		case GLFW_KEY_KP_9:
+		case GLFW_KEY_KP_DECIMAL:// .
+		case GLFW_KEY_KP_DIVIDE:// /
+		case GLFW_KEY_KP_MULTIPLY:// *
+		case GLFW_KEY_KP_SUBTRACT:// -
+		case GLFW_KEY_KP_ADD:// +
+		case GLFW_KEY_KP_ENTER:
+		case GLFW_KEY_KP_EQUAL:// =
+		case GLFW_KEY_ESCAPE:
+		case GLFW_KEY_ENTER:
+		case GLFW_KEY_TAB:
+		case GLFW_KEY_BACKSPACE:
+		case GLFW_KEY_CAPS_LOCK:
+		case GLFW_KEY_SCROLL_LOCK:
+		case GLFW_KEY_NUM_LOCK:
+		case GLFW_KEY_PRINT_SCREEN:
+		case GLFW_KEY_PAUSE:
+		case GLFW_KEY_MENU:
+		case GLFW_KEY_LEFT_SHIFT:
+		case GLFW_KEY_LEFT_CONTROL:
+		case GLFW_KEY_LEFT_ALT:
+		case GLFW_KEY_LEFT_SUPER:// Windows 键 / Command
+		case GLFW_KEY_RIGHT_SHIFT:
+		case GLFW_KEY_RIGHT_CONTROL:
+		case GLFW_KEY_RIGHT_ALT:
+		case GLFW_KEY_RIGHT_SUPER:
+		case GLFW_KEY_UNKNOWN:
+		{
+			if (!moon_key_type[index])
+			{
+				moon_key_press_time[index] = 0;
+				break;
+			}
+
+			if (moon_key_type[index] == MOON_KEY_MODE_PRESS_LONG)
+				break;
+
+			if (!moon_key_press_time[index])
+				moon_key_press_time[index] = clock();
+			else
+				if (clock() - moon_key_press_time[index] >= press_tps)
+					moon_key_type[index] = MOON_KEY_MODE_PRESS_LONG;
+		}
+		break;
+		default:
+			continue;
+			break;
+		}
+	}
+}
+
+static MOON_PROJECTMODULE(MoonLogicNull)
+{
+	MoonSleep(17);
+	return 1;
+}
+
+extern inline MOON_POINT2D MoonProjectWindowSize()
+{
+	return (MOON_POINT2D) { .w = moon_engine_core.window_width, .h = moon_engine_core.window_height };
+}
+
+
+
+

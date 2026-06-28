@@ -227,26 +227,26 @@ extern int MoonSleep(int timeload);					//暂停
 * 函數 MoonFindEntity
 * 作用 尋找實體
 * 使用方法
-* int* entity = (int*)MoonFindEntity(projectgod, (char*)nameid)
+* int* entity = (int*)MoonFindEntity((char*)nameid)
 */
-extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid);	//寻找实体
+extern void* MoonFindEntity(char* nameid);	//寻找实体
 
 /*
 * 函數 HashFindEntity
 * 作用 hash寻找实体
 * 使用方法
-* HashFindEntity(project, "ProjectBitmap", int, engineback);
+* HashFindEntity("ProjectBitmap", int, engineback);
 */
-#define MoonHashFindEntity(projectgod, nameid, type, entity) type* entity = (type*)MoonFindEntity(projectgod, (char*)nameid)//hash寻找实体
+#define MoonHashFindEntity(nameid, type, entity) type* entity = (type*)MoonFindEntity((char*)nameid)//hash寻找实体
 
 /*
 * 函數 MoonCreateEntityIndex
 * 作用 注册实体
 * 使用方法
 * static TIMELOAD logictps;
-* MoonCreateEntityIndex(project, &logictps, "LogicTps", sizeof(TIMELOAD));
+* MoonCreateEntityIndex(&logictps, "LogicTps", sizeof(TIMELOAD));
 */
-extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
+extern int MoonCreateEntityIndex(void* arrentity, char* nameid, size_t size_len, char* type_name);//注册实体
 
 //------------------------------------图像操作函数------------------------------------------------//
 
@@ -256,7 +256,7 @@ extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char
 * 作用 创建双缓冲绘图绘图区
 * 使用方法
 * IMAGE buffer;
-* MoonCreateImage(&buffer, project->window_width, project->window_height);
+* MoonCreateImage(&buffer, window_width, window_height);
 */
 extern void MoonImageCreate(MOON_IMAGE* image, int bmpwidth, int bmpheight);	//创建双缓冲绘图绘图区
 
@@ -302,7 +302,7 @@ extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** 
 * 函數 CREATETHREAD
 * 作用 创建并运行多线程函数
 * 使用方法
-* CREATETHREAD(Thread, project);
+* CREATETHREAD(Thread, context);
 */
 #define MOON_CREATETHREAD(fuction, name, resource)   SDL_CreateThread(fuction, name, (void*)resource);//创建并运行多线程函数
 
@@ -312,7 +312,7 @@ extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** 
 * 使用方法
 * static MOON_CREATETHREADFUNCTION(Thread)
 * {
-*	GETTHREADRESOURCE(MOON_PROJECTGOD*, project);
+*	GETTHREADRESOURCE(int*,int);
 *	return 1;
 * }
 */
@@ -396,7 +396,7 @@ extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name);
 * 使用方法
 *	MoonFileRead_Line(file, text, 1);
 */
-extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line);
+extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line);
 
 
 //------------------------------------按钮控件------------------------------------------------//
@@ -422,26 +422,26 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 * 函數 MoonButtonSetTriggerMode
 * 作用 更改按鈕觸發方式
 * 使用方法
-* MoonButtonSetTriggerMode(project, "MyButton", MOON_BUTTONPRESS);
+* MoonButtonSetTriggerMode("MyButton", MOON_BUTTONPRESS);
 */
-extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key);//更改触发方式
+extern int MoonButtonSetTriggerMode(MOON_BUTTON* button, unsigned int key);//更改触发方式
 
 /*
 * 函數 MOON_BUTTON_CREATE
 * 作用 便捷注冊按鈕
 * 使用方法
 * static MOONBUTTON button
-* MOONBUTTONCREATE(project, name, button, x, y, w, h, 0, 0, 0);
+* MOONBUTTONCREATE(name, button, x, y, w, h, 0, 0, 0);
 */
-#define MOON_BUTTON_CREATE(project, name, button, x, y, width, height, Press, PressL, Hover, False)  \
-{	\
-	MoonButtonInit(&button,(x), (y), (width), (height));                                        \
-	MoonButtonSetTriggerMode(project,&button,MOON_KEY_MOUSE_LEFT);								\
-	button.ButtonModeHover = (Hover);                                                           \
-	button.ButtonModePress = (Press);                                                           \
-	button.ButtonModePressL = (PressL);                                                         \
-	button.ButtonModeFalse = (False);                                                          \
-	MoonCreateEntityIndex(project, &button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");	\
+#define MOON_BUTTON_CREATE(name, button, x, y, width, height, Press, PressL, Hover, False)  \
+{\
+	MoonButtonInit(&button,(x), (y), (width), (height));\
+	MoonButtonSetTriggerMode(&button,MOON_KEY_MOUSE_LEFT);\
+	button.ButtonModeHover = (Hover);\
+	button.ButtonModePress = (Press);\
+	button.ButtonModePressL = (PressL);\
+	button.ButtonModeFalse = (False);\
+	MoonCreateEntityIndex(&button, (char*)name, sizeof(MOON_BUTTON), "MOON_BUTTON");\
 }
 //------------------------------------着色器函数------------------------------------------------//
 

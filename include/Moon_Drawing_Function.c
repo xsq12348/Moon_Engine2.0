@@ -20,12 +20,12 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);	//MoonCoreDrawArea辅助函数
 static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);								//MoonCoreGraphic辅助函数
 
-extern void MoonDrawLoad(MOON_PROJECTGOD* project)
+extern void MoonDrawLoad()
 {
 	//获取引擎核心着色器
-	MoonHashFindEntity(project, "ProjectShader_SolidColor", unsigned int, shader_program_1);
-	MoonHashFindEntity(project, "ProjectShader_Texture", unsigned int, shader_program_2);
-	MoonHashFindEntity(project, "ProjectBitmap", MOON_IMAGE, engineback_2);
+	MoonHashFindEntity("ProjectShader_SolidColor", unsigned int, shader_program_1);
+	MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
+	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, engineback_2);
 	moon_engineback = engineback_2;
 	solid_color_shader = *shader_program_1;
 	texture_shader = *shader_program_2;
@@ -80,14 +80,14 @@ extern void MoonDrawLoad(MOON_PROJECTGOD* project)
 		glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glad_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		unsigned char* data = moon_simple_font_data;
-		glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)MOON_FONT_CHAR_COUNT * MOON_FONT_CHAR_SIZE, (GLsizei)MOON_FONT_CHAR_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glad_glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)MOON_FONT_CHAR_COUNT * MOON_FONT_CHAR_SIZE_W, (GLsizei)MOON_FONT_CHAR_SIZE_H, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 		glad_glGenFramebuffers(1, &moon_simple_font.image.fbo);
 		glad_glBindFramebuffer(GL_FRAMEBUFFER, moon_simple_font.image.fbo);
 		glad_glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, moon_simple_font.image.texture, 0);
 
-		moon_simple_font.image_size.w = MOON_FONT_CHAR_COUNT * MOON_FONT_CHAR_SIZE;
-		moon_simple_font.image_size.h = MOON_FONT_CHAR_SIZE;
+		moon_simple_font.image_size.w = MOON_FONT_CHAR_COUNT * MOON_FONT_CHAR_SIZE_W;
+		moon_simple_font.image_size.h = MOON_FONT_CHAR_SIZE_H;
 	}
 }
 
@@ -453,7 +453,7 @@ extern void MoonDrawCircleFull(MOON_IMAGE* image, int x, int y, int r, unsigned 
 
 	point[36] = point[0];
 
-	for (int index = 0; index < 36; index++)
+	for (int index = 0; index < 36; ++index)
 		MoonDrawTriFull(image, x, y, point[index + 1].x + x, point[index + 1].y + y, point[index].x + x, point[index].y + y, color);
 }
 
@@ -491,7 +491,7 @@ extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, 
 		MoonPrompt((char*)textbuffer);
 		return;
 	}
-	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX - 1; index++)
+	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX - 1; ++index)
 	{
 		char ch = text[index];
 		if (ch == '\n' || ch == '\0')
@@ -545,7 +545,7 @@ extern void MoonImageDelete(MOON_IMAGE* image)
 
 extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenumber)
 {
-	for (int index = 0; index < imagenumber; index++)
+	for (int index = 0; index < imagenumber; ++index)
 	{
 		unsigned int old_id = image[index].image.texture;
 		MOON_IMAGE image_buffer;
@@ -582,7 +582,7 @@ extern void MoonImageLoad(MOON_IMAGE* image, const char** imagefile, int imagenu
 
 extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** name, int width, int height)
 {
-	for (int index = 0; index < totalnumber; index++)
+	for (int index = 0; index < totalnumber; ++index)
 		MoonImageCreate(&image[index], width, height);
 	MoonImageLoad(image, name, totalnumber);
 }
@@ -594,7 +594,7 @@ extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int time
 	anime->sequenceframes = sequenceframes;
 	anime->totalnumber = totalnumber;
 	anime->number = 0;
-	for (int index = 0; index < anime->totalnumber; index++)
+	for (int index = 0; index < anime->totalnumber; ++index)
 	{
 		anime->sequenceframes[index].image_size.x = width;
 		anime->sequenceframes[index].image_size.y = height;
@@ -606,7 +606,7 @@ extern int MoonAnimeInit(MOON_ANIME* anime, MOON_IMAGE* sequenceframes, int time
 extern void MoonAnimeDelete(MOON_ANIME* anime)
 {
 	if (anime == MOON_NULL) return;
-	for (int index = 0; index < anime->totalnumber; index++)
+	for (int index = 0; index < anime->totalnumber; ++index)
 		MoonImageDelete(&anime->sequenceframes[index]);
 	anime->sequenceframes = (MOON_IMAGE*)MOON_NULL;
 	anime->totalnumber = 0;
@@ -614,13 +614,13 @@ extern void MoonAnimeDelete(MOON_ANIME* anime)
 }
 
 extern void MoonAnimeCreate(
-	MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime,
+	MOON_IMAGE* image, MOON_ANIME* anime,
 	int totalnumber, const char** animename, char* entityname,
 	int timeload, int width, int height)
 {
 	MoonImageLoadBatch(image, totalnumber, animename, width, height);
 	MoonAnimeInit(anime, image, timeload, totalnumber, width, height);
-	MoonCreateEntityIndex(project, anime, entityname, sizeof(MOON_ANIME), (char*)"MOON_ANIME");
+	MoonCreateEntityIndex(anime, entityname, sizeof(MOON_ANIME), (char*)"MOON_ANIME");
 }
 
 extern void MoonImageDesignated(MOON_IMAGE* image)
@@ -725,7 +725,7 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 		(long int)(metadata->draw.text.size_h),
 	};
 
-	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; index++)
+	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; ++index)
 	{
 		int ch = metadata->draw.text.text[index],
 			x = image_buffer_size.w * index + metadata->draw.text.coord.x;
@@ -768,11 +768,11 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 	}
 }
 
-extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* message, _Bool* type)
+extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
 {
 	MOON_IMAGE* image_old = (MOON_IMAGE*)MOON_NULL;
 	MOON_IMAGE* image_resource_old = (MOON_IMAGE*)MOON_NULL;
-	for (unsigned int index = 0; index < message->message_index; index++)
+	for (unsigned int index = 0; index < message->message_index; ++index)
 		if (*type)
 		{
 			switch (message->message[index].message)
@@ -1109,7 +1109,7 @@ extern void MoonDrawMessageHandle(MOON_PROJECTGOD* project, MOON_MESSAGE_ALL* me
 			
 			case MOON_MESSAGE_DRAW_OPEN:
 			{
-				message->message[index].metadata.function_open(project);
+				message->message[index].metadata.function_open();
 			}
 			break;
 

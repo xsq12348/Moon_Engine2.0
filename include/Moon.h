@@ -41,6 +41,7 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.6.14
 最后一次更新日期 : 2026.6.24
 最后一次更新日期 : 2026.6.26
+最后一次更新日期 : 2026.6.27
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -57,6 +58,7 @@ Email:1993346266@qq.com
 	引擎主画布	ProjectBitmap				MOON_IMAGE
 	纯色着色器	ProjectShader_SolidColor	unsigned int
 	纹理着色器	ProjectShader_Texture		unsigned int
+	按键状态		ProjectKey					unsigned char
 
 	您可以通通过类似于
 	static MOON_IMAGE* engineback;
@@ -99,16 +101,9 @@ Email:1993346266@qq.com
 
 	[3.3]
 		请注意,绘制模块是必选项
-		逻辑模块虽然是可选项
-			但是您会丧失
-			模块切换
-			动态设置帧率
-			注入消息
-			设定项目结束
-			等等一系列基本功能
-		几乎等于残废
-		如果您在初始化阶段传入逻辑模块
-		引擎内部会开启逻辑线程
+		逻辑模块是可选项
+		如果不传入逻辑模块,那么也不用担心功能的丧失
+		引擎内部会使用默认的空函数来填充
 	
 [4]
 		引擎固定的用于输出的纹理渲染器unifrom变量是
@@ -458,12 +453,20 @@ Email:1993346266@qq.com
 
 [14]
 	硬件检测
+	使用消息系统回调
+		{
+			MOON_METADATA metadata = { 0 };
+			static int ic;
+			metadata.key.token = MOON_KEY_MOUSE_LEFT;
+			metadata.key.worth = &ic;
+			MoonProjectSendMessage(MOON_MESSAGE_KEY, metadata);
+		}
+	或者是
+	直接使用
 		MoonKeyState
-			与
 		MoonKeyReal
-		不是线程安全的
-		在多线程使用MoonKeyState检测同一个按鍵会非常不灵敏
-		按键消息是线程安全的,所以您不必担心按钮控件会遇到这种问题
+	都可以检测按鍵
+	它们都是线程安全的
 
 [15]
 	[15.1]
@@ -552,8 +555,9 @@ Email:1993346266@qq.com
 				file		已加载的 MOON_FILE
 				file_buffer	用户分配的缓冲区（需确保足够容纳该行 + '\0'）
 				line		行号（从 1 开始）
-			返回值：成功 MOON_TRUE，失败 MOON_FALSE
+			返回值：成功 行长度，失败 MOON_FALSE
 			注意：
+				- 当file_buffer为MOON_NULL时,仅返回行长度
 				- 行号从 1 开始，对应文件的第一行
 				- 如果 line 超出范围（line > file->line_all），返回 MOON_FALSE 并打印提示
 				- 缓冲区由调用者管理，引擎不负责检查其大小
@@ -1184,7 +1188,7 @@ Email:1993346266@qq.com
 *								MoonGetFps
 *							用于获取帧率
 * 2.1.15.1		2026.6.25	修复了MoonUtilityLoad的参数不匹配的BUG
-* 2.1.15.2					修改了MoonFileLoad_TEXT的参数
+* 2.1.15.2-					修改了MoonFileLoad_TEXT的参数
 *								由
 *									MoonFileLoad_TEXT(char* file_name, char* text, unsigned int text_size)
 *								改为
@@ -1196,7 +1200,43 @@ Email:1993346266@qq.com
 * 2.1.17.0		2026.6.26	添加了函数
 *								MoonFileRead_Line
 *							用于读取文件中任意一行
-*
+* 2.1.17.1					修改了
+*								MoonFileRead_Line的返回值
+*								现在返回这一行的长度
+*								当file_buffer为MOON_NULL时
+*								仅返回长度
+* 2.1.17.2					优化了
+*								MoonCreateEntityIndex函数
+*							输出更加人性化且修复了在处理错误时崩溃的BUG
+* 2.1.17.3					优化了对内部的自增逻辑,由后缀自增改为前缀自增
+* 2.1.17.4					MOON_MESSAGE_THREAD_TYPE添加了枚举
+*								MOON_MESSAGE_THREAD_TYPE_CACHE
+*							内核态将维护一个新的消息队列
+*								logic_message_cache
+*							当发送到逻辑线程且逻辑线程返回
+*								MOON_MESSAGE_THREAD_TYPE_CACHE时
+*							意味着逻辑线程处于
+*								MOON_MESSAGE_THREAD_TYPE_BUSY
+*							但是不再像之前的版本一样直接丢弃消息
+*							而是暂存入
+*								logic_message_cache
+*							由于绘制线程有强烈的顺序性要求
+*							暂时不考虑缓存机制
+* 2.1.17.5					彻底修复了按键检测不灵敏的问题
+*								MoonKeyState
+*								MoonKeyReal
+*							改成了线程安全的,与直接使用消息无区别
+* 2.1.17.6-					projectgod.entityindex移进了内核
+* 2.1.17.7-					projectgod.window_width		窗口宽度
+*							projectgod.window_height	窗口高度
+*							移进了内核
+* 2.1.17.8-					去除了按下~进入控制台的功能
+* 2.1.18.0					添加了函数
+* 2.1.18.1					修改了内置字体
+* 
+* ---------------------------------重要重构版本分割线---------------------------------
+* 
+* 2.2.0.0					去除了MOON_PROJECTGOD结构体
 */
 
 
@@ -1211,7 +1251,7 @@ Email:1993346266@qq.com
 * PROJECTGOD game;
 * MoonProjectInit(&game, L"MyGame", 100, 100, 800, 600, 60, GameSetting);
 */
-extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)(MOON_PROJECTGOD*));//创建项目
+extern void MoonProjectInit(const char* project_name, int x, int y, int width, int height, int fps,void (*ProjectSetting_1)());//创建项目
 
 /*
 * 函數 MoonProjectRun
@@ -1219,7 +1259,7 @@ extern void MoonProjectInit(MOON_PROJECTGOD* project, const char* project_name, 
 * 使用方法
 * MoonProjectRun(&game, GameInit, GameLogic, GameDrawing);
 */
-extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MOON_PROJECTGOD*), int(*ProjectLogic)(MOON_PROJECTGOD*), int(*ProjectDrawing)(MOON_PROJECTGOD*));//运行项目
+extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)());//运行项目
 
 /*
 * 函數 MoonProjectOver
@@ -1227,7 +1267,7 @@ extern void MoonProjectRun(MOON_PROJECTGOD* project, void (*ProjectSetting_2)(MO
 * 使用方法
 * MoonProjectOver(&game, GameCleanup);
 */
-extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)(MOON_PROJECTGOD*));//结束项目
+extern void MoonProjectOver(void (*ProjectOverSetting)());//结束项目
 
 /*
 * 函數
@@ -1235,7 +1275,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 * 使用方法
 
 */
-#define MOON_PROJECTSETTING(NAME) void NAME(MOON_PROJECTGOD* project)//创建设置选项
+#define MOON_PROJECTSETTING(NAME) void NAME()//创建设置选项
 
 /*
 * 函數
@@ -1243,7 +1283,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 * 使用方法
 
 */
-#define MOON_PROJECTMODULE(NAME)  int NAME(MOON_PROJECTGOD* project)//配置模块
+#define MOON_PROJECTMODULE(NAME)  int NAME()//配置模块
 
 /*
 * 函數 MoonProjectFindEntityAllNumber
@@ -1251,7 +1291,7 @@ extern void MoonProjectOver(MOON_PROJECTGOD* project, void (*ProjectOverSetting)
 * 使用方法
 * int count = MoonProjectFindEntityAllNumber(project);
 */
-extern int MoonProjectFindEntityAllNumber(MOON_PROJECTGOD* project);//统计实体总数
+extern int MoonProjectFindEntityAllNumber();//统计实体总数
 
 
 /*
@@ -1284,5 +1324,14 @@ extern unsigned int MoonVsn();
 * MoonDead();
 */
 extern void MoonDead();
+
+/*
+* 函數 MoonProjectWindowSize
+* 作用 查询窗口大小
+* 使用方法
+* MOON_POINT2D size = MoonProjectWindowSize();
+* printf("%d, %d",size.w, size.h);
+*/
+extern inline MOON_POINT2D MoonProjectWindowSize();
 
 #endif

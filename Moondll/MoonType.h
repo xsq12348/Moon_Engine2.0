@@ -48,6 +48,9 @@
 #define MOON_VERTICES_MAX	(65536)				//顶点上限
 #define MOON_MESSAGE_TEXT_MAX (32)				//单条消息最大字符数
 
+#define MOON_FONT_CHAR_SIZE_H 16				//字体高度
+#define MOON_FONT_CHAR_SIZE_W 8					//字体宽度
+
 //创建线程函数关键字
 typedef int MOON_THREAD;
 
@@ -60,14 +63,6 @@ typedef struct
 	_Bool timeswitch;
 }MOON_TIMELOAD;
 
-//--------------------------对象--------------------------//
-typedef struct
-{
-	char* nameid;
-	char* type_name;
-	int length;
-	void* entityindex;
-}MOON_ENTITYINDEX;					//实体
 
 //--------------------------点结构体--------------------------//
 typedef struct
@@ -249,13 +244,13 @@ typedef struct
 		{
 			MOON_UNIFORM_DATA data;					//具体数据
 			unsigned int shader;					//着色器
-			char var[MOON_MESSAGE_TEXT_MAX];	//变量名
+			char var[MOON_MESSAGE_TEXT_MAX];		//变量名
 		}uniform;														//uniform
 		
 		union
 		{
-			int (*function_open)(struct MOON_PROJECTGOD*);				//自定义消息队列
-			int (*function)(struct MOON_PROJECTGOD*);					//切换模块
+			int (*function_open)();					//自定义消息队列
+			int (*function)();						//切换模块
 			int power;
 			int fps;
 			//int dead;
@@ -278,6 +273,7 @@ typedef enum
 	MOON_MESSAGE_THREAD_TYPE_TRUE,
 	MOON_MESSAGE_THREAD_TYPE_REALLOC_FAILURE,
 	MOON_MESSAGE_THREAD_TYPE_BUSY,
+	MOON_MESSAGE_THREAD_TYPE_CACHE,
 }MOON_MESSAGE_THREAD_TYPE;
 
 //--------------------------支持的消息类型--------------------------//
@@ -483,16 +479,5 @@ typedef enum
 	MOON_KEY_MODE_PRESS,
 	MOON_KEY_MODE_PRESS_LONG,
 }MOON_KEY_MODE;
-
-//--------------------------中心结构体--------------------------//
-typedef struct MOON_PROJECTGOD MOON_PROJECTGOD;
-struct MOON_PROJECTGOD
-{
-	const char* project_name;							//名字
-	int window_width;									//宽度
-	int window_height;									//高度
-	MOON_ENTITYINDEX* entityindex;						//对象池注册表
-	int(*developerconsole)(struct MOON_PROJECTGOD*);	//开发者控制台,按下波浪号进入
-};		//项目结构体中心
 
 #endif

@@ -158,4 +158,4 @@ _declspec(dllexport) extern void MoonAnimeDelete(MOON_ANIME* anime);//删除动�
 * const wchar_t* names[] = {L"1.bmp", L"2.bmp", ...};
 * MoonAnimeCreate(project, frames, &anim, 10, names, "PlayerAnim", 100, 64, 64);
 */
-_declspec(dllexport) extern void MoonAnimeCreate(MOON_PROJECTGOD* project, MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);//创建动画
+_declspec(dllexport) extern void MoonAnimeCreate(MOON_IMAGE* image, MOON_ANIME* anime, int totalnumber, const char** animename, char* entityname, int timeload, int width, int height);//创建动画

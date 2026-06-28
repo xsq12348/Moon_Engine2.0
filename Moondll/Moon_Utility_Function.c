@@ -1,7 +1,6 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static MOON_PROJECTGOD* utility_project;
 static MOON_ENGINECORE* utility_core;
 static MOON_ALLOC_REGISTRY moon_alloc;
 
@@ -10,6 +9,7 @@ static unsigned int moon_music_index;
 static SDL_AudioDeviceID moon_audio_dev = 0;
 static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
 static int* fps;
+static unsigned char* moon_key;
 
 /*
 * 函數 MoonAlloc_Registry
@@ -19,10 +19,9 @@ static int* fps;
 */
 static _Bool MoonAlloc_Registry();
 
-_declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project, MOON_ENGINECORE* core)
+_declspec(dllexport) extern void MoonUtilityLoad(MOON_ENGINECORE* core)
 {
 	utility_core = core;
-	utility_project = project;
 	{
 		SDL_AudioSpec audio_spec =
 		{
@@ -72,11 +71,14 @@ _declspec(dllexport) extern void MoonUtilityLoad(MOON_PROJECTGOD* project, MOON_
 	}
 
 	{
-
-		MoonHashFindEntity(project, "ProjectFPS", int, fpsnumber);
+		MoonHashFindEntity("ProjectFPS", int, fpsnumber);
 		fps = fpsnumber;
 	}
 
+	{
+		MoonHashFindEntity("ProjectKey", unsigned char, moon_key_2);
+		moon_key = moon_key_2;
+	}
 }
 
 _declspec(dllexport) extern void MoonUtilityOver()
@@ -308,22 +310,18 @@ _declspec(dllexport) extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int l
 
 _declspec(dllexport) extern _Bool MoonKeyState(unsigned int Key)
 {
-	static unsigned char KEYSTATEbuffer[MOON_KEY_LAST];
-	int state = glfwGetKey(utility_core->hwnd, (int)Key) || glfwGetMouseButton(utility_core->hwnd, (int)Key);
-	if (state == GLFW_RELEASE)
-		KEYSTATEbuffer[Key] = 0;
-	else 
-		if (state == GLFW_PRESS && KEYSTATEbuffer[Key] == 0)
-	{ 
-		KEYSTATEbuffer[Key] = MOON_TRUE; 
-		return MOON_TRUE; 
-	}
-	return MOON_FALSE;
+	if (moon_key[Key] == MOON_KEY_MODE_PRESS)
+		return MOON_TRUE;
+	else
+		return MOON_FALSE;
 }
 
 _declspec(dllexport) extern _Bool MoonKeyReal(unsigned int Key)
 {
-	return glfwGetKey(utility_core->hwnd, Key) || glfwGetMouseButton(utility_core->hwnd, Key);
+	if (moon_key[Key] == MOON_KEY_MODE_PRESS_LONG)
+		return MOON_TRUE;
+	else
+		return MOON_FALSE;
 }
 
 _declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
@@ -351,44 +349,49 @@ _declspec(dllexport) extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 	return Timeload->timeswitch;
 }
 
-_declspec(dllexport) extern void* MoonFindEntity(MOON_PROJECTGOD* project, char* nameid)
+_declspec(dllexport) extern void* MoonFindEntity(char* nameid)
 {
-	void* entity = project->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex;
+	void* entity =	utility_core->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex;
 	if (entity == MOON_NULL)
 	{
 		char text[255];
 		snprintf(text, 255, "[MoonFindEntity]空指针错误!来自名称[%s]的实体", nameid);
-		MoonProjectError(project->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex, 1, text);
+		MoonProjectError(utility_core->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex, 1, text);
 		return MOON_NULL;
 	}
 	return entity;
 }
 
-_declspec(dllexport) extern int MoonCreateEntityIndex(MOON_PROJECTGOD* project, void* arrentity, char* nameid, size_t size_len, char* type_name)
+_declspec(dllexport) extern int MoonCreateEntityIndex(void* arrentity, char* nameid, size_t size_len, char* type_name)
 {
 	int index = MOON_NOTFOUND;
 	int hash = MoonHash(nameid) % MOON_ENTITY_NUMBER;
-	if (project->entityindex[hash].entityindex == MOON_NULL)
-	{
-		if (hash != MOON_Error)
-		{
-			index = hash;
-			project->entityindex[index].entityindex = arrentity;
-			project->entityindex[index].nameid = nameid;
-			project->entityindex[index].length = (int)size_len;
-			project->entityindex[index].type_name = type_name;
-		}
-		else printf("非法的名称[%s],无法通过这个字符串得到合法的索引", nameid);
+	if (hash == MOON_FALSE)
+		printf("非法的名称[%s],无法通过这个字符串得到合法的索引", nameid);
+
+	index = hash;
+	
+	if (!utility_core->entityindex[hash].entityindex)
+	{		
+		utility_core->entityindex[index].entityindex = arrentity;
+		utility_core->entityindex[index].nameid = nameid;
+		utility_core->entityindex[index].length = (int)size_len;
+		utility_core->entityindex[index].type_name = type_name;
 	}
 	else
 	{
-		printf("[CreateEntityIndex函数]报错,叫做[%s]的实体,此位置[%d],已有实体存在,名称为[%s],请换一个名字", nameid, hash, project->entityindex[index].nameid);
-		strlen(project->entityindex[hash].nameid) <= 0 && MoonProjectError(&project->entityindex[hash], 2, (char*)"来自[CreateEntityIndex函数]的错误,出现了幽灵实体,没有合法名称");
+		printf("\n[CreateEntityIndex函数]报错\n试图注册为[%s]的实体\n在位置[%d]已有实体存在\n名称为[%s]\n请换一个名字\n", nameid, hash, utility_core->entityindex[index].nameid);
+		if(strlen(nameid) <= 0) 
+			MoonProjectError(&utility_core->entityindex[hash], 2, (char*)"来自[CreateEntityIndex函数]的错误,出现了幽灵实体,没有合法名称");
 		index = MOON_NOTFOUND;
 	}
-	char text[255];
-	snprintf(text, 255, "创建了名称为[\033[31;46m%s\033[0m]的实体\n类型:%s\n地址:0x%p\nHash:%d\n索引:%d", nameid, project->entityindex[hash].type_name, project->entityindex[hash].entityindex, MoonHash(nameid), index);
-	MoonPrompt(text);
+
+	{
+		char text[255];
+		snprintf(text, 255, "创建了名称为[\033[31;46m%s\033[0m]的实体\n类型:%s\n地址:0x%p\nHash:%d\n索引:%d", nameid, utility_core->entityindex[hash].type_name, utility_core->entityindex[hash].entityindex, MoonHash(nameid), index);
+		MoonPrompt(text);
+	}
+
 	return index;
 }
 
@@ -421,12 +424,7 @@ _declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, 
 		&& button->y + button->height > y
 		)
 	{
-		{
-			MOON_METADATA metadata = { 0 };
-			metadata.key.token = button->triggermode;
-			metadata.key.worth = (int*)&(button->mode);
-			MoonProjectSendMessage(MOON_MESSAGE_KEY, metadata);
-		}
+		button->mode = MoonKeyState(MOON_KEY_MOUSE_LEFT);
 		if (button->mode == MOON_KEY_MODE_PRESS)
 		{
 			mode = MOON_TRUE;
@@ -462,7 +460,7 @@ _declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, 
 	}
 }
 
-_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_PROJECTGOD* project, MOON_BUTTON* button, unsigned int key)
+_declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_BUTTON* button, unsigned int key)
 {
 	button->triggermode = key;
 	return key;
@@ -501,15 +499,23 @@ _declspec(dllexport) extern void MoonSetMouse(MOON_CURSOR_MODE mode)
 	return;
 }
 
-_declspec(dllexport) extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line)
+_declspec(dllexport) extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line)
 {
 	if (!line || line > file->line_all)
 	{
 		MoonPrompt((char*)"[MoonFileRead_Line] 非法的行数");
 		return MOON_FALSE;
 	}
-	unsigned int line_size = file->line_index[line] - file->line_index[line - 1];
-	char* buffer = (char*)calloc((line_size + 1) , sizeof(char));
+	unsigned int line_size = 0;
+
+	{
+		if (line == file->line_all)
+			line_size = (unsigned int)strlen(file->file_buffer + file->line_index[line - 1]);
+		else
+			line_size = file->line_index[line] - file->line_index[line - 1];
+	}
+
+	char* buffer = (char*)calloc((line_size + 1), sizeof(char));
 	if (!buffer)
 	{
 		MoonPrompt((char*)"[MoonFileRead_Line] 缓冲分配失败");
@@ -519,7 +525,7 @@ _declspec(dllexport) extern _Bool MoonFileRead_Line(MOON_FILE* file, char* file_
 		buffer[index] = file->file_buffer[file->line_index[line - 1] + index];
 	strcpy(file_buffer, (const char*)buffer);
 	free(buffer);
-	return MOON_TRUE;
+	return line_size;
 }
 
 _declspec(dllexport) extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name)

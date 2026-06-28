@@ -166,6 +166,7 @@ _declspec(dllexport) extern void MoonProjectInit(const char* project_name, int x
 	MoonCreateEntityIndex(&shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
 	MoonShaderLoad((char**)&moon_vertex_shader2d_code, (char**)&moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
 	MoonShaderLoad((char**)&moon_vertex_shader2d_texture_code, (char**)&moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
+	MoonUtilityCoreLoad(&moon_engine_core);
 	MoonDrawLoad();
 
 	if (ProjectSetting_1 != MOON_NULL)

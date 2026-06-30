@@ -10,6 +10,7 @@ static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
 static MOON_ENGINECORE moon_engine_core;
 static MOON_MESSAGE_ALL logic_message_cache;
 static _Bool thread_draw_type, thread_attr_type;
+static _Bool logic_dead;
 static unsigned char moon_key_type[MOON_KEY_LAST];
 
 static const char* moon_vertex_shader2d_code =
@@ -389,7 +390,7 @@ extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int
 				logic = moon_engine_core.Logic;
 			if (moon_engine_core.Drawing != MoonDrawingPause)
 				drawing = moon_engine_core.Drawing;
-			moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd));
+			moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd)) || logic_dead;
 			moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
 		}
 
@@ -684,6 +685,7 @@ extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
 				//case MOON_MESSAGE_LOGIC_OPEN:				message->message[index].metadata.function_open(project); break;
 			case MOON_MESSAGE_DEAD:
 				moon_engine_core.dead = MOON_TRUE;
+				logic_dead = MOON_TRUE;
 				break;
 			case MOON_MESSAGE_POWER:
 			{
@@ -724,6 +726,7 @@ extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
 extern void MoonProjectDead()
 {
 	moon_engine_core.dead = MOON_TRUE;
+	logic_dead = MOON_TRUE;
 	thread_attr_type = MOON_TRUE;
 	thread_draw_type = MOON_TRUE;
 }

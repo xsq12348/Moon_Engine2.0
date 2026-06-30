@@ -69,20 +69,22 @@ extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
 #define MoonRange(alpha, alpha_min, alpha_max) (MoonMin(MoonMax(alpha, alpha_min), alpha_max))//限制范围
 
 /*
-* 函數 MoonSetMouseCoord
+* 函數 MoonSetMouse
 * 作用 設置窗口输入中光标的状态
 * 使用方法
-* MoonSetMouseCoord(x, y);
+* MoonSetMouse(x, y);
 */
-extern void MoonSetMouse(MOON_CURSOR_MODE mode);//设置鼠标位置
+extern void MoonSetMouse(MOON_CURSOR_MODE mode);
 
 /*
-* 函數 Random
+* 函數 MoonRandom
 * 作用 獲取隨機數
 * 使用方法
-* int alpha = Random(0, 100);
+* 种子只需要设置一次,不用担心重复设置的问题,函数内部会检查种子是否改变
+* 区间为半开区间[start, end)
+* int alpha = MoonRandom(0, 0, 100);
 */
-#define MoonRandom(A, B) (rand() % ((B) - (A)) + (A))//随机数获取
+extern inline int MoonRandom(unsigned int seed, int start, int end);
 
 /*
 * 函數 MoonMatrix4_4Mul
@@ -100,6 +102,53 @@ extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_
 * int fps = MoonGetFps();
 */
 extern int MoonGetFps();
+
+/*
+* 函數 MoonTriangleDetection
+* 作用 檢測點與三角形的位置關係
+* 使用方法
+* MOON_POINT2D point[4] =
+* {
+*	{0,0},
+*	{10,0},
+*	{0,10},
+*	{5,50}
+* };
+* _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
+*/
+extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
+
+/*
+* 函數 MoonString
+* 作用 字符串拼接
+* 使用方法
+* MoonString(str)
+*/
+#define MoonString(str)	""#str
+
+/*
+* 函數 MoonRGBA
+* 作用 写入颜色值
+* 使用方法
+* MoonRGBA(r,g,b,a)
+*/
+#define MoonRGBA(r,g,b,a) ((r)|((g) << 8)|((b) << 16)|((a) << 24))
+
+/*
+* 函數 MoonCursorOffect
+* 作用 获取光标偏移值并限制在区域内部
+* 使用方法
+* MOON_POINT2D a = MoonCursorOffect(size);
+*/
+extern MOON_POINT2D MoonCursorOffect(MOON_POINT2D size);
+
+/*
+* 函數 MoonCursorGet
+* 作用 获取光标偏移值位置
+* 使用方法
+* MOON_POINT2D a = MoonCursorGet();
+*/
+extern MOON_POINT2D MoonCursorGet();
 
 //------------------------------------音乐函数--------------------------------------------------//
 
@@ -140,36 +189,9 @@ extern int MoonMusic(MOON_MUSIC* music);//播放音乐
 * MoonMusicInit_Wav(music, "music.mp3");
 */
 extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File);
-/*
-* 函數 MoonTriangleDetection
-* 作用 檢測點與三角形的位置關係
-* 使用方法
-* MOON_POINT2D point[4] =
-* {
-*	{0,0},
-*	{10,0},
-*	{0,10},
-*	{5,50}
-* };
-* _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
-*/
-extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
 
-/*
-* 函數 MoonString
-* 作用 字符串拼接
-* 使用方法
-* MoonString(str)
-*/
-#define MoonString(str)	""#str
+//------------------------------------自动内存--------------------------------------------------//
 
-/*
-* 函數 MoonRGBA
-* 作用 写入颜色值
-* 使用方法
-* MoonRGBA(r,g,b,a)
-*/
-#define MoonRGBA(r,g,b,a) ((r)|((g) << 8)|((b) << 16)|((a) << 24))
 
 /*
 * 函數 MoonAlloc
@@ -463,3 +485,120 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 * MoonShaderUniform(shader, var, data);
 */
 extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM_DATA* data);
+
+//------------------------------------向量计算------------------------------------------------//
+
+/*
+使用向量计算时,您不必担心维度的差异导致无法计算
+一切都是自动的,且符合数学常识
+例如
+	1,存在一个二维向量,如果要与三维向量计算,那么低维向量会自动扩容
+	2,如果试图读取二维向量的第三维,那么返回0.f
+	3,只有当绝对不可能的事情发生时
+		比如模长获取失败,那么返回-1.f
+*/
+
+
+/*
+* 函數 MoonVectorInit
+* 作用 初始化向量
+* 使用方法
+* MoonVectorInit(vector, arr, 2);
+*/
+extern _Bool MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size);
+
+/*
+* 函數 MoonVectorFree
+* 作用 释放向量
+* 使用方法
+* MoonVectorFree(vector);
+*/
+extern void MoonVectorFree(MOON_VECTOR* vector);
+
+/*
+* 函數 MoonVector_Dim
+* 作用 返回向量的维度（元素个数）
+* 使用方法
+* unsigned int dim = MoonVector_Dim(&vector);
+*/
+extern unsigned int MoonVector_Dim(MOON_VECTOR* vector);
+
+/*
+* 函數 MoonVector_Get
+* 作用 获取向量中指定维度的元素值（维度从1开始计数），若维度越界则返回0.f
+* 使用方法
+* float val = MoonVector_Get(&vector, 2);   // 获取第2个元素
+*/
+extern float MoonVector_Get(MOON_VECTOR* vector, unsigned int dim);
+
+/*
+* 函數 MoonVector_SetDim
+* 作用 重新设置向量的维度（只能扩容，不能缩容），新增维度自动初始化为0
+* 使用方法
+* MoonVector_SetDim(&vector, 5);   // 将向量扩容到5维
+*/
+extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim);
+
+/*
+* 函數 MoonVector_SetEle
+* 作用 设置向量中指定维度的值，若维度超出当前范围则自动扩容
+* 使用方法
+* MoonVector_SetEle(&vector, 3, 9.9f);   // 将第3维设为9.9
+*/
+extern _Bool MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num);
+
+/*
+* 函數 MoonVector_Norm
+* 作用 计算向量的L2范数（模长），若向量为空或空指针则返回-1.f
+* 使用方法
+* float length = MoonVector_Norm(&vector);
+*/
+extern float MoonVector_Norm(MOON_VECTOR* vector);
+
+/*
+* 函數 MoonVector_NormSize
+* 作用 将输入向量归一化为单位向量，结果输出到vector_out中（自动管理内存）
+* 使用方法
+* MoonVector_NormSize(&out, &in);
+*/
+extern void MoonVector_NormSize(MOON_VECTOR* vector_out, MOON_VECTOR* vector);
+
+/*
+* 函數 MoonVector_Add
+* 作用 向量加法：vector_out = vector_1 + vector_2，结果维度自动取两者最大值，短向量缺失部分视为0
+* 使用方法
+* MoonVector_Add(&result, &v1, &v2);
+*/
+extern void MoonVector_Add(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);
+
+/*
+* 函數 MoonVector_Sub
+* 作用 向量减法：vector_out = vector_1 - vector_2，结果维度自动取两者最大值，短向量缺失部分视为0
+* 使用方法
+* MoonVector_Sub(&result, &v1, &v2);
+*/
+extern void MoonVector_Sub(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);
+
+/*
+* 函數 MoonVector_Scale
+* 作用 向量的数乘：vector_out = vector * num，维度保持不变
+* 使用方法
+* MoonVector_Scale(&result, &v, 2.5f);
+*/
+extern void MoonVector_Scale(MOON_VECTOR* vector_out, MOON_VECTOR* vector, float num);
+
+/*
+* 函數 MoonVector_Hadamard
+* 作用 哈达玛积（逐元素相乘）：vector_out[i] = vector_1[i] * vector_2[i]，结果维度取最大值，短向量缺失部分视为0
+* 使用方法
+* MoonVector_Hadamard(&result, &v1, &v2);
+*/
+extern void MoonVector_Hadamard(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);
+
+/*
+* 函數 MoonVector_Dot
+* 作用 计算两个向量的点积（内积），只计算共同维度部分，短向量的溢出部分忽略
+* 使用方法
+* float dot = MoonVector_Dot(&v1, &v2);
+*/
+extern float MoonVector_Dot(MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);

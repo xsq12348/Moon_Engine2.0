@@ -3,7 +3,7 @@
 
 static MOON_ENGINECORE* utility_core;
 static MOON_ALLOC_REGISTRY moon_alloc;
-
+static MOON_POINT2D* moon_mouse_coord;
 static MOON_CORE_MUSIC* moon_music_sound;
 static unsigned int moon_music_index;
 static SDL_AudioDeviceID moon_audio_dev = 0;
@@ -72,6 +72,11 @@ extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
 		{
 			SDL_ResumeAudioDevice(moon_audio_dev);
 		}
+	}
+
+	{
+		MoonHashFindEntity("ProjectMouseCoord", MOON_POINT2D, mousecoord_2);
+		moon_mouse_coord = mousecoord_2;
 	}
 
 	{
@@ -944,4 +949,331 @@ extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_
 extern int MoonGetFps()
 {
 	return *fps;
+}
+
+extern inline int MoonRandom(unsigned int seed, int start, int end)
+{
+	if (start >= end)
+		return start;
+	static unsigned int normal_seed, old_seed;
+	if (seed && old_seed != seed)
+	{
+		old_seed = seed;
+		normal_seed = seed;
+	}
+	if (normal_seed == 0)
+		normal_seed = 123456789u;
+	normal_seed = (normal_seed * 1103515245 + 12345) & 0x7fffffff;
+	int rand_out = ((normal_seed >> 16) | ((normal_seed & 0xffff) << 16)) % (end - start) + start;
+	return rand_out;
+}
+
+//初始化
+extern _Bool MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size)
+{
+	float* buffer = (float*)realloc(vector->vector, (size_t)(sizeof(float) * num_size));
+	if (!buffer)
+		return MOON_FALSE;
+	vector->vector = buffer;
+	for (unsigned int index = 0; index < num_size; ++index)
+		vector->vector[index] = num[index];
+	vector->dim = num_size;
+	return MOON_TRUE;
+}
+
+//初始化
+extern void MoonVectorFree(MOON_VECTOR* vector)
+{
+	if (!vector)
+		return;
+	vector->dim = 0;
+	free(vector->vector);
+	vector->vector = (float*)MOON_NULL;
+}
+
+//返回维度
+extern unsigned int MoonVector_Dim(MOON_VECTOR* vector)
+{
+	if (!vector)
+		return 0;
+	return vector->dim;
+}
+
+//获取元素
+extern float MoonVector_Get(MOON_VECTOR* vector, unsigned int dim)
+{
+	//在高维度下, 值为0
+	if (!vector || !dim || dim > vector->dim)
+		return 0.f;
+	else
+		return vector->vector[dim - 1];
+}
+
+//扩容维度
+extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim)
+{
+	if (!vector || !dim || vector->dim == dim)
+		return MOON_FALSE;
+	if (dim > vector->dim)
+	{
+		float* buffer = (float*)realloc(vector->vector, (size_t)(sizeof(float) * dim));
+		if (!buffer)
+			return MOON_FALSE;
+		vector->vector = buffer;
+		memset(vector->vector + vector->dim, 0, dim * sizeof(float));
+		vector->dim = dim;
+	}
+	return MOON_TRUE;
+}
+
+//设置元素
+extern _Bool MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num)
+{
+	if (!MoonVector_SetDim(vector, dim))
+		return MOON_FALSE;
+	vector->vector[dim - 1] = num;
+	return MOON_TRUE;
+}
+
+//获取模长
+extern float MoonVector_Norm(MOON_VECTOR* vector)
+{
+	if (!vector || !vector->dim)
+		return -1.f;
+	float
+		norm = 1.f,
+		scale = 0.0f;
+	for (unsigned int index = 0; index < vector->dim; ++index)
+		if (vector->vector[index] != 0.f)
+		{
+			float num = fabsf(vector->vector[index]);
+			if (scale < num)
+			{
+				scale = num;
+				norm = 1.f + norm * (scale / num) * (scale / num);
+			}
+			else
+				norm = norm + (num / scale) * (num / scale);
+		}
+	return scale * sqrtf(norm);
+}
+
+//归一化为单位向量
+extern void MoonVector_NormSize(MOON_VECTOR* vector_out, MOON_VECTOR* vector)
+{
+	if (!vector || !vector_out || !vector->dim)
+	{
+		if (!vector)
+			MoonPrompt((char*)"[MoonVector_NormSize]函数 vector空指针错误");
+		else
+			if (!vector_out)
+				MoonPrompt((char*)"[MoonVector_NormSize]函数 vector_out空指针错误");
+		return;
+	}
+
+	{
+		float norm = MoonVector_Norm(vector);
+		if (norm <= 0.f)
+		{
+			MoonPrompt((char*)"[MoonVector_NormSize]函数 Norm异常");
+			return;
+		}
+		float* vector_buffer = (float*)malloc(vector->dim * sizeof(float));
+		if (!vector_buffer)
+		{
+			MoonPrompt((char*)"[MoonVector_NormSize]函数 内存分配失败");
+			return;
+		}
+		for (unsigned int index = 0; index < vector->dim; ++index)
+			vector_buffer[index] = vector->vector[index] / norm;
+		free(vector_out->vector);
+		vector_out->vector = vector_buffer;
+		vector_out->dim = vector->dim;
+	}
+}
+
+//数乘
+extern void MoonVector_Scale(MOON_VECTOR* vector_out, MOON_VECTOR* vector, float num)
+{
+	if (!vector || !vector_out || !vector->dim)
+	{
+		if (!vector)
+			MoonPrompt((char*)"[MoonVector_Scale]函数 vector空指针错误");
+		else
+			if (!vector_out)
+				MoonPrompt((char*)"[MoonVector_Scale]函数 vector_out空指针错误");
+		return;
+	}
+
+	{
+		if (vector->dim != vector_out->dim)
+		{
+			float* vector_buffer = (float*)malloc(vector->dim * sizeof(float));
+			if (!vector_buffer)
+			{
+				MoonPrompt((char*)"[MoonVector_Scale]函数 内存分配失败");
+				return;
+			}
+			for (unsigned int index = 0; index < vector->dim; ++index)
+				vector_buffer[index] = vector->vector[index] * num;
+			free(vector_out->vector);
+			vector_out->vector = vector_buffer;
+		}
+		else
+		{
+			for (unsigned int index = 0; index < vector->dim; ++index)
+				vector_out->vector[index] = vector->vector[index] * num;
+		}
+	}
+
+	vector_out->dim = vector->dim;
+}
+
+//向量加法
+extern void MoonVector_Add(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2)
+{
+	if (!vector_1 || !vector_2 || !vector_out)
+	{
+		if (!vector_1)
+			MoonPrompt((char*)"[MoonVector_Add]函数 vector_1空指针错误");
+		else
+			if (!vector_2)
+				MoonPrompt((char*)"[MoonVector_Add]函数 vector_2空指针错误");
+			else
+				MoonPrompt((char*)"[MoonVector_Add]函数 vector_out空指针错误");
+		return;
+	}
+
+	{
+		unsigned int
+			dim_max = MoonMax(vector_1->dim, vector_2->dim),
+			dim_min = MoonMin(vector_1->dim, vector_2->dim);
+		if (vector_out->dim != dim_max)
+			if (!MoonVector_SetDim(vector_out, dim_max))
+				return;
+		for (unsigned int index = 0; index < dim_min; ++index)
+			vector_out->vector[index] = vector_1->vector[index] + vector_2->vector[index];
+
+		if (dim_max == dim_min)
+			return;
+
+		if (vector_1->dim > vector_2->dim)
+			for (unsigned int index = dim_min; index < dim_max; ++index)
+				vector_out->vector[index] = vector_1->vector[index];
+		else
+			for (unsigned int index = dim_min; index < dim_max; ++index)
+				vector_out->vector[index] = vector_2->vector[index];
+		vector_out->dim = dim_max;
+	}
+}
+
+//向量减法
+extern void MoonVector_Sub(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2)
+{
+	if (!vector_1 || !vector_2 || !vector_out)
+	{
+		if (!vector_1)
+			MoonPrompt((char*)"[MoonVector_Sub]函数 vector_1空指针错误");
+		else
+			if (!vector_2)
+				MoonPrompt((char*)"[MoonVector_Sub]函数 vector_2空指针错误");
+			else
+				MoonPrompt((char*)"[MoonVector_Sub]函数 vector_out空指针错误");
+		return;
+	}
+
+	{
+		unsigned int
+			dim_max = MoonMax(vector_1->dim, vector_2->dim),
+			dim_min = MoonMin(vector_1->dim, vector_2->dim);
+		if (vector_out->dim != dim_max)
+			if (!MoonVector_SetDim(vector_out, dim_max))
+				return;
+		for (unsigned int index = 0; index < dim_min; ++index)
+			vector_out->vector[index] = vector_1->vector[index] - vector_2->vector[index];
+
+		if (dim_max == dim_min)
+			return;
+
+		if(vector_1->dim > vector_2->dim)
+			for (unsigned int index = dim_min; index < dim_max; ++index)
+				vector_out->vector[index] = vector_1->vector[index];
+		else
+			for (unsigned int index = dim_min; index < dim_max; ++index)
+				vector_out->vector[index] = -vector_2->vector[index];
+		vector_out->dim = dim_max;
+	}
+}
+
+//哈达玛积
+extern void MoonVector_Hadamard(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, MOON_VECTOR* vector_2)
+{
+	if (!vector_1 || !vector_2 || !vector_out)
+	{
+		if (!vector_1)
+			MoonPrompt((char*)"[MoonVector_Hadamard]函数 vector_1空指针错误");
+		else
+			if (!vector_2)
+				MoonPrompt((char*)"[MoonVector_Hadamard]函数 vector_2空指针错误");
+			else
+				MoonPrompt((char*)"[MoonVector_Hadamard]函数 vector_out空指针错误");
+		return;
+	}
+
+	{
+		unsigned int
+			dim_max = MoonMax(vector_1->dim, vector_2->dim),
+			dim_min = MoonMin(vector_1->dim, vector_2->dim);
+		if (vector_out->dim != dim_max)
+			if (!MoonVector_SetDim(vector_out, dim_max))
+				return;
+		for (unsigned int index = 0; index < dim_min; ++index)
+			vector_out->vector[index] = vector_1->vector[index] * vector_2->vector[index];
+		if (dim_max > dim_min)
+			memset(vector_out->vector + dim_min, 0, (dim_max - dim_min) * sizeof(float));
+		vector_out->dim = dim_max;
+	}
+}
+
+//点积
+extern float MoonVector_Dot(MOON_VECTOR* vector_1, MOON_VECTOR* vector_2)
+{
+	if (!vector_1 || !vector_2)
+	{
+		//因为无法分清合法与非法,故报错
+		if (!vector_1)
+			MoonProjectError(vector_1, 2, (char*)"[MoonVector_Dot]函数 vector_1为空指针");
+		else
+			MoonProjectError(vector_2, 2, (char*)"[MoonVector_Dot]函数 vector_2为空指针");
+		return 0.f;
+	}
+	float dot = 0;
+	if (!vector_1->dim || !vector_2->dim)
+		return 0.f;
+	{
+		unsigned int dim_min = MoonMin(vector_1->dim, vector_2->dim);
+		for (unsigned int index = 0; index < dim_min; ++index)
+			 dot += vector_1->vector[index] * vector_2->vector[index];
+	}
+	return dot;
+}
+
+extern MOON_POINT2D MoonCursorOffect(MOON_POINT2D size)
+{
+	MOON_POINT2D game_coord;
+	static MOON_POINT2D last_mouse = { 0 };
+	static MOON_POINT2D last_game = { 0 };
+	MOON_POINT2D offect = { .x = moon_mouse_coord->x - last_mouse.x, .y = moon_mouse_coord->y - last_mouse.y };
+	MOON_POINT2D new_game_coord = { .x = last_game.x + offect.x,. y = last_game.y + offect.y };
+	new_game_coord.x = MoonRange(new_game_coord.x, 0, size.w);
+	new_game_coord.y = MoonRange(new_game_coord.y, 0, size.h);
+	game_coord = new_game_coord;
+	last_mouse = *moon_mouse_coord;
+	last_game = new_game_coord;
+	return game_coord;
+}
+
+extern MOON_POINT2D MoonCursorGet()
+{
+	return *moon_mouse_coord;
 }

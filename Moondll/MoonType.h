@@ -51,6 +51,8 @@
 #define MOON_FONT_CHAR_SIZE_H 16				//字体高度
 #define MOON_FONT_CHAR_SIZE_W 8					//字体宽度
 
+#define MoonCrashed			{volatile int *ptr = 0; *ptr = 0;}	//立即崩溃
+
 //创建线程函数关键字
 typedef int MOON_THREAD;
 
@@ -153,6 +155,13 @@ typedef struct
 	float start, end;	//音频起点和终点,范围0.f~1.f
 	MOON_MUSIC_MODE	mode;
 }MOON_MUSIC;
+
+//--------------------------向量--------------------------//
+typedef struct
+{
+	float* vector;			//具体数值
+	unsigned int dim;		//维度
+}MOON_VECTOR;
 
 //--------------------------uniform type--------------------------//
 typedef enum

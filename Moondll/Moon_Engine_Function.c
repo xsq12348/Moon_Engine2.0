@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,0,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,4,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -203,9 +203,9 @@ static MOON_CREATETHREADFUNCTION(ProjectLogicThread)
 		
 		runload[1] = clock();
 		runload[2] = runload[1] - runload[0];
-		if (runload[2] >= 2000)
+		if (runload[2] >= 30000)
 		{
-			MoonPrompt((char*)"[逻辑线程]时间过长,超过2000ms,现在转入暂停");
+			MoonPrompt((char*)"[逻辑线程]时间过长,超过30ms,现在转入暂停");
 			moon_engine_core.power = MOON_Error;
 			moon_engine_core.gamepowermode = MOON_Error;
 			moon_engine_core.Logic = MoonLogicPause;
@@ -471,8 +471,13 @@ _declspec(dllexport) extern void MoonProjectOver(void (*ProjectOverSetting)())
 	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
 	{
 		if (moon_engine_core.entityindex[index].type_name != 0)
-			if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_IMAGE"))MoonImageDelete((MOON_IMAGE*)moon_engine_core.entityindex[index].entityindex);
-			else if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_ANIME"))MoonAnimeDelete((MOON_ANIME*)moon_engine_core.entityindex[index].entityindex);
+			if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_IMAGE"))
+				MoonImageDelete((MOON_IMAGE*)moon_engine_core.entityindex[index].entityindex);
+			else if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_ANIME"))
+				MoonAnimeDelete((MOON_ANIME*)moon_engine_core.entityindex[index].entityindex);
+			else if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_VECTOR"))
+				MoonVectorFree((MOON_VECTOR*)moon_engine_core.entityindex[index].entityindex);
+
 		moon_engine_core.entityindex[index].length = 0;
 		moon_engine_core.entityindex[index].nameid = (char*)MOON_NULL;
 		moon_engine_core.entityindex[index].entityindex = MOON_NULL;

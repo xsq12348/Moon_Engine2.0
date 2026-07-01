@@ -1020,7 +1020,7 @@ _declspec(dllexport) extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigne
 		if (!buffer)
 			return MOON_FALSE;
 		vector->vector = buffer;
-		memset(vector->vector + vector->dim, 0, dim * sizeof(float));
+		memset(vector->vector + vector->dim, 0, (dim - vector->dim) * sizeof(float));
 		vector->dim = dim;
 	}
 	return MOON_TRUE;

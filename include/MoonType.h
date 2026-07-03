@@ -57,16 +57,18 @@
 typedef int MOON_THREAD;
 
 //--------------------------定时器--------------------------//
+
 typedef struct
 {
 	unsigned int time1;
 	unsigned int time2;
 	unsigned int timeload;
-	_Bool timeswitch;
+	unsigned char timeswitch;
 }MOON_TIMELOAD;
 
 
 //--------------------------点结构体--------------------------//
+
 typedef struct
 {
 	float x, y, z;
@@ -85,12 +87,14 @@ typedef struct
 }MOON_POINT2D;
 
 //--------------------------双缓冲绘图--------------------------//
+
 typedef struct
 {
 	unsigned int texture, fbo;
 }MOON_DOUBLEBUFFER;
 
 //--------------------------图片--------------------------//
+
 typedef struct
 {
 	MOON_POINT2D image_size;		//物理尺寸
@@ -98,6 +102,7 @@ typedef struct
 }MOON_IMAGE;
 
 //--------------------------动画结构体--------------------------//
+
 typedef struct
 {
 	MOON_IMAGE* sequenceframes;		//序列帧数组
@@ -107,6 +112,7 @@ typedef struct
 }MOON_ANIME;
 
 //--------------------------按钮状态--------------------------//
+
 typedef enum
 {
 	MOON_BUTTON_FALSE,			//不存在按钮
@@ -116,6 +122,7 @@ typedef enum
 }MOON_BUTTON_TYPE;
 
 //--------------------------按钮控件--------------------------//
+
 typedef struct MOONBUTTON
 {
 	int x;
@@ -141,6 +148,7 @@ typedef struct
 }MOON_FILE;
 
 //--------------------------音乐状态--------------------------//
+
 typedef enum
 {
 	MOON_MUSIC_MODE_FALSE,	//不播放
@@ -149,6 +157,7 @@ typedef enum
 }MOON_MUSIC_MODE;
 
 //--------------------------音乐--------------------------//
+
 typedef struct
 {
 	unsigned int id;	//音乐
@@ -157,13 +166,26 @@ typedef struct
 }MOON_MUSIC;
 
 //--------------------------向量--------------------------//
+
 typedef struct
 {
 	float* vector;			//具体数值
 	unsigned int dim;		//维度
 }MOON_VECTOR;
 
+//--------------------------链表/网--------------------------//
+
+typedef struct MOON_BINARY_TREE
+{
+	struct MOON_BINARY_TREE* parent;		//链接的父节点,如果指向自身,那么就是根节点
+	struct MOON_BINARY_TREE* left;			//链接的子节点_左
+	struct MOON_BINARY_TREE* right;			//链接的子节点_右
+	unsigned char assign;					//动态分配标志位, 若为TRUE则尝试free resource
+	void* resource;							//资源
+}MOON_BINARY_TREE;
+
 //--------------------------uniform type--------------------------//
+
 typedef enum
 {
 	MOON_UNIFORM_TYPE_NONE,				//非法
@@ -182,6 +204,7 @@ typedef enum
 }MOON_UNIFORM_TYPE;
 
 //--------------------------uniform--------------------------//
+
 typedef struct
 {
 	MOON_UNIFORM_TYPE type;
@@ -203,6 +226,7 @@ typedef struct
 }MOON_UNIFORM_DATA;
 
 //--------------------------MOON_METADATA--------------------------//
+
 typedef struct
 {
 	union
@@ -268,6 +292,7 @@ typedef struct
 }MOON_METADATA;
 
 //--------------------------光标状态--------------------------//
+
 typedef enum
 {
 	//MOON_CURSOR_MODE_NULL,		//正常模式
@@ -275,6 +300,8 @@ typedef enum
 	MOON_CURSOR_MODE_DISABLED,		//禁用模式,全程隐藏光标并不受主窗口限制
 	MOON_CURSOR_MODE_CAPTURED,		//捕获模式,防止光标跑出窗口,不隐藏
 }MOON_CURSOR_MODE;
+
+//--------------------------线程状态--------------------------//
 
 typedef enum
 {
@@ -286,6 +313,7 @@ typedef enum
 }MOON_MESSAGE_THREAD_TYPE;
 
 //--------------------------支持的消息类型--------------------------//
+
 typedef enum
 {
 	/*
@@ -342,7 +370,7 @@ typedef enum
 
 //--------------------------鍵盤掃描碼--------------------------//
 
-enum
+typedef enum
 {
 	//鼠标
 	MOON_KEY_MOUSE_LEFT = 0,   //GLFW_MOUSE_BUTTON_LEFT
@@ -479,9 +507,10 @@ enum
 	MOON_KEY_OEM_3 = 96,              //GLFW_KEY_GRAVE_ACCENT（`）
 
 	MOON_KEY_LAST = 349   //GLFW_KEY_LAST + 1
-} MOON_KEY_TYPE;
+}MOON_KEY_TYPE;
 
 //--------------------------按键消息回调--------------------------//
+
 typedef enum
 {
 	MOON_KEY_MODE_FALSE,

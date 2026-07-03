@@ -17,7 +17,7 @@ static unsigned char* moon_key;
 * 使用方法
 * MoonAlloc_Registry();
 */
-static _Bool MoonAlloc_Registry();
+static unsigned char MoonAlloc_Registry();
 
 extern void MoonUtilityLoad(MOON_ENGINECORE* core)
 {
@@ -27,12 +27,10 @@ extern void MoonUtilityLoad(MOON_ENGINECORE* core)
 extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
 {
 	{
-		SDL_AudioSpec audio_spec =
-		{
-			.format = SDL_AUDIO_F32LE,
-			.channels = 1,
-			.freq = MOON_SAMPLE_RATE,
-		};
+		SDL_AudioSpec audio_spec;
+		audio_spec.format = SDL_AUDIO_F32LE;
+		audio_spec.channels = 1;
+		audio_spec.freq = MOON_SAMPLE_RATE;
 
 		{
 			moon_audio_dev = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio_spec);
@@ -220,7 +218,7 @@ extern int MoonMusic(MOON_MUSIC* music)
 	return MOON_TRUE;
 }
 
-extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
+extern unsigned char MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 {
 	if (!music)
 	{
@@ -239,7 +237,7 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 	unsigned char* raw_data = (unsigned char*)MOON_NULL;
 	unsigned int raw_len = MOON_FALSE;
 
-	SDL_AudioSpec file_spec = { 0 };
+	SDL_AudioSpec file_spec;
 
 	if (!SDL_LoadWAV(File, &file_spec, &raw_data, &raw_len)) 
 	{
@@ -249,12 +247,11 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 	}
 
 	{
-		SDL_AudioSpec device_spec =
-		{
-			.format = SDL_AUDIO_F32LE,
-			.channels = 1,
-			.freq = MOON_SAMPLE_RATE,
-		};
+		SDL_AudioSpec device_spec;
+
+		device_spec.format = SDL_AUDIO_F32LE;
+		device_spec.channels = 1;
+		device_spec.freq = MOON_SAMPLE_RATE;
 
 		SDL_AudioStream* converter = SDL_CreateAudioStream(&file_spec, &device_spec);
 		if (!converter)
@@ -317,7 +314,7 @@ extern void MoonTimeLoadInit(MOON_TIMELOAD* Timeload, int load)
 	Timeload->timeswitch = 0;
 }
 
-extern _Bool MoonKeyState(unsigned int Key)
+extern unsigned char MoonKeyState(MOON_KEY_TYPE Key)
 {
 	if (moon_key[Key] == MOON_KEY_MODE_PRESS)
 		return MOON_TRUE;
@@ -325,7 +322,7 @@ extern _Bool MoonKeyState(unsigned int Key)
 		return MOON_FALSE;
 }
 
-extern _Bool MoonKeyReal(unsigned int Key)
+extern unsigned char MoonKeyReal(MOON_KEY_TYPE Key)
 {
 	if (moon_key[Key] == MOON_KEY_MODE_PRESS_LONG)
 		return MOON_TRUE;
@@ -336,14 +333,15 @@ extern _Bool MoonKeyReal(unsigned int Key)
 extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 {
 	if (!mode)return MOON_FALSE;
-	else if (Timeload == MOON_NULL)
-	{
-		MoonPrompt((char*)"[TimeLoad函数错误!]存在空指针");
-		return MOON_Error;
-	}
+	else
+		if (!Timeload)
+		{
+			MoonPrompt((char*)"[TimeLoad函数错误!]存在空指针");
+			return MOON_Error;
+		}
 	if (!Timeload->timeswitch)
 	{
-		Timeload->time1 = clock();
+		Timeload->time1 = (unsigned int)SDL_GetTicks();
 		if (Timeload->time1 > Timeload->time2 + Timeload->timeload)
 		{
 			Timeload->time2 = clock();
@@ -352,7 +350,7 @@ extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 	}
 	else
 	{
-		Timeload->time2 = clock();
+		Timeload->time2 = (unsigned int)SDL_GetTicks();
 		Timeload->timeswitch = MOON_FALSE;
 	}
 	return Timeload->timeswitch;
@@ -425,7 +423,7 @@ extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int heig
 
 extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 {
-	static _Bool mode = 0;
+	static unsigned char mode = 0;
 	if (
 		button->x < x
 		&& button->y < y
@@ -433,7 +431,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		&& button->y + button->height > y
 		)
 	{
-		button->mode = MoonKeyState(MOON_KEY_MOUSE_LEFT);
+		button->mode = (MOON_BUTTON_TYPE)MoonKeyState(MOON_KEY_MOUSE_LEFT);
 		if (button->mode == MOON_KEY_MODE_PRESS)
 		{
 			mode = MOON_TRUE;
@@ -537,7 +535,7 @@ extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsign
 	return line_size;
 }
 
-extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name)
+extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, const char* file_name)
 {
 	int file_size = 0;
 
@@ -626,7 +624,7 @@ extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name)
 	return MOON_TRUE;
 }
 
-extern _Bool MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size)
+extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size)
 {
 	for (unsigned int index = 0; index < text_size; index++)
 		text[index] = '\0';
@@ -793,7 +791,7 @@ extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char* str_1, const char* 
 	return index_all;
 }
 
-static _Bool MoonAlloc_Registry()
+static unsigned char MoonAlloc_Registry()
 {
 	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));
 	if (alloc_buffer)
@@ -809,7 +807,7 @@ static _Bool MoonAlloc_Registry()
 	return MOON_TRUE;
 }
 
-extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc)
+extern unsigned char MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc)
 {
 	void* ptr_buffer = MOON_NULL;
 	if (strcmp(alloc, "realloc"))
@@ -887,7 +885,7 @@ extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char
 	return MOON_TRUE;
 }
 
-extern _Bool MoonFree(void* ptr)
+extern unsigned char MoonFree(void* ptr)
 {
 	for (unsigned int index = 0; index < moon_alloc.index; index++)
 		if (moon_alloc.alloc[index] == ptr)
@@ -921,7 +919,7 @@ extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_UNIFORM, metadata);
 }
 
-extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right)
+extern unsigned char MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right)
 {
 	if (!mat4_return || !mat4_left || !mat4_right)
 	{
@@ -969,7 +967,7 @@ extern inline int MoonRandom(unsigned int seed, int start, int end)
 }
 
 //初始化
-extern _Bool MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size)
+extern unsigned char MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size)
 {
 	float* buffer = (float*)realloc(vector->vector, (size_t)(sizeof(float) * num_size));
 	if (!buffer)
@@ -1010,9 +1008,9 @@ extern float MoonVector_Get(MOON_VECTOR* vector, unsigned int dim)
 }
 
 //扩容维度
-extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim)
+extern unsigned char MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim)
 {
-	if (!vector || !dim || vector->dim == dim)
+	if (!vector || !dim)
 		return MOON_FALSE;
 	if (dim > vector->dim)
 	{
@@ -1027,7 +1025,7 @@ extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim)
 }
 
 //设置元素
-extern _Bool MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num)
+extern unsigned char MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num)
 {
 	if (!MoonVector_SetDim(vector, dim))
 		return MOON_FALSE;
@@ -1263,8 +1261,11 @@ extern MOON_POINT2D MoonCursorOffect(MOON_POINT2D size)
 	MOON_POINT2D game_coord;
 	static MOON_POINT2D last_mouse = { 0 };
 	static MOON_POINT2D last_game = { 0 };
-	MOON_POINT2D offect = { .x = moon_mouse_coord->x - last_mouse.x, .y = moon_mouse_coord->y - last_mouse.y };
-	MOON_POINT2D new_game_coord = { .x = last_game.x + offect.x,. y = last_game.y + offect.y };
+	MOON_POINT2D offect;
+	offect.x = moon_mouse_coord->x - last_mouse.x;
+	offect.y = moon_mouse_coord->y - last_mouse.y;
+	MOON_POINT2D new_game_coord; new_game_coord.x = last_game.x + offect.x; 
+	new_game_coord.y = last_game.y + offect.y;
 	new_game_coord.x = MoonRange(new_game_coord.x, 0, size.w);
 	new_game_coord.y = MoonRange(new_game_coord.y, 0, size.h);
 	game_coord = new_game_coord;
@@ -1276,4 +1277,11 @@ extern MOON_POINT2D MoonCursorOffect(MOON_POINT2D size)
 extern MOON_POINT2D MoonCursorGet()
 {
 	return *moon_mouse_coord;
+}
+
+extern void MoonSetPower(unsigned char power)
+{
+	MOON_METADATA metadata = { 0 };
+	metadata.power = power;
+	MoonProjectSendMessage(MOON_MESSAGE_POWER, metadata);
 }

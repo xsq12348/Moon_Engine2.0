@@ -1158,7 +1158,7 @@ Email:1993346266@qq.com
 *							用于设置音频状态
 * 2.1.12.1-		2026.6.23	修改了MoonDrawTextFont的参数
 *								由
-*									MoonMusicSet(MOON_MUSIC* music, _Bool on_or_off)
+*									MoonMusicSet(MOON_MUSIC* music, unsigned char on_or_off)
 *								改为
 *									MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, float start, float end)
 * 2.1.12.2					添加了枚举
@@ -1253,6 +1253,29 @@ Email:1993346266@qq.com
 * 2.2.4.0					添加了
 *								MoonVector家族函数
 *							用于计算向量
+* 2.2.4.1		2026.7.1	因为暂时不考虑3D方向,所以关闭了背面剔除
+* 2.2.4.2-					为了保持对Cpp的兼容
+*							已经将所有的_Bool和其他不符合Cpp语法的地方修改了
+*							如果您的代码依赖_Bool强制转换为1 or 0
+*								比如 
+*									int alpha = 100;
+*									int beta = (_Bool)alpha;
+*							我们建议您改为
+*									int alpha = 100;
+*									int beta = !!alpha;
+* 2.2.4.3					修复了
+*								MoonVector_SetDim
+*							与预期相同维度下输出TRUE反而输出FALSE的BUG
+* 2.2.4.4					实现了字体的批量渲染
+*							现在每条字体消息无论有多少字(不超过上限)
+*							都只渲染一次				
+* 2.2.4.5					优化了纹理渲染,内部除法大大减少
+*							在内部测试中(i7 3720QM, Quadro K2000m)
+*								单张1200*800纹理渲染帧数提升了54.63%
+* 2.2.5.0		2026.7.3	添加了
+*								MoonSetPower
+*							用于设置高性能模式,当参数大于0时,开启高性能模式,当参数小于等于0时,关闭高性能模式
+*
 */
 
 

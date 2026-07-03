@@ -23,18 +23,18 @@ extern float MoonDegRad(float phi); //角度转弧度
 * 函數 MoonKeyState
 * 作用 獲取硬件狀態
 * 使用方法
-* _Bool alpha = MoonKeyState(MOON_KEY_SPACE);
+* unsigned char alpha = MoonKeyState(MOON_KEY_SPACE);
 */
-extern _Bool MoonKeyState(unsigned int Key);//获取按键的值
+extern unsigned char MoonKeyState(MOON_KEY_TYPE Key);//获取按键的值
 
 /*
 * 函數 MoonKeyReal
 * 作用 獲取硬件狀態
 *     即时检测
 * 使用方法
-* _Bool alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
+* unsigned char alpha = MoonKeyReal(MOON_KEY_MOUSE_LEFT);
 */
-extern _Bool MoonKeyReal(unsigned int Key);//获取按键的值
+extern unsigned char MoonKeyReal(MOON_KEY_TYPE Key);//获取按键的值
 
 /*
 * 函數 Lerp
@@ -93,7 +93,7 @@ extern inline int MoonRandom(unsigned int seed, int start, int end);
 * 使用方法
 * MoonMatrix4_4Mul(mat4_return, mat4_left, mat4_right);
 */
-extern _Bool MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right);
+extern unsigned char MoonMatrix4_4Mul(float* mat4_return, float* mat4_left, float* mat4_right);
 
 /*
 * 函數 MoonGetFps
@@ -114,7 +114,7 @@ extern int MoonGetFps();
 *	{0,10},
 *	{5,50}
 * };
-* _Bool = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
+* unsigned char = MoonTriangleDetection(point[0], point[1], point[2], point[3]);
 */
 extern int MoonTriangleDetection(MOON_POINT2D a, MOON_POINT2D b, MOON_POINT2D c, MOON_POINT2D p);	//三角形碰撞检测
 
@@ -149,6 +149,14 @@ extern MOON_POINT2D MoonCursorOffect(MOON_POINT2D size);
 * MOON_POINT2D a = MoonCursorGet();
 */
 extern MOON_POINT2D MoonCursorGet();
+
+/*
+* 函數 MoonSetPower
+* 作用 设置高性能模式
+* 使用方法
+* MoonSetPower(TRUE);
+*/
+extern void MoonSetPower(unsigned char power);
 
 //------------------------------------音乐函数--------------------------------------------------//
 
@@ -188,7 +196,7 @@ extern int MoonMusic(MOON_MUSIC* music);//播放音乐
 * 使用方法
 * MoonMusicInit_Wav(music, "music.mp3");
 */
-extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File);
+extern unsigned char MoonMusicInit_Wav(MOON_MUSIC* music, const char* File);
 
 //------------------------------------自动内存--------------------------------------------------//
 
@@ -203,7 +211,7 @@ extern _Bool MoonMusicInit_Wav(MOON_MUSIC* music, const char* File);
 * "realloc"
 * MoonAlloc(ptr,sizeof(type),num,"malloc");
 */
-extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc);
+extern unsigned char MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char* alloc);
 
 /*
 * 函數 MoonFree
@@ -212,7 +220,7 @@ extern _Bool MoonAlloc(void** ptr, size_t size_len, unsigned int num, const char
 * 使用方法
 * MoonFree(ptr);
 */
-extern _Bool MoonFree(void* ptr);
+extern unsigned char MoonFree(void* ptr);
 
 //------------------------------------定时函数--------------------------------------------------//
 
@@ -402,7 +410,7 @@ extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned i
 * 使用方法
 *	MoonFileLoad_TEXT("a.txt", text, strlen(text));
 */
-extern _Bool MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size);
+extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size);
 
 /*
 * 函數 MoonFileRead_TEXT
@@ -410,7 +418,7 @@ extern _Bool MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int t
 * 使用方法
 *	MoonFileRead_TEXT(file, name);
 */
-extern _Bool MoonFileRead_TEXT(MOON_FILE* file, const char* file_name);
+extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, const char* file_name);
 
 /*
 * 函數 MoonFileRead_Line
@@ -505,7 +513,7 @@ extern void MoonShaderUniform(unsigned int shader, const char* var, MOON_UNIFORM
 * 使用方法
 * MoonVectorInit(vector, arr, 2);
 */
-extern _Bool MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size);
+extern unsigned char MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size);
 
 /*
 * 函數 MoonVectorFree
@@ -537,7 +545,7 @@ extern float MoonVector_Get(MOON_VECTOR* vector, unsigned int dim);
 * 使用方法
 * MoonVector_SetDim(&vector, 5);   // 将向量扩容到5维
 */
-extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim);
+extern unsigned char MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim);
 
 /*
 * 函數 MoonVector_SetEle
@@ -545,7 +553,7 @@ extern _Bool MoonVector_SetDim(MOON_VECTOR* vector, unsigned int dim);
 * 使用方法
 * MoonVector_SetEle(&vector, 3, 9.9f);   // 将第3维设为9.9
 */
-extern _Bool MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num);
+extern unsigned char MoonVector_SetEle(MOON_VECTOR* vector, unsigned int dim, float num);
 
 /*
 * 函數 MoonVector_Norm
@@ -602,3 +610,5 @@ extern void MoonVector_Hadamard(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, 
 * float dot = MoonVector_Dot(&v1, &v2);
 */
 extern float MoonVector_Dot(MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);
+
+//------------------------------------二叉树------------------------------------------------//

@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,4,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,5,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -9,8 +9,8 @@ static MOON_POINT2D projectmousecoord;
 static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
 static MOON_ENGINECORE moon_engine_core;
 static MOON_MESSAGE_ALL logic_message_cache;
-static _Bool thread_draw_type, thread_attr_type;
-static _Bool logic_dead;
+static unsigned char thread_draw_type, thread_attr_type;
+static unsigned char logic_dead;
 static unsigned char moon_key_type[MOON_KEY_LAST];
 
 static const char* moon_vertex_shader2d_code =
@@ -262,7 +262,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		glad_glEnableVertexAttribArray(1);
 
 		glad_glEnable(GL_BLEND);
-		glad_glEnable(GL_CULL_FACE);
+		//glad_glEnable(GL_CULL_FACE);
 		glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//glad_glDisable(GL_DEPTH_TEST);
 		//glad_glEnable(GL_DEPTH_TEST);
@@ -390,8 +390,8 @@ extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int
 				logic = moon_engine_core.Logic;
 			if (moon_engine_core.Drawing != MoonDrawingPause)
 				drawing = moon_engine_core.Drawing;
-			moon_engine_core.dead = (_Bool)(glfwWindowShouldClose(moon_engine_core.hwnd)) || logic_dead;
-			moon_engine_core.focus = (_Bool)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
+			moon_engine_core.dead = (unsigned char)(glfwWindowShouldClose(moon_engine_core.hwnd)) || logic_dead;
+			moon_engine_core.focus = (unsigned char)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
 		}
 
 		//轮询按鍵
@@ -520,7 +520,7 @@ extern int MoonProjectPause(int mode, int (**function_1)(), int (*function_2)(),
 	return 1;
 }
 
-extern void MoonProjectFunctionSwitch(char module, int (*function_2)())
+extern void MoonProjectFunctionSwitch(MOON_MODULE_FUNCTION module, int (*function_2)())
 {
 	if (function_2 == MOON_NULL)
 	{
@@ -655,12 +655,12 @@ extern MOON_MESSAGE_THREAD_TYPE MoonProjectSendMessage(MOON_MESSAGE message, MOO
 	return MOON_MESSAGE_THREAD_TYPE_FALSE;
 }
 
-extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_MESSAGE_ALL*, _Bool*))
+extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, unsigned char* type, void(*Handle)(MOON_MESSAGE_ALL*, unsigned char*))
 {
 	//type的作用
 	//防止随意操作标志导致消息处理紊乱
 	*type = MOON_TRUE;
-	if (Handle)
+	if (Handle && message->message_index > 0)
 	{
 		//Handle内部应该处理完所有消息,因为该函数结束后,线程循环也差不多结束
 		Handle(message, type);
@@ -672,7 +672,7 @@ extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, _Bool* type, void(*H
 	return MOON_FALSE;
 }
 
-extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
+extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type)
 {
 	for (unsigned int index = 0; index < message->message_index; ++index)
 	{
@@ -935,7 +935,10 @@ static MOON_PROJECTMODULE(MoonLogicNull)
 
 extern inline MOON_POINT2D MoonProjectWindowSize()
 {
-	return (MOON_POINT2D) { .w = moon_engine_core.window_width, .h = moon_engine_core.window_height };
+	MOON_POINT2D size;
+	size.w = moon_engine_core.window_width;
+	size.h = moon_engine_core.window_height;
+	return size;
 }
 
 

@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef MOON_CORE_DEF
+#define MOON_CORE_DEF
 #include <SDL3/SDL.h>
 #include<GLAD/glad.h>
 #include<GLFW/glfw3.h>
@@ -15,6 +16,7 @@
 typedef GLFWwindow MOON_HWND;		//句柄
 
 //--------------------------对象--------------------------//
+
 typedef struct
 {
 	char* nameid;
@@ -24,7 +26,8 @@ typedef struct
 }MOON_ENTITYINDEX;					//实体
 
 //--------------------------模块切换--------------------------//
-enum
+
+typedef enum
 {
 	MOON_MODULE_DRAW = 1,
 	MOON_MODULE_LOGIC,
@@ -32,6 +35,7 @@ enum
 }MOON_MODULE_FUNCTION;
 
 //--------------------------内核音乐数据--------------------------//
+
 typedef struct
 {
 	float* data;
@@ -39,6 +43,7 @@ typedef struct
 }MOON_CORE_MUSIC;
 
 //--------------------------消息队列单体--------------------------//
+
 typedef struct MOON_MESSAGE_SPECIFIC
 {
 	unsigned int message;				//消息类型
@@ -46,6 +51,7 @@ typedef struct MOON_MESSAGE_SPECIFIC
 }MOON_MESSAGE_SPECIFIC;
 
 //--------------------------消息队列--------------------------//
+
 typedef struct
 {
 	MOON_MESSAGE_SPECIFIC* message;
@@ -53,15 +59,16 @@ typedef struct
 }MOON_MESSAGE_ALL;
 
 //--------------------------内核唯一单例--------------------------//
+
 typedef struct MOON_ENGINECORE
 {
 	MOON_HWND* hwnd;			//窗口句柄
 	int window_width;									//宽度
 	int window_height;									//高度
-	_Bool dead;					//项目状态
-	_Bool thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
-	_Bool thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
-	//_Bool thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
+	unsigned char dead;					//项目状态
+	unsigned char thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
+	unsigned char thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
+	//unsigned char thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
 	char gamepowermode;		//记录高性能模式旧模式
 	char power;					//高性能模式
 	int focus;					//焦点
@@ -76,12 +83,14 @@ typedef struct MOON_ENGINECORE
 }MOON_ENGINECORE;
 
 //--------------------------纹理顶点--------------------------//
+
 typedef struct
 {
 	float x, y, z, uv_x, uv_y;
 }MOON_TEXTURE_VECTER;		//用于纹理顶点
 
 //--------------------------图元顶点--------------------------//
+
 //点结构体
 typedef struct
 {
@@ -90,12 +99,15 @@ typedef struct
 }MOON_GRAPHIC_VECTER;
 
 //--------------------------自动内存分配--------------------------//
+
 typedef void* MOON_ALLOC;
 typedef struct
 {
 	MOON_ALLOC* alloc;
 	unsigned int index;
 }MOON_ALLOC_REGISTRY;		//用于内部队列
+
+
 
 /*
 * 函數 MoonWindow
@@ -204,7 +216,7 @@ _declspec(dllexport) extern void MoonImageDesignated(MOON_IMAGE* image);//设置
 * 使用方法
 * MoonProjectFunctionSwitch(project, MOON_MODULE_DRAW, NewDrawingFunction);
 */
-_declspec(dllexport) extern void MoonProjectFunctionSwitch(char module, int (*function_2)());//函数切换
+_declspec(dllexport) extern void MoonProjectFunctionSwitch(MOON_MODULE_FUNCTION module, int (*function_2)());//函数切换
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
@@ -222,12 +234,14 @@ _declspec(dllexport) extern void MoonProjectDead();
 * 使用方法
 * MoonProjectGetMessage(message, handle);
 */
-_declspec(dllexport) extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, _Bool* type, void(*Handle)(MOON_MESSAGE_ALL*, _Bool*));	//获取消息
-_declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type);	//处理绘制线程消息
-_declspec(dllexport) extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type);	//处理逻辑线程消息
+_declspec(dllexport) extern int MoonProjectGetMessage(MOON_MESSAGE_ALL* message, unsigned char* type, void(*Handle)(MOON_MESSAGE_ALL*, unsigned char*));	//获取消息
+_declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type);	//处理绘制线程消息
+_declspec(dllexport) extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type);	//处理逻辑线程消息
 
 //-------------------------------------------------------------------------------------------绘制函数--------------------------------------------------------------------------------//
 
 _declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata);					//画板
 _declspec(dllexport) extern int MoonCoreGraphic(MOON_GRAPHIC_VECTER* vertexs, unsigned int vertex_number, MOON_METADATA* metadata, unsigned int message_type);	//绘制图案
 _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata);																					//渲染默认字体
+
+#endif

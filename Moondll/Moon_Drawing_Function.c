@@ -16,7 +16,7 @@ moon_vbo_texture, moon_vao_texture,
 moon_vertex_index, moon_vertex_texture_index;
 static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);					//构建图元顶点
 static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);				//构建纹理顶点
-static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);																	//全局设置
+static inline unsigned char MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);																	//全局设置
 static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);	//MoonCoreDrawArea辅助函数
 static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);								//MoonCoreGraphic辅助函数
 
@@ -647,10 +647,12 @@ _declspec(dllexport) extern void MoonCoreDrawArea(MOON_TEXTURE_VECTER* vertexs, 
 
 	{
 		float
-			r = ((metadata->draw.color >> 0) & 0xFF) / 255.f,
-			g = ((metadata->draw.color >> 8) & 0xFF) / 255.f,
-			b = ((metadata->draw.color >> 16) & 0xFF) / 255.f,
-			a = ((metadata->draw.color >> 24) & 0xFF) / 255.f;
+			color_buffer = 1.f / 255.f;
+		float
+			r = ((metadata->draw.color >> 0) & 0xFF) * color_buffer,
+			g = ((metadata->draw.color >> 8) & 0xFF) * color_buffer,
+			b = ((metadata->draw.color >> 16) & 0xFF) * color_buffer,
+			a = ((metadata->draw.color >> 24) & 0xFF) * color_buffer;
 		glad_glBindVertexArray(moon_vao_texture);
 		glad_glBindTexture(GL_TEXTURE_2D, metadata->draw.image.image_resources->image.texture);
 		glad_glUniform4f(glad_glGetUniformLocation(metadata->draw.shader, "moon_ucolor"), r, g, b, a);
@@ -712,10 +714,13 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 	}
 
 	float
-		r = ((metadata->draw.color >> 0) & 0xFF) / 255.f,
-		g = ((metadata->draw.color >> 8) & 0xFF) / 255.f,
-		b = ((metadata->draw.color >> 16) & 0xFF) / 255.f,
-		a = ((metadata->draw.color >> 24) & 0xFF) / 255.f,
+		color_buffer = 1.f / 255.f;
+
+	float
+		r = ((metadata->draw.color >> 0) & 0xFF) * color_buffer,
+		g = ((metadata->draw.color >> 8) & 0xFF) * color_buffer,
+		b = ((metadata->draw.color >> 16) & 0xFF) * color_buffer,
+		a = ((metadata->draw.color >> 24) & 0xFF) * color_buffer,
 		font_w = 1.f / MOON_FONT_CHAR_COUNT,
 		uv_h = 1.f;
 
@@ -725,16 +730,24 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 		(long int)(metadata->draw.text.size_h),
 	};
 
+	MOON_TEXTURE_VECTER text_font_image[MOON_MESSAGE_TEXT_MAX * 6];
+
+	unsigned int text_index = 0;
+
 	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; ++index)
 	{
 		int ch = metadata->draw.text.text[index],
 			x = image_buffer_size.w * index + metadata->draw.text.coord.x;
 
 		float
-			vx1 = MoonLerp(-1.f, 1.f, x * 1.f / metadata->draw.image_goal->image_size.w),
-			vy1 = MoonLerp(1.f, -1.f, metadata->draw.text.coord.y * 1.f / metadata->draw.image_goal->image_size.h),
-			vx2 = MoonLerp(-1.f, 1.f, (x + image_buffer_size.w) * 1.f / metadata->draw.image_goal->image_size.w),
-			vy2 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h) * 1.f / metadata->draw.image_goal->image_size.h),
+			w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
+			h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+
+		float
+			vx1 = MoonLerp(-1.f, 1.f, x * w_buffer),
+			vy1 = MoonLerp(1.f, -1.f, metadata->draw.text.coord.y * h_buffer),
+			vx2 = MoonLerp(-1.f, 1.f, (x + image_buffer_size.w) * w_buffer),
+			vy2 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h) * h_buffer),
 			uv_w = font_w,
 			apx = ch * font_w;
 
@@ -743,32 +756,33 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 			uv_right = MoonRange(apx + uv_w, 0, 1.f),
 			uv_top = 0.f,
 			uv_bottom = 1.f;
+		
+		MoonTextureVertexinitTemp(text_font_image, text_index + 0, vx1, vy2, uv_left, uv_bottom);
+		MoonTextureVertexinitTemp(text_font_image, text_index + 1, vx2, vy2, uv_right, uv_bottom);
+		MoonTextureVertexinitTemp(text_font_image, text_index + 2, vx1, vy1, uv_left, uv_top);
+		MoonTextureVertexinitTemp(text_font_image, text_index + 3, vx2, vy1, uv_right, uv_top);
+		MoonTextureVertexinitTemp(text_font_image, text_index + 4, vx1, vy1, uv_left, uv_top);
+		MoonTextureVertexinitTemp(text_font_image, text_index + 5, vx2, vy2, uv_right, uv_bottom);
 
-		float vertexs[20] =
-		{
-			vx1, vy2, 0.f, uv_left,		uv_bottom,
-			vx2, vy2, 0.f, uv_right,	uv_bottom,
-			vx1, vy1, 0.f, uv_left,		uv_top,
-			vx2, vy1, 0.f, uv_right,	uv_top,
-		};
+		text_index += 6;
+	}
 
-		MoonImageShader(texture_shader);
+	MoonImageShader(texture_shader);
 
-		{
-			glad_glBindVertexArray(moon_vao_texture);
-			glad_glBindTexture(GL_TEXTURE_2D, moon_simple_font.image.texture);
-			glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), r, g, b, a);
-			glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
-			glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_texture);
-			glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexs), vertexs);
-			glad_glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glad_glBindVertexArray(0);
-		}
+	{
+		glad_glBindVertexArray(moon_vao_texture);
+		glad_glBindTexture(GL_TEXTURE_2D, moon_simple_font.image.texture);
+		glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), r, g, b, a);
+		glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
+		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_texture);
+		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_TEXTURE_VECTER) * MOON_MESSAGE_TEXT_MAX * 6, text_font_image);
+		glad_glDrawArrays(GL_TRIANGLES, 0, MOON_MESSAGE_TEXT_MAX * 6);
+		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glad_glBindVertexArray(0);
 	}
 }
 
-_declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, _Bool* type)
+_declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type)
 {
 	MOON_IMAGE* image_old = (MOON_IMAGE*)MOON_NULL;
 	MOON_IMAGE* image_resource_old = (MOON_IMAGE*)MOON_NULL;
@@ -791,10 +805,13 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 				{
 
 					float
-						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * 1.f / metadata->draw.image_goal->image_size.h),
-						vx2 = MoonLerp(-1.f, 1.f, (metadata->draw.image.x + metadata->draw.image.image_resources->image_size.w) * 1.f / metadata->draw.image_goal->image_size.w),
-						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + metadata->draw.image.image_resources->image_size.h) * 1.f / metadata->draw.image_goal->image_size.h);
+						w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
+						h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+					float
+						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * w_buffer),
+						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * h_buffer),
+						vx2 = MoonLerp(-1.f, 1.f, (metadata->draw.image.x + metadata->draw.image.image_resources->image_size.w) * w_buffer),
+						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + metadata->draw.image.image_resources->image_size.h) * h_buffer);
 					float
 						vx3 = vx1,
 						vy3 = vy2,
@@ -823,14 +840,18 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 						points[3].x = (long int)(buffer_x * (apx + metadata->draw.image.width) + matrix2d[2] * (apy + metadata->draw.image.height));
 						points[3].y = (long int)(buffer_y * (apx + metadata->draw.image.width) + matrix2d[3] * (apy + metadata->draw.image.height));		//1,1
 
-						vx1 = MoonLerp(-1.f, 1.f, points[0].x * 1.f / metadata->draw.image_goal->image_size.w);
-						vy1 = MoonLerp(1.f, -1.f, points[0].y * 1.f / metadata->draw.image_goal->image_size.h);
-						vx2 = MoonLerp(-1.f, 1.f, points[3].x * 1.f / metadata->draw.image_goal->image_size.w);
-						vy2 = MoonLerp(1.f, -1.f, points[3].y * 1.f / metadata->draw.image_goal->image_size.h);
-						vx3 = MoonLerp(-1.f, 1.f, points[2].x * 1.f / metadata->draw.image_goal->image_size.w);
-						vy3 = MoonLerp(1.f, -1.f, points[2].y * 1.f / metadata->draw.image_goal->image_size.h);
-						vx4 = MoonLerp(-1.f, 1.f, points[1].x * 1.f / metadata->draw.image_goal->image_size.w);
-						vy4 = MoonLerp(1.f, -1.f, points[1].y * 1.f / metadata->draw.image_goal->image_size.h);
+						float
+							w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
+							h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+
+						vx1 = MoonLerp(-1.f, 1.f, points[0].x * w_buffer);
+						vy1 = MoonLerp(1.f, -1.f, points[0].y * h_buffer);
+						vx2 = MoonLerp(-1.f, 1.f, points[3].x * w_buffer);
+						vy2 = MoonLerp(1.f, -1.f, points[3].y * h_buffer);
+						vx3 = MoonLerp(-1.f, 1.f, points[2].x * w_buffer);
+						vy3 = MoonLerp(1.f, -1.f, points[2].y * h_buffer);
+						vx4 = MoonLerp(-1.f, 1.f, points[1].x * w_buffer);
+						vy4 = MoonLerp(1.f, -1.f, points[1].y * h_buffer);
 					}
 
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 0, vx1, vy1, 0.f, 1.f);
@@ -866,10 +887,13 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 					metadata->draw.image.apy = 1.f - metadata->draw.image.apy;
 
 					float
-						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * 1.f / metadata->draw.image_goal->image_size.h),
-						vx2 = MoonLerp(-1.f, 1.f, (metadata->draw.image.x + image_buffer_size.w + metadata->draw.image.width) * 1.f / metadata->draw.image_goal->image_size.w),
-						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + image_buffer_size.h + +metadata->draw.image.height) * 1.f / metadata->draw.image_goal->image_size.h),
+						w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
+						h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+					float
+						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * w_buffer),
+						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * h_buffer),
+						vx2 = MoonLerp(-1.f, 1.f, (metadata->draw.image.x + image_buffer_size.w + metadata->draw.image.width) * w_buffer),
+						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + image_buffer_size.h + +metadata->draw.image.height) * h_buffer),
 						uv_w = metadata->draw.image.uv_w,
 						uv_h = metadata->draw.image.uv_h;
 
@@ -904,14 +928,17 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 
 				{
 					float
-						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[2].x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[2].y * 1.f / metadata->draw.image_goal->image_size.h),
-						vx2 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[1].x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy2 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[1].y * 1.f / metadata->draw.image_goal->image_size.h),
-						vx3 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[0].x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy3 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[0].y * 1.f / metadata->draw.image_goal->image_size.h),
-						vx4 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[3].x * 1.f / metadata->draw.image_goal->image_size.w),
-						vy4 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[3].y * 1.f / metadata->draw.image_goal->image_size.h);
+						w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
+						h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+					float
+						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[2].x * w_buffer),
+						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[2].y * h_buffer),
+						vx2 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[1].x * w_buffer),
+						vy2 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[1].y * h_buffer),
+						vx3 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[0].x * w_buffer),
+						vy3 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[0].y * h_buffer),
+						vx4 = MoonLerp(-1.f, 1.f, metadata->draw.image_pig.point[3].x * w_buffer),
+						vy4 = MoonLerp(1.f, -1.f, metadata->draw.image_pig.point[3].y * h_buffer);
 
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 0, vx1, vy1, 0.f, 1.f);
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 1, vx3, vy3, 0.f, 0.f);
@@ -934,10 +961,13 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 					break;
 
 				float
-					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
-					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) / 255.f,
-					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) / 255.f,
-					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) / 255.f;
+					color_buffer = 1.f / 255.f;
+
+				float
+					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) * color_buffer,
+					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) * color_buffer,
+					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) * color_buffer,
+					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) * color_buffer;
 				glad_glClearColor(r, g, b, a);
 				glad_glClear(GL_COLOR_BUFFER_BIT);
 			}
@@ -949,18 +979,21 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 					break;
 
 				float
-					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
-					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) / 255.f,
-					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) / 255.f,
-					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) / 255.f,
+					color_buffer = 1.f / 255.f;
+
+				float
+					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) * color_buffer,
+					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) * color_buffer,
+					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) * color_buffer,
+					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) * color_buffer,
 					vx1 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
 					vy1 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h);
 
 				float
-					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) / 255.f * r,
-					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) / 255.f * g,
-					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) / 255.f * b,
-					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) / 255.f * a;
+					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) * color_buffer * r,
+					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) * color_buffer * g,
+					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) * color_buffer * b,
+					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) * color_buffer * a;
 
 				MoonVertexinitTemp(moon_vertex, moon_vertex_index + 0, vx1, vy1, r_1, g_1, b_1, a_1);
 
@@ -977,24 +1010,29 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 					break;
 
 				float
-					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
-					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) / 255.f,
-					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) / 255.f,
-					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) / 255.f,
-					vx1 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
-					vy1 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h),
-					vx2 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x2 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
-					vy2 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y2 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h);
+					color_buffer = 1.f / 255.f,
+					w_buffer = 1.f / message->message[index].metadata.draw.image_goal->image_size.w,
+					h_buffer = 1.f / message->message[index].metadata.draw.image_goal->image_size.h;
 
 				float
-					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) / 255.f * r,
-					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) / 255.f * g,
-					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) / 255.f * b,
-					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) / 255.f * a,
-					r_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 0) & 0xFF) / 255.f * r,
-					g_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 8) & 0xFF) / 255.f * g,
-					b_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 16) & 0xFF) / 255.f * b,
-					a_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 24) & 0xFF) / 255.f * a;
+					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) * color_buffer,
+					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) * color_buffer,
+					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) * color_buffer,
+					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) * color_buffer,
+					vx1 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x1 * w_buffer),
+					vy1 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y1 * h_buffer),
+					vx2 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x2 * w_buffer),
+					vy2 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y2 * h_buffer);
+
+				float
+					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) * color_buffer * r,
+					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) * color_buffer * g,
+					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) * color_buffer * b,
+					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) * color_buffer * a,
+					r_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 0) & 0xFF) * color_buffer * r,
+					g_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 8) & 0xFF) * color_buffer * g,
+					b_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 16) & 0xFF) * color_buffer * b,
+					a_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 24) & 0xFF) * color_buffer * a;
 
 				MoonVertexinitTemp(moon_vertex, moon_vertex_index + 0, vx1, vy1, r_1, g_1, b_1, a_1);
 				MoonVertexinitTemp(moon_vertex, moon_vertex_index + 1, vx2, vy2, r_2, g_2, b_2, a_2);
@@ -1012,30 +1050,35 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 					break;
 
 				float
-					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) / 255.f,
-					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) / 255.f,
-					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) / 255.f,
-					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) / 255.f,
-					vx1 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
-					vy1 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y1 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h),
-					vx2 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x2 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
-					vy2 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y2 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h),
-					vx3 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x3 * 1.f / message->message[index].metadata.draw.image_goal->image_size.w),
-					vy3 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y3 * 1.f / message->message[index].metadata.draw.image_goal->image_size.h);
+					color_buffer = 1.f / 255.f,
+					w_buffer = 1.f / message->message[index].metadata.draw.image_goal->image_size.w,
+					h_buffer = 1.f / message->message[index].metadata.draw.image_goal->image_size.h;
 
 				float
-					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) / 255.f * r,
-					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) / 255.f * g,
-					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) / 255.f * b,
-					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) / 255.f * a,
-					r_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 0) & 0xFF) / 255.f * r,
-					g_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 8) & 0xFF) / 255.f * g,
-					b_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 16) & 0xFF) / 255.f * b,
-					a_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 24) & 0xFF) / 255.f * a,
-					r_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 0) & 0xFF) / 255.f * r,
-					g_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 8) & 0xFF) / 255.f * g,
-					b_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 16) & 0xFF) / 255.f * b,
-					a_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 24) & 0xFF) / 255.f * a;
+					r = ((message->message[index].metadata.draw.color >> 0) & 0xFF) * color_buffer,
+					g = ((message->message[index].metadata.draw.color >> 8) & 0xFF) * color_buffer,
+					b = ((message->message[index].metadata.draw.color >> 16) & 0xFF) * color_buffer,
+					a = ((message->message[index].metadata.draw.color >> 24) & 0xFF) * color_buffer,
+					vx1 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x1 * w_buffer),
+					vy1 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y1 * h_buffer),
+					vx2 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x2 * w_buffer),
+					vy2 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y2 * h_buffer),
+					vx3 = MoonLerp(-1.f, 1.f, message->message[index].metadata.draw.graphic.x3 * w_buffer),
+					vy3 = MoonLerp(1.f, -1.f, message->message[index].metadata.draw.graphic.y3 * h_buffer);
+
+				float
+					r_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 0) & 0xFF) * color_buffer * r,
+					g_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 8) & 0xFF) * color_buffer * g,
+					b_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 16) & 0xFF) * color_buffer * b,
+					a_1 = ((message->message[index].metadata.draw.graphic.color_1 >> 24) & 0xFF) * color_buffer * a,
+					r_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 0) & 0xFF) * color_buffer * r,
+					g_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 8) & 0xFF) * color_buffer * g,
+					b_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 16) & 0xFF) * color_buffer * b,
+					a_2 = ((message->message[index].metadata.draw.graphic.color_2 >> 24) & 0xFF) * color_buffer * a,
+					r_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 0) & 0xFF) * color_buffer * r,
+					g_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 8) & 0xFF) * color_buffer * g,
+					b_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 16) & 0xFF) * color_buffer * b,
+					a_3 = ((message->message[index].metadata.draw.graphic.color_3 >> 24) & 0xFF) * color_buffer * a;
 
 				MoonVertexinitTemp(moon_vertex, moon_vertex_index + 0, vx1, vy1, r_1, g_1, b_1, a_1);
 				MoonVertexinitTemp(moon_vertex, moon_vertex_index + 1, vx2, vy2, r_2, g_2, b_2, a_2);
@@ -1150,9 +1193,12 @@ static inline void MoonTextureVertexinitTemp(
 }
 
 //此函数仅作为辅助函数
-static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset)
+static inline unsigned char MoonSetTemp(
+	MOON_IMAGE** image_old, 
+	MOON_METADATA* metadata, 
+	int offset)
 {
-	_Bool out_temp = MOON_TRUE;
+	unsigned char out_temp = MOON_TRUE;
 	if (metadata->draw.image_goal)
 	{
 		MOON_IMAGE* image_new = metadata->draw.image_goal;
@@ -1210,7 +1256,12 @@ static inline _Bool MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata,
 }
 
 //此函数仅作为辅助函数
-static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old)
+static void MoonDrawAreaTemp(
+	unsigned int message_type, 
+	unsigned int index, 
+	MOON_MESSAGE_ALL* message, 
+	MOON_IMAGE* image_old, 
+	MOON_IMAGE* image_resource_old)
 {
 	if ((index == message->message_index - 1)
 		|| message->message[index + 1].message != message_type
@@ -1224,7 +1275,11 @@ static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON
 }
 
 //此函数仅作为辅助函数
-static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old)
+static void MoonCoreGraphicTemp(
+	unsigned int message_type, 
+	unsigned int index, 
+	MOON_MESSAGE_ALL* message, 
+	MOON_IMAGE* image_old)
 {
 	if (
 		(index == message->message_index - 1)

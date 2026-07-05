@@ -45,7 +45,7 @@
 #define MOON_ON				MOON_TRUE
 #define MOON_OFF			MOON_FALSE
 #define MOON_Pi				(3.1415926f)		//Pi
-#define MOON_VERTICES_MAX	(65536)				//顶点上限
+#define MOON_VERTICES_MAX	(65536 * 4)				//顶点上限
 #define MOON_MESSAGE_TEXT_MAX (32)				//单条消息最大字符数
 
 #define MOON_FONT_CHAR_SIZE_H 16				//字体高度

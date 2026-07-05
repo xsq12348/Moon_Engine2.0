@@ -10,6 +10,7 @@ static SDL_AudioDeviceID moon_audio_dev = 0;
 static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
 static int* fps;
 static unsigned char* moon_key;
+static MOON_IMAGE* moon_engineback;
 
 /*
 * 函數 MoonAlloc_Registry
@@ -85,6 +86,11 @@ _declspec(dllexport) extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
 	{
 		MoonHashFindEntity("ProjectKey", unsigned char, moon_key_2);
 		moon_key = moon_key_2;
+	}
+
+	{
+		MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, engineback_2);
+		moon_engineback = engineback_2;
 	}
 }
 
@@ -1285,3 +1291,9 @@ _declspec(dllexport) extern void MoonSetPower(unsigned char power)
 	metadata.power = power;
 	MoonProjectSendMessage(MOON_MESSAGE_POWER, metadata);
 }
+
+_declspec(dllexport) extern inline MOON_IMAGE* MoonProjectBuffer()
+{
+	return moon_engineback;
+}
+

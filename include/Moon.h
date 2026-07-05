@@ -1275,6 +1275,10 @@ Email:1993346266@qq.com
 * 2.2.5.0		2026.7.3	添加了
 *								MoonSetPower
 *							用于设置高性能模式,当参数大于0时,开启高性能模式,当参数小于等于0时,关闭高性能模式
+* 2.2.5.1		2026.7.4	扩容了顶点总数
+* 2.2.6.0					添加了
+*								MoonProjectBuffer
+*							用于直接获取后缓冲区
 *
 */
 
@@ -1372,5 +1376,13 @@ extern void MoonDead();
 * printf("%d, %d",size.w, size.h);
 */
 extern inline MOON_POINT2D MoonProjectWindowSize();
+
+/*
+* 函數 MoonProjectBuffer
+* 作用 查询后缓冲区
+* 使用方法
+* MOON_IMAGE* size = MoonProjectBuffer();
+*/
+extern inline MOON_IMAGE* MoonProjectBuffer();
 
 #endif

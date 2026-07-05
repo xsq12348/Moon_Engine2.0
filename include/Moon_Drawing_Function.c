@@ -5,7 +5,6 @@
 #include"Moon_stb_image.h"
 #include"MoonFontttf.h"
 
-static MOON_IMAGE* moon_engineback;
 static MOON_IMAGE moon_simple_font;
 static MOON_GRAPHIC_VECTER moon_vertex[MOON_VERTICES_MAX];
 static MOON_TEXTURE_VECTER moon_vertex_texture[MOON_VERTICES_MAX];
@@ -16,7 +15,7 @@ moon_vbo_texture, moon_vao_texture,
 moon_vertex_index, moon_vertex_texture_index;
 static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);					//构建图元顶点
 static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);				//构建纹理顶点
-static inline unsigned char MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);																	//全局设置
+static inline unsigned char MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);															//全局设置
 static void MoonDrawAreaTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old, MOON_IMAGE* image_resource_old);	//MoonCoreDrawArea辅助函数
 static void MoonCoreGraphicTemp(unsigned int message_type, unsigned int index, MOON_MESSAGE_ALL* message, MOON_IMAGE* image_old);								//MoonCoreGraphic辅助函数
 
@@ -25,8 +24,6 @@ extern void MoonDrawLoad()
 	//获取引擎核心着色器
 	MoonHashFindEntity("ProjectShader_SolidColor", unsigned int, shader_program_1);
 	MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
-	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, engineback_2);
-	moon_engineback = engineback_2;
 	solid_color_shader = *shader_program_1;
 	texture_shader = *shader_program_2;
 
@@ -46,7 +43,6 @@ extern void MoonDrawLoad()
 		glad_glEnableVertexAttribArray(1);
 
 		glad_glBindVertexArray(0);
-		glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 

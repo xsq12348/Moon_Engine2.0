@@ -824,7 +824,7 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 						int	apx = (int)MoonLerp(0, metadata->draw.image.width, metadata->draw.image.apx),
 							apy = (int)MoonLerp(0, metadata->draw.image.height, metadata->draw.image.apy);
 
-						MOON_POINT2D points[8];
+						MOON_POINT2D points[4];
 
 						int left = 0 - apx,
 							top = 0 - apy,

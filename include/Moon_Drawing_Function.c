@@ -820,25 +820,25 @@ extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type
 						float
 							cosrad = (float)cosf(MoonDegRad((float)(metadata->draw.image.deg))),
 							sinrad = (float)sinf(MoonDegRad((float)(metadata->draw.image.deg)));
-						MOON_POINT2D points[4];
-						int apx = (int)(-metadata->draw.image.apx * metadata->draw.image.image_resources->image_size.w),
-							apy = (int)(-metadata->draw.image.apy * metadata->draw.image.image_resources->image_size.h);
 						float matrix2d[4] = { cosrad,-sinrad,sinrad,cosrad };
-						float
-							buffer_x = metadata->draw.image.x + matrix2d[0],
-							buffer_y = metadata->draw.image.y + matrix2d[1];
-						points[0].x = (long int)(buffer_x * apx + matrix2d[2] * apy);
-						points[0].y = (long int)(buffer_y * apx + matrix2d[3] * apy);																		//0,0
-						points[1].x = (long int)(buffer_x * (apx + metadata->draw.image.width) + matrix2d[2] * apy);
-						points[1].y = (long int)(buffer_y * (apx + metadata->draw.image.width) + matrix2d[3] * apy);										//1,0
-						points[2].x = (long int)(buffer_x * apx + matrix2d[2] * (apy + metadata->draw.image.height));
-						points[2].y = (long int)(buffer_y * apx + matrix2d[3] * (apy + metadata->draw.image.height));										//0,1
-						points[3].x = (long int)(buffer_x * (apx + metadata->draw.image.width) + matrix2d[2] * (apy + metadata->draw.image.height));
-						points[3].y = (long int)(buffer_y * (apx + metadata->draw.image.width) + matrix2d[3] * (apy + metadata->draw.image.height));		//1,1
+						int	apx = (int)MoonLerp(0, metadata->draw.image.width, metadata->draw.image.apx),
+							apy = (int)MoonLerp(0, metadata->draw.image.height, metadata->draw.image.apy);
 
-						float
-							w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
-							h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
+						MOON_POINT2D points[8];
+
+						int left = 0 - apx,
+							top = 0 - apy,
+							right = metadata->draw.image.width - apx,
+							bottom = metadata->draw.image.height - apy;
+
+						points[0].x = (long int)(left * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
+						points[0].y = (long int)(left * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
+						points[1].x = (long int)(right * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
+						points[1].y = (long int)(right * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
+						points[2].x = (long int)(left * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
+						points[2].y = (long int)(left * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
+						points[3].x = (long int)(right * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
+						points[3].y = (long int)(right * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
 
 						vx1 = MoonLerp(-1.f, 1.f, points[0].x * w_buffer);
 						vy1 = MoonLerp(1.f, -1.f, points[0].y * h_buffer);
@@ -848,6 +848,7 @@ extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type
 						vy3 = MoonLerp(1.f, -1.f, points[2].y * h_buffer);
 						vx4 = MoonLerp(-1.f, 1.f, points[1].x * w_buffer);
 						vy4 = MoonLerp(1.f, -1.f, points[1].y * h_buffer);
+
 					}
 
 					MoonTextureVertexinitTemp(moon_vertex_texture, moon_vertex_texture_index + 0, vx1, vy1, 0.f, 1.f);
@@ -889,7 +890,7 @@ extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type
 						vx1 = MoonLerp(-1.f, 1.f, metadata->draw.image.x * w_buffer),
 						vy1 = MoonLerp(1.f, -1.f, metadata->draw.image.y * h_buffer),
 						vx2 = MoonLerp(-1.f, 1.f, (metadata->draw.image.x + image_buffer_size.w + metadata->draw.image.width) * w_buffer),
-						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + image_buffer_size.h + +metadata->draw.image.height) * h_buffer),
+						vy2 = MoonLerp(1.f, -1.f, (metadata->draw.image.y + image_buffer_size.h + metadata->draw.image.height) * h_buffer),
 						uv_w = metadata->draw.image.uv_w,
 						uv_h = metadata->draw.image.uv_h;
 

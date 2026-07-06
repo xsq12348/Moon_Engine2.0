@@ -1279,6 +1279,13 @@ Email:1993346266@qq.com
 * 2.2.6.0					添加了
 *								MoonProjectBuffer
 *							用于直接获取后缓冲区
+* 2.2.6.1		2026.7.6	修复了一个在2.1.17.1版本被标记为修复实则没修复的BUG
+* 2.2.6.2					修复了MoonDrawArea纹理渲染顶点坐标错误的问题
+*							原因是纹理坐标在旋转时与宽高严重耦合
+* 2.2.7.0+					添加了
+*								MoonShaderTexture
+*								MoonShaderSolid
+*							用于查询默认shader
 *
 */
 
@@ -1384,5 +1391,21 @@ _declspec(dllexport) extern inline MOON_POINT2D MoonProjectWindowSize();
 * MOON_IMAGE* size = MoonProjectBuffer();
 */
 _declspec(dllexport) extern inline MOON_IMAGE* MoonProjectBuffer();
+
+/*
+* 函數 MoonProjectTextureShader
+* 作用 查询引擎纹理shader
+* 使用方法
+* unsigned int shader = MoonProjectTextureShader();
+*/
+_declspec(dllexport) extern inline unsigned int MoonShaderTexture();
+
+/*
+* 函數 MoonShaderSolid
+* 作用 查询引擎图元shader
+* 使用方法
+* unsigned int shader = MoonShaderSolid();
+*/
+_declspec(dllexport) extern inline unsigned int MoonShaderSolid();
 
 #endif

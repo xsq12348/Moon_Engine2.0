@@ -5,7 +5,9 @@ static MOON_ENGINECORE* utility_core;
 static MOON_ALLOC_REGISTRY moon_alloc;
 static MOON_POINT2D* moon_mouse_coord;
 static MOON_CORE_MUSIC* moon_music_sound;
-static unsigned int moon_music_index;
+static unsigned int 
+moon_music_index,
+solid_color_shader, texture_shader;
 static SDL_AudioDeviceID moon_audio_dev = 0;
 static SDL_AudioStream* moon_audio_stream = (SDL_AudioStream*)MOON_NULL;
 static int* fps;
@@ -91,6 +93,16 @@ _declspec(dllexport) extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
 	{
 		MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, engineback_2);
 		moon_engineback = engineback_2;
+	}
+
+	{
+		MoonHashFindEntity("ProjectShader_SolidColor", unsigned int, shader_program_1);
+		solid_color_shader = *shader_program_1;
+	}
+
+	{
+		MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
+		texture_shader = *shader_program_2;
 	}
 }
 
@@ -1300,3 +1312,12 @@ _declspec(dllexport) extern inline MOON_IMAGE* MoonProjectBuffer()
 	return moon_engineback;
 }
 
+_declspec(dllexport) extern inline unsigned int MoonShaderSolid()
+{
+	return solid_color_shader;
+}
+
+_declspec(dllexport) extern inline unsigned int MoonShaderTexture()
+{
+	return texture_shader;
+}

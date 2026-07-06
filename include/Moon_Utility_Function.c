@@ -528,6 +528,9 @@ extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsign
 			line_size = file->line_index[line] - file->line_index[line - 1];
 	}
 
+	if (!file_buffer)
+		return line_size;
+
 	char* buffer = (char*)calloc((line_size + 1), sizeof(char));
 	if (!buffer)
 	{

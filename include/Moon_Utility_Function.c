@@ -449,7 +449,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		&& button->y + button->height > y
 		)
 	{
-		button->mode = (MOON_BUTTON_TYPE)MoonKeyState(MOON_KEY_MOUSE_LEFT);
+		button->mode = (MOON_BUTTON_TYPE)moon_key[button->triggermode];
 		if (button->mode == MOON_KEY_MODE_PRESS)
 		{
 			mode = MOON_TRUE;

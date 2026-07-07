@@ -441,7 +441,6 @@ extern int MoonButtonInit(MOON_BUTTON* button, int x, int y, int width, int heig
 
 extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 {
-	static unsigned char mode = 0;
 	if (
 		button->x < x
 		&& button->y < y
@@ -452,14 +451,13 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		button->mode = (MOON_BUTTON_TYPE)moon_key[button->triggermode];
 		if (button->mode == MOON_KEY_MODE_PRESS)
 		{
-			mode = MOON_TRUE;
 			button->mode = MOON_BUTTON_PRESS;
 			if (button->ButtonModePress)
 				button->ButtonModePress(button, context);
 			return MOON_BUTTON_PRESS;
 		}
 		else
-			if (mode && button->mode == MOON_KEY_MODE_PRESS_LONG)
+			if (button->mode == MOON_KEY_MODE_PRESS_LONG)
 			{
 				if (button->ButtonModePressL)
 					button->ButtonModePressL(button, context);
@@ -468,7 +466,6 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 			}
 			else
 			{
-				mode = MOON_FALSE;
 				if (button->ButtonModeHover)
 					button->ButtonModeHover(button, context);
 				button->mode = MOON_BUTTON_RHOVER;
@@ -477,7 +474,6 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 	}
 	else
 	{
-		mode = MOON_FALSE;
 		button->mode = MOON_BUTTON_FALSE;
 		if (button->ButtonModeFalse)
 			button->ButtonModeFalse(button, context);

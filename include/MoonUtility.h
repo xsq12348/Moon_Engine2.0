@@ -158,6 +158,16 @@ extern MOON_POINT2D MoonCursorGet();
 */
 extern void MoonSetPower(unsigned char power);
 
+/*
+* 函數 MoonRoundOff
+* 作用 获取四舍五入的值
+* 使用方法
+* int a = MoonRoundOff(.5f);
+* printf("a:%d",a);
+* a:0
+*/
+extern inline int MoonRoundOff(float f);
+
 //------------------------------------音乐函数--------------------------------------------------//
 
 

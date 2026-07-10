@@ -1286,6 +1286,12 @@ Email:1993346266@qq.com
 *								MoonShaderTexture
 *								MoonShaderSolid
 *							用于查询默认shader
+* 2.2.7.1		2026.7.10	解决了绘制文字的消息上限
+*							现在只要您的内存或者顶点足够
+*							可以绘制不限量文字
+* 2.2.8.0					添加了
+*								MoonRoundOff
+*							用于四舍五入
 *
 */
 

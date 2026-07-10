@@ -1317,3 +1317,8 @@ extern inline unsigned int MoonShaderTexture()
 {
 	return texture_shader;
 }
+
+extern inline int MoonRoundOff(float f)
+{
+	return (int)roundf(f);
+}

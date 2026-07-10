@@ -481,7 +481,6 @@ _declspec(dllexport) extern int MoonButtonDetection(MOON_BUTTON* button, int x, 
 	}
 }
 
-
 _declspec(dllexport) extern int MoonButtonSetTriggerMode(MOON_BUTTON* button, unsigned int key)
 {
 	button->triggermode = key;
@@ -1317,4 +1316,9 @@ _declspec(dllexport) extern inline unsigned int MoonShaderSolid()
 _declspec(dllexport) extern inline unsigned int MoonShaderTexture()
 {
 	return texture_shader;
+}
+
+_declspec(dllexport) extern inline int MoonRoundOff(float f)
+{
+	return (int)roundf(f);
 }

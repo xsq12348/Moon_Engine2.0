@@ -131,10 +131,10 @@ typedef struct MOONBUTTON
 	int height;
 	MOON_BUTTON_TYPE mode;
 	unsigned int triggermode;
-	int (*ButtonModePress)   (struct MOONBUTTON* buton, void* context);	//按下
-	int (*ButtonModePressL)  (struct MOONBUTTON* buton, void* context);	//长按
-	int (*ButtonModeHover)   (struct MOONBUTTON* buton, void* context);	//悬停
-	int (*ButtonModeFalse)   (struct MOONBUTTON* buton, void* context);	//空状态时
+	int (*ButtonModePress)   (struct MOONBUTTON* button, void* context);	//按下
+	int (*ButtonModePressL)  (struct MOONBUTTON* button, void* context);	//长按
+	int (*ButtonModeHover)   (struct MOONBUTTON* button, void* context);	//悬停
+	int (*ButtonModeFalse)   (struct MOONBUTTON* button, void* context);	//空状态时
 }MOON_BUTTON;
 
 //--------------------------文件结构体--------------------------//
@@ -262,7 +262,7 @@ typedef struct
 				{
 					MOON_POINT2D coord;						//坐标
 					int size_w, size_h;
-					char text[MOON_MESSAGE_TEXT_MAX];
+					char* text;
 				}text;													//纹理
 			};
 		}draw;

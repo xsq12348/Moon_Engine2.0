@@ -470,7 +470,7 @@ _declspec(dllexport) extern void MoonDrawCircle(MOON_IMAGE* image, int x, int y,
 }
 
 
-_declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight,unsigned int color)
+_declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char* text, int x, int y, int sizewidth, int sizeheight, unsigned int color)
 {
 	MOON_METADATA metadata = { 0 };
 	metadata.draw.color = color;
@@ -480,20 +480,14 @@ _declspec(dllexport) extern void MoonDrawTextFont(MOON_IMAGE* image, const char*
 	metadata.draw.text.size_w = sizewidth;
 	metadata.draw.text.size_h = sizeheight;
 	int len = (int)strlen(text);
-	if (len > MOON_MESSAGE_TEXT_MAX - 1)
-	{
-		char textbuffer[255] = { 0 };
-		snprintf(textbuffer, 255, "单次消息超过最大字符数,或许考虑(拼接|缩短)\n字符串为[%s]", text);
-		MoonPrompt((char*)textbuffer);
+	if (!len)
 		return;
-	}
-	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX - 1; ++index)
-	{
-		char ch = text[index];
-		if (ch == '\n' || ch == '\0')
-			break;
-		metadata.draw.text.text[index] = ch;
-	}
+	char* textbuffer = (char*)malloc(sizeof(char) * (len + 1));
+	if (!textbuffer)
+		return;
+	strcpy(textbuffer, text);
+	textbuffer[len] = '\0';
+	metadata.draw.text.text = textbuffer;
 	MoonProjectSendMessage(MOON_MESSAGE_DRAW_TEXT, metadata);
 }
 
@@ -726,11 +720,13 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 		(long int)(metadata->draw.text.size_h),
 	};
 
-	MOON_TEXTURE_VECTER text_font_image[MOON_MESSAGE_TEXT_MAX * 6];
+	unsigned int len = (unsigned int)strlen((const char*)metadata->draw.text.text);
+
+	MOON_TEXTURE_VECTER* text_font_image = (MOON_TEXTURE_VECTER*)malloc(sizeof(MOON_TEXTURE_VECTER) * (len + 1) * 6);
 
 	unsigned int text_index = 0;
 
-	for (int index = 0; index < MOON_MESSAGE_TEXT_MAX; ++index)
+	for (unsigned int index = 0; index < len; ++index)
 	{
 		int ch = metadata->draw.text.text[index],
 			x = image_buffer_size.w * index + metadata->draw.text.coord.x;
@@ -771,11 +767,13 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 		glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), r, g, b, a);
 		glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_texture);
-		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_TEXTURE_VECTER) * MOON_MESSAGE_TEXT_MAX * 6, text_font_image);
-		glad_glDrawArrays(GL_TRIANGLES, 0, MOON_MESSAGE_TEXT_MAX * 6);
+		glad_glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(MOON_TEXTURE_VECTER) * text_index, text_font_image);
+		glad_glDrawArrays(GL_TRIANGLES, 0, text_index);
 		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glad_glBindVertexArray(0);
 	}
+
+	free(text_font_image);
 }
 
 _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type)
@@ -1092,6 +1090,7 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 				if (!MoonSetTemp(&image_old, &message->message[index].metadata, -1))
 					break;
 				MoonCoreFont(&message->message[index].metadata);
+				free(message->message[index].metadata.draw.text.text);
 			}
 			break;
 			

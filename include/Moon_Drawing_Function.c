@@ -720,26 +720,35 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 		(long int)(metadata->draw.text.size_h),
 	};
 
-	unsigned int len = (unsigned int)strlen((const char*)metadata->draw.text.text);
-
+	unsigned int 
+		text_index = 0,
+		len = (unsigned int)strlen((const char*)metadata->draw.text.text);
+	int start_x = metadata->draw.text.coord.x,
+		n = 0,
+		ch_index = 0;
 	MOON_TEXTURE_VECTER* text_font_image = (MOON_TEXTURE_VECTER*)malloc(sizeof(MOON_TEXTURE_VECTER) * (len + 1) * 6);
 
-	unsigned int text_index = 0;
 
 	for (unsigned int index = 0; index < len; ++index)
 	{
-		int ch = metadata->draw.text.text[index],
-			x = image_buffer_size.w * index + metadata->draw.text.coord.x;
+		int ch = metadata->draw.text.text[index];
+		if (ch == '\n')
+		{
+			++n;
+			ch_index = 0;  // 换行，重置行内计数
+			continue;             // 不生成换行符的顶点
+		}
 
+		int x = image_buffer_size.w * ch_index + metadata->draw.text.coord.x;
 		float
 			w_buffer = 1.f / metadata->draw.image_goal->image_size.w,
 			h_buffer = 1.f / metadata->draw.image_goal->image_size.h;
 
 		float
 			vx1 = MoonLerp(-1.f, 1.f, x * w_buffer),
-			vy1 = MoonLerp(1.f, -1.f, metadata->draw.text.coord.y * h_buffer),
+			vy1 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h * n) * h_buffer),
 			vx2 = MoonLerp(-1.f, 1.f, (x + image_buffer_size.w) * w_buffer),
-			vy2 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h) * h_buffer),
+			vy2 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h * (n + 1)) * h_buffer),
 			uv_w = font_w,
 			apx = ch * font_w;
 
@@ -757,6 +766,7 @@ extern void MoonCoreFont(MOON_METADATA* metadata)
 		MoonTextureVertexinitTemp(text_font_image, text_index + 5, vx2, vy2, uv_right, uv_bottom);
 
 		text_index += 6;
+		++ch_index;
 	}
 
 	MoonImageShader(texture_shader);

@@ -641,6 +641,20 @@ _declspec(dllexport) extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, con
 	return MOON_TRUE;
 }
 
+_declspec(dllexport) extern unsigned int MoonFileClose(MOON_FILE* file)
+{
+	if (!file)
+		return 0;
+	int re = 0;
+	re = MoonFree((void*)file->file_buffer);
+	re += MoonFree((void*)file->line_index);
+	file->file_buffer = 0;
+	file->line_index = 0;
+	file->file_size = 0;
+	file->line_all = 0;
+	return re;
+}
+
 _declspec(dllexport) extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsigned int text_size)
 {
 	for (unsigned int index = 0; index < text_size; index++)
@@ -830,12 +844,12 @@ _declspec(dllexport) extern unsigned char MoonAlloc(void** ptr, size_t size_len,
 	if (strcmp(alloc, "realloc"))
 	{
 		for (unsigned int index = 0; index < moon_alloc.index; index++)
-			if (*ptr == moon_alloc.alloc[index])
+			if (moon_alloc.alloc[index]  && *ptr == moon_alloc.alloc[index])
 			{
 				char text_buffer[255] = { 0 };
 				snprintf(text_buffer, 255, "[MoonAlloc] 已存在 0x%p", ptr);
 				MoonPrompt(text_buffer);
-				if (strcmp(alloc, "malloc") || strcmp(alloc, "calloc"))
+				if (strcmp(alloc, "malloc") && strcmp(alloc, "calloc"))
 				{
 					snprintf(text_buffer, 255, "[MoonAlloc] 无效的参数[%s]", alloc);
 					MoonPrompt(text_buffer);
@@ -908,7 +922,6 @@ _declspec(dllexport) extern unsigned char MoonFree(void* ptr)
 		if (moon_alloc.alloc[index] == ptr)
 		{
 			free(ptr);
-			ptr = MOON_NULL;
 			moon_alloc.alloc[index] = MOON_NULL;
 			return MOON_TRUE;
 		}

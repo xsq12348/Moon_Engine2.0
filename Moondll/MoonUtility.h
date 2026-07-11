@@ -164,7 +164,7 @@ _declspec(dllexport) extern void MoonSetPower(unsigned char power);
 * 使用方法
 * int a = MoonRoundOff(.5f);
 * printf("a:%d",a);
-* a:0
+* a:1
 */
 _declspec(dllexport) extern inline int MoonRoundOff(float f);
 
@@ -437,6 +437,14 @@ _declspec(dllexport) extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, con
 *	MoonFileRead_Line(file, text, 1);
 */
 _declspec(dllexport) extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsigned int line);
+
+/*
+* 函數 MoonFileClose
+* 作用 提前手动回收文件
+* 使用方法
+*	MoonFileClose(file);
+*/
+_declspec(dllexport) extern unsigned int MoonFileClose(MOON_FILE* file);
 
 
 //------------------------------------按钮控件------------------------------------------------//

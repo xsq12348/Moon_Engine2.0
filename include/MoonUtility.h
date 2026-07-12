@@ -344,7 +344,8 @@ extern void MoonImageLoadBatch(MOON_IMAGE* image, int totalnumber, const char** 
 * 使用方法
 * CREATETHREAD(Thread, context);
 */
-#define MOON_CREATETHREAD(fuction, name, resource)   SDL_CreateThread(fuction, name, (void*)resource);//创建并运行多线程函数
+extern void MoonThreadCreate(MOON_THREAD(*fuction)(void*), const char* name, void* resource);
+#define MOON_CREATETHREAD(fuction, name, resource)   MoonThreadCreate(fuction, (const char*)name, (void*)resource);//创建并运行多线程函数
 
 /*
 * 函數 GETTHREADRESOURCE
@@ -629,4 +630,32 @@ extern void MoonVector_Hadamard(MOON_VECTOR* vector_out, MOON_VECTOR* vector_1, 
 */
 extern float MoonVector_Dot(MOON_VECTOR* vector_1, MOON_VECTOR* vector_2);
 
-//------------------------------------二叉树------------------------------------------------//
+//------------------------------------链表/网------------------------------------------------//
+
+
+/*
+* 函數 MoonLinkedCreate
+* 作用 插入空的子节点
+* 使用方法
+* MoonLinkedCreate(&linked, MOON_LINKED_MODE_AFTER);
+*/
+extern MOON_LINKED_TYPE MoonLinkedCreate(MOON_LINKED* linked, MOON_LINKED_MODE mode);
+
+/*
+* 函數 MoonLinkedCreate_Insert
+* 作用 插入已存在的节点
+* 使用方法
+* MoonLinkedCreate_Insert(&linked, MOON_LINKED_MODE_AFTER);
+*/
+extern MOON_LINKED_TYPE MoonLinkedCreate_Insert(MOON_LINKED* linked, MOON_LINKED_MODE mode);
+
+/*
+* 函數 MoonLinkedDelete
+* 作用 删除链表节点
+* 使用方法
+* MoonLinkedDelete(&linked);
+*/
+extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linked);
+
+//------------------------------------编译器------------------------------------------------//
+

@@ -175,14 +175,41 @@ typedef struct
 
 //--------------------------链表/网--------------------------//
 
+//二叉树
 typedef struct MOON_BINARY_TREE
 {
-	struct MOON_BINARY_TREE* parent;		//链接的父节点,如果指向自身,那么就是根节点
+	struct MOON_BINARY_TREE* parent;		//链接的父节点
 	struct MOON_BINARY_TREE* left;			//链接的子节点_左
 	struct MOON_BINARY_TREE* right;			//链接的子节点_右
 	unsigned char assign;					//动态分配标志位, 若为TRUE则尝试free resource
 	void* resource;							//资源
 }MOON_BINARY_TREE;
+
+//链表函数返回状态
+typedef enum
+{
+	MOON_LINKED_TYPE_FALSE,			//失败
+	MOON_LINKED_TYPE_TRUE,			//成功
+	MOON_LINKED_TYPE_NULL_PTR,		//空指针
+	MOON_LINKED_TYPE_ILLEGAL,		//非法的节点,无法操作
+}MOON_LINKED_TYPE;
+
+//链表选择模式
+typedef enum
+{
+	MOON_LINKED_MODE_FALSE,			//不插入
+	MOON_LINKED_MODE_FRONT,			//节点前
+	MOON_LINKED_MODE_AFTER,			//节点后
+}MOON_LINKED_MODE;
+
+//链表
+typedef struct MOON_LINKED
+{
+	struct MOON_LINKED* prev;		//链接的父节点
+	struct MOON_LINKED* next;			//链接的子节点
+	unsigned char assign;					//动态分配标志位, 若为TRUE则尝试free resource
+	void* resource;							//资源
+}MOON_LINKED;
 
 //--------------------------uniform type--------------------------//
 

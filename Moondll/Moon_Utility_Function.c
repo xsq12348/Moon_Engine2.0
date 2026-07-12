@@ -597,7 +597,7 @@ _declspec(dllexport) extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, con
 
 		if (!MoonFileLoad_TEXT(file_name, (char*)file->file_buffer, file->file_size + 1))
 		{
-			if (!MoonFree(file->file_buffer))
+			if (!MoonFree((void*)file->file_buffer))
 			{
 				MoonProjectError((void*)file->file_buffer, 3, (char*)"[MoonFileRead_TEXT] 找不到注册的字符串,内存无法释放");
 				MoonProjectDead();
@@ -616,7 +616,7 @@ _declspec(dllexport) extern unsigned char MoonFileRead_TEXT(MOON_FILE* file, con
 
 			if (!MoonAlloc((void**)&file->line_index, sizeof(unsigned int), file->line_all + 1, "malloc"))
 			{
-				if (!MoonFree(file->file_buffer))
+				if (!MoonFree((void*)file->file_buffer))
 				{
 					MoonProjectError((void*)file->file_buffer, 1, (char*)"[MoonFileRead_TEXT] 找不到注册的字符串,内存无法释放");
 					MoonProjectDead();
@@ -1334,4 +1334,108 @@ _declspec(dllexport) extern inline unsigned int MoonShaderTexture()
 _declspec(dllexport) extern inline int MoonRoundOff(float f)
 {
 	return (int)roundf(f);
+}
+
+_declspec(dllexport) extern void MoonThreadCreate(MOON_THREAD(*fuction)(void* lparam),const char* name, void* resource)
+{ 
+	SDL_CreateThreadRuntime(fuction, name, resource, (SDL_FunctionPointer)(_beginthreadex), (SDL_FunctionPointer)(_endthreadex));
+}
+
+//插入空节点
+_declspec(dllexport) extern MOON_LINKED_TYPE MoonLinkedCreate(MOON_LINKED* linked, MOON_LINKED_MODE mode)
+{
+	{
+		if (!linked)
+			return MOON_LINKED_TYPE_NULL_PTR;
+	}
+
+	if(mode == MOON_LINKED_MODE_FRONT || mode == MOON_LINKED_MODE_AFTER)
+	{
+		MOON_LINKED* buffer = (MOON_LINKED*)malloc(sizeof(MOON_LINKED));
+		if (!buffer)
+			return MOON_LINKED_TYPE_FALSE;
+		buffer->prev = (MOON_LINKED*)MOON_NULL;
+		buffer->next = (MOON_LINKED*)MOON_NULL;
+		buffer->resource = MOON_NULL;
+		buffer->assign = MOON_FALSE;
+
+		switch (mode)
+		{
+		case MOON_LINKED_MODE_FRONT:
+		{
+			buffer->prev = linked->prev;
+			buffer->next = linked;
+			if (buffer->prev)
+				buffer->prev->next = buffer;
+			buffer->next->prev = buffer;
+		}
+		break;
+
+		case MOON_LINKED_MODE_AFTER:
+		{
+			buffer->prev = linked;
+			buffer->next = linked->next;
+			if (buffer->next)
+				buffer->next->prev = buffer;
+			buffer->prev->next = buffer;
+		}
+		break;
+		}
+		return MOON_LINKED_TYPE_TRUE;
+	}
+	return MOON_LINKED_TYPE_FALSE;
+}
+
+//插入已存在节点
+_declspec(dllexport) extern MOON_LINKED_TYPE MoonLinkedCreate_Insert(MOON_LINKED* linked, MOON_LINKED_MODE mode)
+{
+	{
+		if (!linked)
+			return MOON_LINKED_TYPE_NULL_PTR;
+	}
+
+	{
+		MOON_LINKED* buffer = linked;
+		switch (mode)
+		{
+		case MOON_LINKED_MODE_FRONT:
+		{
+			buffer->prev = linked->prev;
+			buffer->next = linked;
+			if (buffer->prev)
+				buffer->prev->next = buffer;
+			buffer->next->prev = buffer;
+		}
+		break;
+
+		case MOON_LINKED_MODE_AFTER:
+		{
+			buffer->prev = linked;
+			buffer->next = linked->next;
+			if (buffer->next)
+				buffer->next->prev = buffer;
+			buffer->prev->next = buffer;
+		}
+		break;
+		}
+	}
+	return MOON_LINKED_TYPE_TRUE;
+}
+
+//删除该节点
+_declspec(dllexport) extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linked)
+{
+	if (!linked)
+		return MOON_LINKED_TYPE_NULL_PTR;
+
+	if (linked->prev)
+		linked->prev->next = linked->next;
+
+	if (linked->next)
+		linked->next->prev = linked->prev;
+
+	if (linked->assign)
+		free(linked->resource);
+
+	free(linked);
 }

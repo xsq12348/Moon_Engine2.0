@@ -1315,6 +1315,19 @@ Email:1993346266@qq.com
 * 2.2.11.0+					添加了
 *								MoonLinked家族函数
 *							用于双向链表
+* 2.2.11.1		2026.7.17	优化了MoonVector函数
+* 2.2.11.2					优化掉了带inline的函数
+* 2.2.11.3					将MoonVector重构了部分
+*							使其更加符合数学直觉与性能提升
+*							例如
+*								MoonVector_NormSize
+*								MoonVector_Scale
+*							不再强制赋值维度导致因为截断而丢失的数据
+* 2.2.11.3					修复了MoonVector_Norm的BUG,此前输出的模长总是预定数值的sqrt2倍
+*							原因是代码执行顺序错误
+* 2.2.12.0+					添加了
+*								MoonLogCreate
+*							用于创建开发日志
 */
 
 
@@ -1410,7 +1423,7 @@ extern void MoonDead();
 * MOON_POINT2D size = MoonProjectWindowSize();
 * printf("%d, %d",size.w, size.h);
 */
-extern inline MOON_POINT2D MoonProjectWindowSize();
+extern MOON_POINT2D MoonProjectWindowSize();
 
 /*
 * 函數 MoonProjectBuffer
@@ -1418,7 +1431,7 @@ extern inline MOON_POINT2D MoonProjectWindowSize();
 * 使用方法
 * MOON_IMAGE* size = MoonProjectBuffer();
 */
-extern inline MOON_IMAGE* MoonProjectBuffer();
+extern MOON_IMAGE* MoonProjectBuffer();
 
 /*
 * 函數 MoonProjectTextureShader
@@ -1426,7 +1439,7 @@ extern inline MOON_IMAGE* MoonProjectBuffer();
 * 使用方法
 * unsigned int shader = MoonProjectTextureShader();
 */
-extern inline unsigned int MoonShaderTexture();
+extern unsigned int MoonShaderTexture();
 
 /*
 * 函數 MoonShaderSolid
@@ -1434,6 +1447,6 @@ extern inline unsigned int MoonShaderTexture();
 * 使用方法
 * unsigned int shader = MoonShaderSolid();
 */
-extern inline unsigned int MoonShaderSolid();
+extern unsigned int MoonShaderSolid();
 
 #endif

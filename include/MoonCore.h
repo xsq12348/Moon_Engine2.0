@@ -230,7 +230,7 @@ extern void MoonProjectDead();
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!
 * 函數 MoonProjectGetMessage
-* 作用 初始化所有内部工具函數
+* 作用 获取消息并处理
 * 使用方法
 * MoonProjectGetMessage(message, handle);
 */

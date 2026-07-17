@@ -84,7 +84,7 @@ extern void MoonSetMouse(MOON_CURSOR_MODE mode);
 * 区间为半开区间[start, end)
 * int alpha = MoonRandom(0, 0, 100);
 */
-extern inline int MoonRandom(unsigned int seed, int start, int end);
+extern int MoonRandom(unsigned int seed, int start, int end);
 
 /*
 * 函數 MoonMatrix4_4Mul
@@ -166,7 +166,7 @@ extern void MoonSetPower(unsigned char power);
 * printf("a:%d",a);
 * a:1
 */
-extern inline int MoonRoundOff(float f);
+extern int MoonRoundOff(float f);
 
 //------------------------------------音乐函数--------------------------------------------------//
 
@@ -177,7 +177,7 @@ extern inline int MoonRoundOff(float f);
 * 使用方法
 * MoonMusicSet(music, false, 0, 1);
 */
-extern inline void MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, float start, float end);
+extern void MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, float start, float end);
 
 /*
 * 函數 MoonMusicAgain
@@ -185,7 +185,7 @@ extern inline void MoonMusicSet(MOON_MUSIC* music, MOON_MUSIC_MODE on_or_off, fl
 * 使用方法
 * MoonMusicAgain(music);
 */
-extern inline void MoonMusicAgain(MOON_MUSIC* music);
+extern void MoonMusicAgain(MOON_MUSIC* music);
 
 /*
 * 函數 MoonMusic
@@ -447,6 +447,13 @@ extern unsigned int MoonFileRead_Line(MOON_FILE* file, char* file_buffer, unsign
 */
 extern unsigned int MoonFileClose(MOON_FILE* file);
 
+/*
+* 函數 MoonLogCreate
+* 作用 生成日志
+* 使用方法
+*	MoonLogCreate(file,(char*)"hello world");
+*/
+extern int MoonLogCreate(const char* file_name, char* text);
 
 //------------------------------------按钮控件------------------------------------------------//
 
@@ -658,4 +665,3 @@ extern MOON_LINKED_TYPE MoonLinkedCreate_Insert(MOON_LINKED* linked, MOON_LINKED
 extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linked);
 
 //------------------------------------编译器------------------------------------------------//
-

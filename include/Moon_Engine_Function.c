@@ -933,7 +933,7 @@ static MOON_PROJECTMODULE(MoonLogicNull)
 	return 1;
 }
 
-extern inline MOON_POINT2D MoonProjectWindowSize()
+extern MOON_POINT2D MoonProjectWindowSize()
 {
 	MOON_POINT2D size;
 	size.w = moon_engine_core.window_width;

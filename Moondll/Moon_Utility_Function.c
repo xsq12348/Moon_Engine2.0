@@ -120,14 +120,14 @@ _declspec(dllexport) extern void MoonUtilityOver()
 	SDL_CloseAudioDevice(moon_audio_dev);
 }
 
-_declspec(dllexport) extern inline void MoonMusicSet(MOON_MUSIC* music,MOON_MUSIC_MODE on_or_off,float start,float end)
+_declspec(dllexport) extern void MoonMusicSet(MOON_MUSIC* music,MOON_MUSIC_MODE on_or_off,float start,float end)
 {
 	music->mode = on_or_off;
 	music->start = start;
 	music->end = end;
 }
 
-_declspec(dllexport) extern inline void MoonMusicAgain(MOON_MUSIC* music)
+_declspec(dllexport) extern void MoonMusicAgain(MOON_MUSIC* music)
 {
 	music->mode = MOON_MUSIC_MODE_AGAIN;
 }
@@ -928,7 +928,7 @@ _declspec(dllexport) extern unsigned char MoonFree(void* ptr)
 	return MOON_FALSE;
 }
 
-_declspec(dllexport) extern inline float MoonDegRad(float phi)
+_declspec(dllexport) extern float MoonDegRad(float phi)
 {
 	return (MOON_Pi * (phi) * 1.f / 180.f);
 }
@@ -979,7 +979,7 @@ _declspec(dllexport) extern int MoonGetFps()
 	return *fps;
 }
 
-_declspec(dllexport) extern inline int MoonRandom(unsigned int seed, int start, int end)
+_declspec(dllexport) extern int MoonRandom(unsigned int seed, int start, int end)
 {
 	if (start >= end)
 		return start;
@@ -999,10 +999,20 @@ _declspec(dllexport) extern inline int MoonRandom(unsigned int seed, int start, 
 //初始化
 _declspec(dllexport) extern unsigned char MoonVectorInit(MOON_VECTOR* vector, float* num, unsigned int num_size)
 {
-	float* buffer = (float*)realloc(vector->vector, (size_t)(sizeof(float) * num_size));
-	if (!buffer)
+	if (!vector)
 		return MOON_FALSE;
-	vector->vector = buffer;
+
+	//如果已有数据,那么不分配
+	//同时如果已有数据,那必然有维度
+	//这里就不检查维度了
+	if(!vector->vector)
+	{
+		float* buffer = (float*)realloc(vector->vector, (size_t)(sizeof(float) * num_size));
+		if (!buffer)
+			return MOON_FALSE;
+		vector->vector = buffer;
+	}
+
 	for (unsigned int index = 0; index < num_size; ++index)
 		vector->vector[index] = num[index];
 	vector->dim = num_size;
@@ -1077,8 +1087,8 @@ _declspec(dllexport) extern float MoonVector_Norm(MOON_VECTOR* vector)
 			float num = fabsf(vector->vector[index]);
 			if (scale < num)
 			{
-				scale = num;
 				norm = 1.f + norm * (scale / num) * (scale / num);
+				scale = num;
 			}
 			else
 				norm = norm + (num / scale) * (num / scale);
@@ -1101,22 +1111,18 @@ _declspec(dllexport) extern void MoonVector_NormSize(MOON_VECTOR* vector_out, MO
 
 	{
 		float norm = MoonVector_Norm(vector);
-		if (norm <= 0.f)
+
+		if (norm < 0.f)
 		{
 			MoonPrompt((char*)"[MoonVector_NormSize]函数 Norm异常");
 			return;
 		}
-		float* vector_buffer = (float*)malloc(vector->dim * sizeof(float));
-		if (!vector_buffer)
-		{
-			MoonPrompt((char*)"[MoonVector_NormSize]函数 内存分配失败");
-			return;
-		}
+		if (vector_out->dim < vector->dim)
+			if (!MoonVector_SetDim(vector_out, vector->dim))
+				return;
+
 		for (unsigned int index = 0; index < vector->dim; ++index)
-			vector_buffer[index] = vector->vector[index] / norm;
-		free(vector_out->vector);
-		vector_out->vector = vector_buffer;
-		vector_out->dim = vector->dim;
+			vector_out->vector[index] = vector->vector[index] / norm;
 	}
 }
 
@@ -1134,27 +1140,12 @@ _declspec(dllexport) extern void MoonVector_Scale(MOON_VECTOR* vector_out, MOON_
 	}
 
 	{
-		if (vector->dim != vector_out->dim)
-		{
-			float* vector_buffer = (float*)malloc(vector->dim * sizeof(float));
-			if (!vector_buffer)
-			{
-				MoonPrompt((char*)"[MoonVector_Scale]函数 内存分配失败");
+		if (vector_out->dim < vector->dim)
+			if (!MoonVector_SetDim(vector_out, vector->dim))
 				return;
-			}
-			for (unsigned int index = 0; index < vector->dim; ++index)
-				vector_buffer[index] = vector->vector[index] * num;
-			free(vector_out->vector);
-			vector_out->vector = vector_buffer;
-		}
-		else
-		{
-			for (unsigned int index = 0; index < vector->dim; ++index)
-				vector_out->vector[index] = vector->vector[index] * num;
-		}
+		for (unsigned int index = 0; index < vector->dim; ++index)
+			vector_out->vector[index] = vector->vector[index] * num;
 	}
-
-	vector_out->dim = vector->dim;
 }
 
 //向量加法
@@ -1191,7 +1182,6 @@ _declspec(dllexport) extern void MoonVector_Add(MOON_VECTOR* vector_out, MOON_VE
 		else
 			for (unsigned int index = dim_min; index < dim_max; ++index)
 				vector_out->vector[index] = vector_2->vector[index];
-		vector_out->dim = dim_max;
 	}
 }
 
@@ -1229,7 +1219,6 @@ _declspec(dllexport) extern void MoonVector_Sub(MOON_VECTOR* vector_out, MOON_VE
 		else
 			for (unsigned int index = dim_min; index < dim_max; ++index)
 				vector_out->vector[index] = -vector_2->vector[index];
-		vector_out->dim = dim_max;
 	}
 }
 
@@ -1259,7 +1248,6 @@ _declspec(dllexport) extern void MoonVector_Hadamard(MOON_VECTOR* vector_out, MO
 			vector_out->vector[index] = vector_1->vector[index] * vector_2->vector[index];
 		if (dim_max > dim_min)
 			memset(vector_out->vector + dim_min, 0, (dim_max - dim_min) * sizeof(float));
-		vector_out->dim = dim_max;
 	}
 }
 
@@ -1316,22 +1304,22 @@ _declspec(dllexport) extern void MoonSetPower(unsigned char power)
 	MoonProjectSendMessage(MOON_MESSAGE_POWER, metadata);
 }
 
-_declspec(dllexport) extern inline MOON_IMAGE* MoonProjectBuffer()
+_declspec(dllexport) extern MOON_IMAGE* MoonProjectBuffer()
 {
 	return moon_engineback;
 }
 
-_declspec(dllexport) extern inline unsigned int MoonShaderSolid()
+_declspec(dllexport) extern unsigned int MoonShaderSolid()
 {
 	return solid_color_shader;
 }
 
-_declspec(dllexport) extern inline unsigned int MoonShaderTexture()
+_declspec(dllexport) extern unsigned int MoonShaderTexture()
 {
 	return texture_shader;
 }
 
-_declspec(dllexport) extern inline int MoonRoundOff(float f)
+_declspec(dllexport) extern int MoonRoundOff(float f)
 {
 	return (int)roundf(f);
 }
@@ -1438,4 +1426,27 @@ _declspec(dllexport) extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linke
 		free(linked->resource);
 
 	free(linked);
+	return MOON_LINKED_TYPE_TRUE;
+}
+
+_declspec(dllexport) extern int MoonLogCreate(const char* file_name, char* text)
+{
+	FILE* fp = fopen(file_name, "a");
+	{
+		if (!fp)
+			return MOON_FALSE;
+	}
+
+	{
+		time_t now_time;
+		struct tm* info;
+		char buffer[255];
+		time(&now_time);
+		info = localtime(&now_time);
+		strftime(buffer, sizeof(buffer), "[%Y-%m-%d] : %H:%M:%S", info);
+		fprintf(fp, "%s | %s\n", buffer, text);
+		fclose(fp);
+	}
+
+	return MOON_TRUE;
 }

@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,12,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,13,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -334,6 +334,221 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 	return 1;
 }
 
+_declspec(dllexport) extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)())
+{
+	if (moon_engine_core.dead)
+	{
+		MoonPrompt((char*)"[ProjectRun]引擎流程函数进入失败!");
+		return;
+	}
+
+	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, projectbitmap);
+	MoonHashFindEntity("ProjectShader_SolidColor", unsigned int, shader_program_1);
+	MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
+	MoonHashFindEntity("ProjectMouseCoord", MOON_POINT2D, mousecoord);
+	MoonHashFindEntity("ProjectFPS", int, fpsnumber);
+
+	{
+		MoonPrompt((char*)"[ProjectRun]引擎流程函数进入成功!\n目前是单线程模式");
+
+		//默认在窗口内部
+		glfwSetInputMode(moon_engine_core.hwnd, GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+
+		if (ProjectDrawing == MOON_FALSE)
+		{
+			MoonProjectError(ProjectDrawing, 1, (char*)"绘图函数传入失败!");
+			return;
+		}
+		moon_engine_core.Drawing = ProjectDrawing;
+
+		if (ProjectSetting_2)
+			ProjectSetting_2();
+
+		//默认逻辑函数
+		if (ProjectLogic)
+			moon_engine_core.Logic = ProjectLogic;
+		else
+			moon_engine_core.Logic = MoonLogicNull;
+	}
+
+	int
+	(*drawing)() = 0, (*logic)() = 0,
+	modetemp = MOON_FALSE, runload[3] = { 0 },//帧率计时器
+	moon_vbo, moon_ebo, moon_vao, solid_color_shader, texture_shader;
+	solid_color_shader = (*shader_program_1);
+	texture_shader = (*shader_program_2);
+
+	double mousecoord_x_2, mousecoord_y_2;
+	moon_engine_core.gamepowermode = moon_engine_core.power;
+
+	drawing = moon_engine_core.Drawing;
+	logic = moon_engine_core.Logic;
+	
+	{
+		float vertexs[20] =
+		{
+			 1.f,  1.f, 0.f,  1.f, 1.f,  // 右上
+			 1.f, -1.f, 0.f,  1.f, 0.f,  // 右下
+			-1.f, -1.f, 0.f,  0.f, 0.f,  // 左下
+			-1.f,  1.f, 0.f,  0.f, 1.f,  // 左上
+		};
+		unsigned int vertex_index[6] = { 0,2,1,2,0,3 };
+
+		glad_glGenBuffers(1, &moon_vbo);
+		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
+		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(vertexs), vertexs, GL_STATIC_DRAW);
+		glad_glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glad_glGenBuffers(1, &moon_ebo);
+		glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
+		glad_glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertex_index), vertex_index, GL_STATIC_DRAW);
+		glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		glad_glGenVertexArrays(1, &moon_vao);
+		glad_glBindVertexArray(moon_vao);
+		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
+		glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
+
+		glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glad_glEnableVertexAttribArray(0);
+
+		glad_glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		glad_glEnableVertexAttribArray(1);
+
+		glad_glEnable(GL_BLEND);
+		//glad_glEnable(GL_CULL_FACE);
+		glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glad_glDisable(GL_DEPTH_TEST);
+		//glad_glEnable(GL_DEPTH_TEST);
+	}
+
+	glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
+
+	while (!moon_engine_core.dead)
+	{
+
+		{
+			runload[0] = clock();
+			{
+				if (!MoonTimeLoad(&projectfps, MOON_TRUE))++fpsmax;
+				else { fpsmax2 = fpsmax; fpsmax = 0; }
+			}
+
+		}
+
+		//属性
+		{
+			glfwPollEvents();
+
+			{
+				if (moon_engine_core.Logic != MoonLogicPause)
+					logic = moon_engine_core.Logic;
+				if (moon_engine_core.Drawing != MoonDrawingPause)
+					drawing = moon_engine_core.Drawing;
+				moon_engine_core.dead = (unsigned char)(glfwWindowShouldClose(moon_engine_core.hwnd)) || logic_dead;
+				moon_engine_core.focus = (unsigned char)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
+			}
+
+			//轮询按鍵
+			{
+				MoonPollButton();
+			}
+
+			{
+				{
+					glfwGetCursorPos(moon_engine_core.hwnd, &mousecoord_x_2, &mousecoord_y_2);
+					mousecoord->x = (int)mousecoord_x_2;
+					mousecoord->y = (int)mousecoord_y_2;
+				}
+
+				{
+					if (moon_engine_core.focus)
+						moon_engine_core.power = MOON_NOTFOUND;
+					else
+						moon_engine_core.power = moon_engine_core.gamepowermode;
+				}
+
+				//当Power改变时
+				{
+					if (moon_engine_core.power != modetemp)
+					{
+						MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Logic, MoonLogicPause, logic);
+						MoonProjectPause(moon_engine_core.power < 0, &moon_engine_core.Drawing, MoonDrawingPause, drawing);
+					}
+					modetemp = moon_engine_core.power;
+				}
+			}
+			if (moon_engine_core.Attr)
+				moon_engine_core.Attr();
+		}
+
+		//逻辑
+		{
+			if (moon_engine_core.Logic)
+			{
+				moon_engine_core.Logic();
+				if (moon_engine_core.Logic != MoonLogicPause)
+				{
+					//自动锁
+					MoonProjectGetMessage(&moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+					MOON_MESSAGE_ALL buffer = logic_message_cache;
+					logic_message_cache = moon_engine_core.message_logic;
+					moon_engine_core.message_logic = buffer;
+				}
+			}
+		}
+
+		//绘制
+		{
+			if (moon_engine_core.Drawing)
+			{
+				moon_engine_core.Drawing();
+				if (moon_engine_core.Drawing != MoonDrawingPause)
+				{
+
+					//自动锁
+					MoonProjectGetMessage(&moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
+
+					glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
+					glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
+					glad_glBindTexture(GL_TEXTURE_2D, projectbitmap->image.texture);
+					MoonImageShader(texture_shader);
+					glad_glUniform4f(glad_glGetUniformLocation(texture_shader, "moon_ucolor"), 1.0f, 1.0f, 1.0f, 1.0f);
+					glad_glUniform1i(glad_glGetUniformLocation(texture_shader, "moon_utexture"), 0);
+					glad_glBindVertexArray(moon_vao);
+					glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo);
+					glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, moon_ebo);
+					glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+					glfwSwapBuffers(moon_engine_core.hwnd);
+					MoonImageDesignated(projectbitmap);
+					glad_glClearColor(0.f, 0.f, 0.f, 1.f);
+					glad_glClear(GL_COLOR_BUFFER_BIT);
+				}
+			}
+
+
+		}
+
+		{
+			runload[1] = clock();
+			runload[2] = runload[1] - runload[0];
+			if (moon_engine_core.power <= 0)
+				if ((unsigned int)runload[2] < moon_engine_core.timeload.timeload)
+					MoonSleep((moon_engine_core.timeload.timeload - runload[2]));
+		}
+	}
+
+	{
+		glad_glDeleteVertexArrays(1, &moon_vao);
+		glad_glDeleteBuffers(1, &moon_vbo);
+		glad_glDeleteBuffers(1, &moon_ebo);
+		glfwMakeContextCurrent((GLFWwindow*)MOON_NULL);
+	}
+
+	thread_draw_type = MOON_TRUE;
+	thread_attr_type = MOON_TRUE;
+}
+
 _declspec(dllexport) extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)())
 {
 	if (moon_engine_core.dead)
@@ -360,7 +575,7 @@ _declspec(dllexport) extern void MoonProjectRun(void (*ProjectSetting_2)(), int(
 	glfwMakeContextCurrent((GLFWwindow*)MOON_NULL);
 
 
-	//加载逻辑线程
+	//默认逻辑函数
 	if (ProjectLogic)
 		moon_engine_core.Logic = ProjectLogic;
 	else
@@ -371,9 +586,9 @@ _declspec(dllexport) extern void MoonProjectRun(void (*ProjectSetting_2)(), int(
 
 	MoonPrompt((char*)"加载了属性线程");
 
-	MoonHashFindEntity((char*)"ProjectMouseCoord", MOON_POINT2D, mousecoord);
+	MoonHashFindEntity("ProjectMouseCoord", MOON_POINT2D, mousecoord);
 	MoonHashFindEntity("ProjectBitmap", MOON_IMAGE, projectbitmap);
-	MoonHashFindEntity((char*)"ProjectFPS", int, fpsnumber);
+	MoonHashFindEntity("ProjectFPS", int, fpsnumber);
 	static int(*drawing)() = 0, (*logic)() = 0;
 	drawing = moon_engine_core.Drawing;
 	logic = moon_engine_core.Logic;

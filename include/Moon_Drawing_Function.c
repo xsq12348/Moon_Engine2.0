@@ -1149,6 +1149,13 @@ extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type
 				case MOON_UNIFORM_TYPE_VECTOR4_UINT:
 					glad_glUniform4ui(location, data->vec_uint.x, data->vec_uint.y, data->vec_uint.z, data->vec_uint.w);
 					break;
+				case MOON_UNIFORM_TYPE_TEXTURE:
+					if (!data->texture.slot || !data->texture.image)
+						break;
+					glad_glActiveTexture(GL_TEXTURE0 + data->texture.slot);
+					glad_glBindTexture(GL_TEXTURE_2D, data->texture.image->image.texture);
+					glad_glUniform1i(location, data->texture.slot);
+					break;
 				default:
 					MoonPrompt((char*)"[MoonShaderUniform] 错误的[MOON_UNIFORM_TYPE]类型输入");
 					break;

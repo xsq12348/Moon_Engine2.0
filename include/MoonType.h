@@ -228,6 +228,7 @@ typedef enum
 	MOON_UNIFORM_TYPE_VECTOR2_UINT,		//2D无符号整数向量
 	MOON_UNIFORM_TYPE_VECTOR3_UINT,		//3D无符号整数向量
 	MOON_UNIFORM_TYPE_VECTOR4_UINT,		//4D无符号整数向量
+	MOON_UNIFORM_TYPE_TEXTURE,			//传递纹理
 }MOON_UNIFORM_TYPE;
 
 //--------------------------uniform--------------------------//
@@ -249,6 +250,11 @@ typedef struct
 		{
 			float x, y, z, w;
 		}vec_float;
+		struct
+		{
+			int slot;      //绑定的OpenGL纹理单元编号,不得为0,若为0则无效
+			MOON_IMAGE* image;
+		}texture;
 	};
 }MOON_UNIFORM_DATA;
 

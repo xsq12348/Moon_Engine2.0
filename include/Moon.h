@@ -1328,6 +1328,14 @@ Email:1993346266@qq.com
 * 2.2.12.0+					添加了
 *								MoonLogCreate
 *							用于创建开发日志
+* 2.2.12.1		2026.7.31	添加了
+*								MOON_UNIFORM_TYPE_TEXTURE
+*							类型
+*							允许在着色器中传入多种纹理,而不仅仅只是之前的一个纹理
+* 2.2.13.0					添加了
+*								MoonProjectRun_Single
+*							用于创建多线程函数
+*							添加了单线程模式,现在允许只使用一个线程来进行游戏,获取更高的稳定性
 */
 
 
@@ -1351,6 +1359,14 @@ extern void MoonProjectInit(const char* project_name, int x, int y, int width, i
 * MoonProjectRun(&game, GameInit, GameLogic, GameDrawing);
 */
 extern void MoonProjectRun(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)());//运行项目
+
+/*
+* 函數 MoonProjectRun_Single
+* 作用 運行遊戲項目主循環(单线程)
+* 使用方法
+* MoonProjectRun_Single(&game, GameInit, GameLogic, GameDrawing);
+*/
+extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)(), int(*ProjectDrawing)());//运行项目
 
 /*
 * 函數 MoonProjectOver

@@ -1450,3 +1450,24 @@ _declspec(dllexport) extern int MoonLogCreate(const char* file_name, char* text)
 
 	return MOON_TRUE;
 }
+
+_declspec(dllexport) extern unsigned int MoonCtz(unsigned int value)
+{
+	const unsigned int static bits = (unsigned int)sizeof(unsigned int) * 8;
+	unsigned int
+		count = 0,
+		buffer = (bits / 2) * !(value & 0xffff);
+	count += buffer;
+	value >>= buffer;
+	buffer = (bits / 4) * !(value & 0xff);
+	count += buffer;
+	value >>= buffer;
+	buffer = (bits / 8) * !(value & 0xf);
+	count += buffer;
+	value >>= buffer;
+	buffer = (bits / 16) * !(value & 0x3);
+	count += buffer;
+	value >>= buffer;
+	count += !(value & 0x1);
+	return value ? count : count + 1;
+}

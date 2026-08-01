@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,13,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,14,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -424,6 +424,9 @@ _declspec(dllexport) extern void MoonProjectRun_Single(void (*ProjectSetting_2)(
 
 	glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
 
+	int run_logic = 0,
+		run_draw = 0;
+
 	while (!moon_engine_core.dead)
 	{
 
@@ -488,13 +491,7 @@ _declspec(dllexport) extern void MoonProjectRun_Single(void (*ProjectSetting_2)(
 			{
 				moon_engine_core.Logic();
 				if (moon_engine_core.Logic != MoonLogicPause)
-				{
-					//自动锁
-					MoonProjectGetMessage(&moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
-					MOON_MESSAGE_ALL buffer = logic_message_cache;
-					logic_message_cache = moon_engine_core.message_logic;
-					moon_engine_core.message_logic = buffer;
-				}
+					run_logic = MOON_TRUE;
 			}
 		}
 
@@ -504,11 +501,20 @@ _declspec(dllexport) extern void MoonProjectRun_Single(void (*ProjectSetting_2)(
 			{
 				moon_engine_core.Drawing();
 				if (moon_engine_core.Drawing != MoonDrawingPause)
+					run_draw = MOON_TRUE;
+			}
+
+
+		}
+
+		//自动锁
+		{
+			if(run_logic)
+				MoonProjectGetMessage(&moon_engine_core.message_logic, &moon_engine_core.thread_message_type_logic, MoonlogicMessageHandle);
+			if(run_draw)
+			{
+				MoonProjectGetMessage(&moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
 				{
-
-					//自动锁
-					MoonProjectGetMessage(&moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
-
 					glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
 					glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
 					glad_glBindTexture(GL_TEXTURE_2D, projectbitmap->image.texture);
@@ -526,8 +532,9 @@ _declspec(dllexport) extern void MoonProjectRun_Single(void (*ProjectSetting_2)(
 				}
 			}
 
-
-		}
+			run_logic = MOON_FALSE;
+			run_draw = MOON_FALSE;
+		}		
 
 		{
 			runload[1] = clock();

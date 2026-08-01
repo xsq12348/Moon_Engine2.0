@@ -168,6 +168,14 @@ _declspec(dllexport) extern void MoonSetPower(unsigned char power);
 */
 _declspec(dllexport) extern int MoonRoundOff(float f);
 
+/*
+* 函數 MoonCtz
+* 作用 计算末尾0的数量
+* 使用方法
+*	unsigned int alpha = MoonCtz((unsigned int)0b11000);
+*/
+_declspec(dllexport) extern unsigned int MoonCtz(unsigned int value);
+
 //------------------------------------音乐函数--------------------------------------------------//
 
 

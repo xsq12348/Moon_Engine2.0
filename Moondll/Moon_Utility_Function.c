@@ -822,6 +822,12 @@ _declspec(dllexport) extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char
 	return index_all;
 }
 
+_declspec(dllexport) extern int MoonStrStr(const char* str_scource, const char* str)
+{
+	const char* index = strstr(str_scource, str);
+	return index ? (int)(index - str_scource) : MOON_Error;
+}
+
 static unsigned char MoonAlloc_Registry()
 {
 	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));

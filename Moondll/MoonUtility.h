@@ -420,6 +420,14 @@ _declspec(dllexport) extern unsigned int MoonStrMatch_PrefixIgnoreStr(const char
 */
 _declspec(dllexport) extern void MoonStrMatch_Replace(char* str, unsigned int start_index, unsigned int len, char ch_goal, char ch_replace);
 
+/*
+* 函數 MoonStrStr
+* 作用 是strstr的封装,但是返回索引
+* 使用方法
+*	MoonStrStr(str_scource,str);
+*/
+_declspec(dllexport) extern int MoonStrStr(const char* str_scource, const char* str);
+
 //------------------------------------文件处理------------------------------------------------//
 
 

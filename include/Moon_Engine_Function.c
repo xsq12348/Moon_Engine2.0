@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,14,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,15,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -10,7 +10,7 @@ static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
 static MOON_ENGINECORE moon_engine_core;
 static MOON_MESSAGE_ALL logic_message_cache;
 static unsigned char thread_draw_type, thread_attr_type;
-static unsigned char logic_dead;
+static unsigned char logic_dead, single_switch;
 static unsigned char moon_key_type[MOON_KEY_LAST];
 
 static const char* moon_vertex_shader2d_code =
@@ -371,6 +371,10 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 			moon_engine_core.Logic = MoonLogicNull;
 	}
 
+	{
+		single_switch = MOON_TRUE;
+	}
+
 	int
 	(*drawing)() = 0, (*logic)() = 0,
 	modetemp = MOON_FALSE, runload[3] = { 0 },//帧率计时器
@@ -452,11 +456,6 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 				moon_engine_core.focus = (unsigned char)(!glfwGetWindowAttrib(moon_engine_core.hwnd, GLFW_FOCUSED));
 			}
 
-			//轮询按鍵
-			{
-				MoonPollButton();
-			}
-
 			{
 				{
 					glfwGetCursorPos(moon_engine_core.hwnd, &mousecoord_x_2, &mousecoord_y_2);
@@ -535,6 +534,11 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 			run_logic = MOON_FALSE;
 			run_draw = MOON_FALSE;
 		}		
+
+		//轮询按鍵
+		{
+			MoonPollButton();
+		}
 
 		{
 			runload[1] = clock();
@@ -1135,11 +1139,14 @@ static inline void MoonPollButton()
 			if (moon_key_type[index] == MOON_KEY_MODE_PRESS_LONG)
 				break;
 
-			if (!moon_key_press_time[index])
-				moon_key_press_time[index] = clock();
+			if (single_switch)
+				moon_key_type[index] = MOON_KEY_MODE_PRESS_LONG;
 			else
-				if (clock() - moon_key_press_time[index] >= press_tps)
-					moon_key_type[index] = MOON_KEY_MODE_PRESS_LONG;
+				if (!moon_key_press_time[index])
+					moon_key_press_time[index] = clock();
+				else
+					if (clock() - moon_key_press_time[index] >= press_tps)
+						moon_key_type[index] = MOON_KEY_MODE_PRESS_LONG;
 		}
 		break;
 		default:

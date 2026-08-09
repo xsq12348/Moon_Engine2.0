@@ -1,12 +1,13 @@
 ﻿#ifndef MOON_TYPE_DEF
 #define MOON_TYPE_DEF
 #include<stdio.h>
-#include<time.h>
-#include<math.h>
+#include<locale.h>
+#include<limits.h>
 #include<string.h>
 #include<stdlib.h>
-#include <locale.h>
-#include <wchar.h>
+#include<wchar.h>
+#include<math.h>
+#include<time.h>
 
 #ifndef MOON_ENGINE_CONFIG
 
@@ -45,8 +46,10 @@
 #define MOON_ON				MOON_TRUE
 #define MOON_OFF			MOON_FALSE
 #define MOON_Pi				(3.1415926f)		//Pi
-#define MOON_VERTICES_MAX	(65536 * 4)				//顶点上限
-#define MOON_MESSAGE_TEXT_MAX (32)				//单条消息最大字符数
+#define MOON_VERTICES_MAX	(65536 * 4)			//顶点上限
+#define MOON_MESSAGE_TEXT_MAX	(32)			//单条消息最大字符数
+#define MOON_MESSAGE_BYTE_MAX	(64)			//单条消息最大字节
+#define MOON_UINT_MAX	UINT_MAX				//无类型整数最大值
 
 #define MOON_FONT_CHAR_SIZE_H 16				//字体高度
 #define MOON_FONT_CHAR_SIZE_W 8					//字体宽度
@@ -321,6 +324,7 @@ typedef struct
 			int fps;
 			//int dead;
 		};
+		unsigned char data[MOON_MESSAGE_BYTE_MAX];	//占位,消息最大为64byte
 	};
 }MOON_METADATA;
 

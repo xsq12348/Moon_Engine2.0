@@ -428,6 +428,15 @@ _declspec(dllexport) extern void MoonStrMatch_Replace(char* str, unsigned int st
 */
 _declspec(dllexport) extern int MoonStrStr(const char* str_scource, const char* str);
 
+/*
+* 函數 MoonStrReverse
+* 作用 反转字符串
+* 使用方法
+*	MoonStrReverse(str_scource, str_len);
+*/
+_declspec(dllexport) extern int MoonStrReverse(char* str, unsigned int len);
+
+
 //------------------------------------文件处理------------------------------------------------//
 
 

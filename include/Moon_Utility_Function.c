@@ -828,6 +828,27 @@ extern int MoonStrStr(const char* str_scource, const char* str)
 	return index ? (int)(index - str_scource) : MOON_Error;
 }
 
+extern int MoonStrReverse(char* str, unsigned int len)
+{
+	{
+		if (!str || !len)
+			return 0;
+	}
+
+	{
+		for (unsigned int index = 0; index < (len / 2); ++index)
+		{
+			char
+				ch = str[index],
+				ch2 = str[len - 1 - index];
+			str[len - 1 - index] = ch;
+			str[index] = ch2;
+		}
+	}
+
+	return 1;
+}
+
 static unsigned char MoonAlloc_Registry()
 {
 	void* alloc_buffer = realloc(moon_alloc.alloc, (size_t)(sizeof(MOON_ALLOC*) * (moon_alloc.index + 1)));

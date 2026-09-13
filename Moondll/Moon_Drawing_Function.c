@@ -714,11 +714,10 @@ _declspec(dllexport) extern void MoonCoreFont(MOON_METADATA* metadata)
 		font_w = 1.f / MOON_FONT_CHAR_COUNT,
 		uv_h = 1.f;
 
-	MOON_POINT2D image_buffer_size =
-	{
-		(long int)(metadata->draw.text.size_w),
-		(long int)(metadata->draw.text.size_h),
-	};
+	MOON_POINT2D image_buffer_size;
+
+	image_buffer_size.w = metadata->draw.text.size_w;
+	image_buffer_size.h = metadata->draw.text.size_h;
 
 	unsigned int 
 		text_index = 0,
@@ -839,14 +838,14 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 							right = metadata->draw.image.width - apx,
 							bottom = metadata->draw.image.height - apy;
 
-						points[0].x = (long int)(left * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
-						points[0].y = (long int)(left * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
-						points[1].x = (long int)(right * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
-						points[1].y = (long int)(right * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
-						points[2].x = (long int)(left * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
-						points[2].y = (long int)(left * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
-						points[3].x = (long int)(right * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
-						points[3].y = (long int)(right * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
+						points[0].x = (int)(left * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
+						points[0].y = (int)(left * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
+						points[1].x = (int)(right * matrix2d[0] + top * matrix2d[1] + metadata->draw.image.x);
+						points[1].y = (int)(right * matrix2d[2] + top * matrix2d[3] + metadata->draw.image.y);
+						points[2].x = (int)(left * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
+						points[2].y = (int)(left * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
+						points[3].x = (int)(right * matrix2d[0] + bottom * matrix2d[1] + metadata->draw.image.x);
+						points[3].y = (int)(right * matrix2d[2] + bottom * matrix2d[3] + metadata->draw.image.y);
 
 						vx1 = MoonLerp(-1.f, 1.f, points[0].x * w_buffer);
 						vy1 = MoonLerp(1.f, -1.f, points[0].y * h_buffer);
@@ -883,11 +882,10 @@ _declspec(dllexport) extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message
 				MOON_METADATA* metadata = &message->message[index].metadata;
 
 				{
-					MOON_POINT2D image_buffer_size =
-					{
-						(long int)(metadata->draw.image.image_resources->image_size.w * metadata->draw.image.uv_w),
-						(long int)(metadata->draw.image.image_resources->image_size.h * metadata->draw.image.uv_h)
-					};
+					MOON_POINT2D image_buffer_size;
+
+					image_buffer_size.w = (int)(metadata->draw.image.image_resources->image_size.w * metadata->draw.image.uv_w);
+					image_buffer_size.h = (int)(metadata->draw.image.image_resources->image_size.h * metadata->draw.image.uv_h);
 
 					metadata->draw.image.apy = 1.f - metadata->draw.image.apy;
 

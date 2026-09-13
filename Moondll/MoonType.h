@@ -55,6 +55,8 @@
 #define MOON_FONT_CHAR_SIZE_W 8					//字体宽度
 
 #define MoonCrashed			{volatile int *ptr = 0; *ptr = 0;}	//立即崩溃
+#define MoonCode_ON			if(1)				//代码块开启
+#define MoonCode_OFF		if(0)				//代码块关闭
 
 //创建线程函数关键字
 typedef int MOON_THREAD;
@@ -82,8 +84,8 @@ typedef struct
 {
 	union 
 	{
-		struct { long int x, y; };
-		struct { long int w, h; };
+		struct { int x, y; };
+		struct { int w, h; };
 		struct { float fx, fy; };
 		struct { float fw, fh; };
 	};

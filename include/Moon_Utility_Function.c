@@ -387,6 +387,19 @@ extern void* MoonFindEntity(char* nameid)
 	return entity;
 }
 
+extern void* MoonFindEntity_Id(unsigned int id)
+{
+	void* entity = utility_core->entityindex[id % MOON_ENTITY_NUMBER].entityindex;
+	if (entity == MOON_NULL)
+	{
+		char text[255];
+		snprintf(text, 255, "[MoonFindEntity_Id]空指针错误!来自ID[%u]的实体", id);
+		MoonProjectError(utility_core->entityindex[id % MOON_ENTITY_NUMBER].entityindex, 1, text);
+		return MOON_NULL;
+	}
+	return entity;
+}
+
 extern int MoonCreateEntityIndex(void* arrentity, char* nameid, size_t size_len, char* type_name)
 {
 	int index = MOON_NOTFOUND;
@@ -449,7 +462,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 		)
 	{
 		button->mode = (MOON_BUTTON_TYPE)moon_key[button->triggermode];
-		if (button->mode == MOON_KEY_MODE_PRESS)
+		if ((int)button->mode == MOON_KEY_MODE_PRESS)
 		{
 			button->mode = MOON_BUTTON_PRESS;
 			if (button->ButtonModePress)
@@ -457,7 +470,7 @@ extern int MoonButtonDetection(MOON_BUTTON* button, int x, int y, void* context)
 			return MOON_BUTTON_PRESS;
 		}
 		else
-			if (button->mode == MOON_KEY_MODE_PRESS_LONG)
+			if ((int)button->mode == MOON_KEY_MODE_PRESS_LONG)
 			{
 				if (button->ButtonModePressL)
 					button->ButtonModePressL(button, context);

@@ -69,6 +69,14 @@ extern unsigned char MoonKeyReal(MOON_KEY_TYPE Key);//获取按键的值
 #define MoonRange(alpha, alpha_min, alpha_max) (MoonMin(MoonMax(alpha, alpha_min), alpha_max))//限制范围
 
 /*
+* 函數 Clamp
+* 作用 限制範圍
+* 使用方法
+* int alpha = MoonClamp(beta, 0, 100);
+*/
+#define MoonClamp(alpha, alpha_min, alpha_max) (MoonMin(MoonMax(alpha, alpha_min), alpha_max))//限制范围
+
+/*
 * 函數 MoonSetMouse
 * 作用 設置窗口输入中光标的状态
 * 使用方法
@@ -278,6 +286,14 @@ extern int MoonSleep(int timeload);					//暂停
 * int* entity = (int*)MoonFindEntity((char*)nameid)
 */
 extern void* MoonFindEntity(char* nameid);	//寻找实体
+
+/*
+* 函數 MoonFindEntity_Id
+* 作用 尋找實體,通过id寻找
+* 使用方法
+* int* entity = (int*)MoonFindEntity_Id(unsigned int id)
+*/
+extern void* MoonFindEntity_Id(unsigned int id);	//寻找实体
 
 /*
 * 函數 HashFindEntity

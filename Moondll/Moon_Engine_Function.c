@@ -930,6 +930,7 @@ _declspec(dllexport) extern void MoonlogicMessageHandle(MOON_MESSAGE_ALL* messag
 				if (fps <= 0)fps = (int)(1000.f / 60);
 				moon_engine_core.timeload.timeload = fps;
 			}
+			break;
 			case MOON_MESSAGE_ATTR_OPEN:
 				moon_engine_core.Attr = message->message[index].metadata.function_open;
 				break;

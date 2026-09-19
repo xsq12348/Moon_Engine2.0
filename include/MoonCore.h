@@ -63,23 +63,24 @@ typedef struct
 typedef struct MOON_ENGINECORE
 {
 	MOON_HWND* hwnd;			//窗口句柄
-	int window_width;									//宽度
-	int window_height;									//高度
-	unsigned char dead;					//项目状态
+	int window_width;			//宽度
+	int window_height;			//高度
+	unsigned char dead;			//项目状态
 	unsigned char thread_message_type_draw;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
 	unsigned char thread_message_type_logic;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息
 	//unsigned char thread_message_type_attr;//消息队列状态 MOON_FALSE为可用 MOON_TRUE为不可发送消息	
-	char gamepowermode;		//记录高性能模式旧模式
+	char gamepowermode;			//记录高性能模式旧模式
 	char power;					//高性能模式
 	int focus;					//焦点
 	int(*Logic)();				//多线程逻辑函数
 	int(*Drawing)();			//主线程绘图函数
 	int(*Attr)();				//属性函数
-	MOON_ENTITYINDEX* entityindex;						//对象池注册表
-	MOON_MESSAGE_ALL message_draw;//绘制消息队列
-	MOON_MESSAGE_ALL message_logic;//逻辑消息队列
-	//MOON_MESSAGE_ALL message_attr;//属性消息队列
-	MOON_TIMELOAD timeload;		//计时器
+	MOON_ENTITYINDEX* entityindex;		//对象池注册表
+	unsigned int entityindex_number;	//对象池注册表数量
+	MOON_MESSAGE_ALL message_draw;		//绘制消息队列
+	MOON_MESSAGE_ALL message_logic;		//逻辑消息队列
+	//MOON_MESSAGE_ALL message_attr;	//属性消息队列
+	MOON_TIMELOAD timeload;				//计时器
 }MOON_ENGINECORE;
 
 //--------------------------纹理顶点--------------------------//
@@ -107,7 +108,15 @@ typedef struct
 	unsigned int index;
 }MOON_ALLOC_REGISTRY;		//用于内部队列
 
+//--------------------------3D场景--------------------------//
 
+//场景顶点
+typedef struct MOON_SENCE
+{
+	MOON_POINT3D vertex;	//场景顶点数据
+	unsigned int index;		//场景顶点索引	
+	struct MOON_SENCE* next;
+}MOON_SENCE;
 
 /*
 * 函數 MoonWindow
@@ -149,7 +158,7 @@ extern int MoonProjectPause(int mode, int (**function_1)(), int (*function_2)(),
 * 使用方法
 * MoonUtilityFidCore(core);
 */
-extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core);
+extern void MoonUtilityCoreLoad();
 
 /*
 * 注意!這個函數對你的代碼可能沒有任何作用!

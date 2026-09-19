@@ -6,8 +6,8 @@
 #include"MoonFontttf.h"
 
 static MOON_IMAGE moon_simple_font;
-static MOON_GRAPHIC_VECTER moon_vertex[MOON_VERTICES_MAX];
-static MOON_TEXTURE_VECTER moon_vertex_texture[MOON_VERTICES_MAX];
+static MOON_GRAPHIC_VECTER* moon_vertex;
+static MOON_TEXTURE_VECTER* moon_vertex_texture;
 static unsigned int
 solid_color_shader, texture_shader,
 moon_vbo_solid, moon_vao_solid,
@@ -26,6 +26,34 @@ extern void MoonDrawLoad()
 	MoonHashFindEntity("ProjectShader_Texture", unsigned int, shader_program_2);
 	solid_color_shader = *shader_program_1;
 	texture_shader = *shader_program_2;
+
+	//动态分配资源
+	{
+		{
+			MOON_GRAPHIC_VECTER* moon_vertex_buffer = (MOON_GRAPHIC_VECTER*)realloc(moon_vertex, sizeof(MOON_GRAPHIC_VECTER) * MOON_VERTICES_MAX);
+			if (!moon_vertex_buffer)
+			{
+				MoonPrompt((char*)"[MoonDrawLoad]函数错误,动态分配图元顶点失败!");
+				MoonProjectDead();
+				return;
+			}
+			else
+				moon_vertex = moon_vertex_buffer;
+		}
+
+		{
+			MOON_TEXTURE_VECTER* moon_vertex_texture_buffer = (MOON_TEXTURE_VECTER*)realloc(moon_vertex_texture, sizeof(MOON_TEXTURE_VECTER) * MOON_VERTICES_MAX);
+			if (!moon_vertex_texture_buffer)
+			{
+				MoonPrompt((char*)"[MoonDrawLoad]函数错误,动态分配纹理顶点失败!");
+				MoonProjectDead();
+				return;
+			}
+			else
+				moon_vertex_texture = moon_vertex_texture_buffer;
+		}
+
+	}
 
 	//texture
 	{
@@ -100,6 +128,12 @@ extern void MoonDrawOver()
 	}
 
 	MoonImageDelete(&moon_simple_font);
+
+	//回收动态分配资源
+	{
+		free(moon_vertex);
+		free(moon_vertex_texture);
+	}
 }
 
 extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned int* shader_program)
@@ -333,7 +367,8 @@ extern void MoonDrawBoxFull(MOON_IMAGE* image, int x1, int y1, int x2, int y2, u
 
 extern int MoonAnimeRun(MOON_IMAGE* image, MOON_ANIME* anime, int animeswitch, int x, int y, int width, int height)
 {
-	if (!animeswitch)return 0;
+	if (!animeswitch)
+		return 0;
 	else
 	{
 		anime->number %= anime->totalnumber;
@@ -1161,6 +1196,15 @@ extern void MoonDrawMessageHandle(MOON_MESSAGE_ALL* message, unsigned char* type
 			}
 			break;
 			
+			case MOON_MESSAGE_CULL_FACE:
+			{
+				if (message->message[index].metadata.cull_face)
+					glad_glEnable(GL_CULL_FACE);
+				else
+					glad_glDisable(GL_CULL_FACE);
+			}
+			break;
+
 			case MOON_MESSAGE_DRAW_OPEN:
 			{
 				message->message[index].metadata.function_open();

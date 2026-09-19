@@ -1,12 +1,12 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,17,0 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,18,3 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
 static MOON_POINT2D projectmousecoord;
-static MOON_ENTITYINDEX entityindex[MOON_ENTITY_NUMBER];
+static MOON_ENTITYINDEX* entityindex;
 static MOON_ENGINECORE moon_engine_core;
 static MOON_MESSAGE_ALL logic_message_cache;
 static unsigned char thread_draw_type, thread_attr_type;
@@ -146,6 +146,25 @@ extern void MoonProjectInit(const char* project_name, int x, int y, int width, i
 		return;
 	}
 
+	//分配实体注册表
+	{
+		if(!moon_engine_core.entityindex_number)
+			moon_engine_core.entityindex_number = MOON_ENTITY_NUMBER;
+
+		MOON_ENTITYINDEX* entityindex_buffer = (MOON_ENTITYINDEX*)realloc(entityindex, sizeof(MOON_ENTITYINDEX) * moon_engine_core.entityindex_number);
+		if(!entityindex_buffer)
+		{
+			MoonProjectError(entityindex_buffer, 1, (char*)"[MoonProjectInit]严重错误,entityindex分配失败");
+			MoonProjectDead();
+			return;
+		}
+		memset(entityindex_buffer, 0, sizeof(MOON_ENTITYINDEX) * moon_engine_core.entityindex_number);
+		entityindex = entityindex_buffer;
+
+		MoonPrompt((char*)"[MoonProjectInit]实体注册表分配成功");
+		printf("大小为[%d]个实体 预计占用[%f]MiB\n", moon_engine_core.entityindex_number, sizeof(MOON_ENTITYINDEX) * moon_engine_core.entityindex_number * 1.f / (1024 * 1024));
+	}
+
 	MoonUtilityLoad(&moon_engine_core);
 	SDL_Init(SDL_INIT_AUDIO);
 
@@ -167,7 +186,7 @@ extern void MoonProjectInit(const char* project_name, int x, int y, int width, i
 	MoonCreateEntityIndex(&shader_program_pixel, (char*)"ProjectShader_Texture", sizeof(unsigned int), (char*)"unsigned int");
 	MoonShaderLoad((char**)&moon_vertex_shader2d_code, (char**)&moon_pixel_shader2d_code, &shader_program_vectex);					//加载渲染器
 	MoonShaderLoad((char**)&moon_vertex_shader2d_texture_code, (char**)&moon_pixel_shader2d_texture_code, &shader_program_pixel);	//加载渲染器
-	MoonUtilityCoreLoad(&moon_engine_core);
+	MoonUtilityCoreLoad();
 	MoonDrawLoad();
 
 	if (ProjectSetting_1 != MOON_NULL)
@@ -266,6 +285,7 @@ static MOON_CREATETHREADFUNCTION(ProjectDrawingThread)
 		glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//glad_glDisable(GL_DEPTH_TEST);
 		//glad_glEnable(GL_DEPTH_TEST);
+		//glad_glDepthFunc(GL_LEQUAL);
 	}
 
 	MoonPrompt((char*)"加载了绘制线程");
@@ -424,6 +444,7 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 		glad_glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		//glad_glDisable(GL_DEPTH_TEST);
 		//glad_glEnable(GL_DEPTH_TEST);
+		//glad_glDepthFunc(GL_LEQUAL);
 	}
 
 	glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
@@ -515,6 +536,7 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 				MoonProjectGetMessage(&moon_engine_core.message_draw, &moon_engine_core.thread_message_type_draw, MoonDrawMessageHandle);
 				{
 					glad_glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 					glad_glViewport(0, 0, projectbitmap->image_size.w, projectbitmap->image_size.h);
 					glad_glBindTexture(GL_TEXTURE_2D, projectbitmap->image.texture);
 					MoonImageShader(texture_shader);
@@ -526,7 +548,7 @@ extern void MoonProjectRun_Single(void (*ProjectSetting_2)(), int(*ProjectLogic)
 					glad_glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 					glfwSwapBuffers(moon_engine_core.hwnd);
 					MoonImageDesignated(projectbitmap);
-					glad_glClearColor(0.f, 0.f, 0.f, 1.f);
+					glad_glClearColor(0, 0, 0, 1);
 					glad_glClear(GL_COLOR_BUFFER_BIT);
 				}
 			}
@@ -694,7 +716,7 @@ extern void MoonProjectOver(void (*ProjectOverSetting)())
 	}
 
 	//釋放所有實體
-	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
+	for (unsigned int index = 0; index < moon_engine_core.entityindex_number; ++index)
 	{
 		if (moon_engine_core.entityindex[index].type_name != 0)
 			if (!strcmp(moon_engine_core.entityindex[index].type_name, (char*)"MOON_IMAGE"))
@@ -708,6 +730,12 @@ extern void MoonProjectOver(void (*ProjectOverSetting)())
 		moon_engine_core.entityindex[index].nameid = (char*)MOON_NULL;
 		moon_engine_core.entityindex[index].entityindex = MOON_NULL;
 	}
+
+	//释放实体注册表
+	{
+		free(moon_engine_core.entityindex);
+	}
+
 	MoonPrompt((char*)"[ProjectOver]资源清理完成");
 	MoonPrompt((char*)"程序已退出");
 }
@@ -766,7 +794,7 @@ extern int MoonProjectFindEntityAllNumber()
 {
 	int all_number = 0;
 	printf("\n\033[4;7;105m   序号|地址            |索引      |名称                          |类型                          |Hash      |类型大小  \033[0m\n");
-	for (int index = 0; index < MOON_ENTITY_NUMBER; ++index)
+	for (unsigned int index = 0; index < moon_engine_core.entityindex_number; ++index)
 		if (moon_engine_core.entityindex[index].length != 0)
 		{
 			++all_number;
@@ -1171,4 +1199,9 @@ extern MOON_POINT2D MoonProjectWindowSize()
 	return size;
 }
 
+extern void MoonProjectSetEntityIndex(unsigned int num)
+{
+	if (!moon_engine_core.entityindex_number)
+		moon_engine_core.entityindex_number = num;
+}
 

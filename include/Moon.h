@@ -45,6 +45,9 @@ Email:1993346266@qq.com
 最后一次更新日期 : 2026.6.26
 最后一次更新日期 : 2026.6.27
 最后一次更新日期 : 2026.8.9
+最后一次更新日期 : 2026.9.14
+最后一次更新日期 : 2026.9.16
+最后一次更新日期 : 2026.9.19
 
 [1]
 	MoonEngine以左上角为原点,与GDI和SDL看齐,反转Y轴
@@ -567,7 +570,140 @@ Email:1993346266@qq.com
 
 		引擎退出时，MoonAlloc 注册表会自动释放 file.file_buffer 和 file.line_index，
 		您无需手动调用 MoonFree（但也可以在不再使用时主动释放以减少内存占用）。
-	
+
+[17]	自动居中
+		当您希望窗口可以自动居中显示时,请在MoonProjectInit中将任意坐标设置为负数即可
+
+[18]	回收资源
+			引擎会回收一些特定类型的资源,只要它们在实体注册表中
+			如下
+				MOON_IMAGE
+				MOON_ANIME
+				MOON_VECTOR
+
+[19]	维护代码
+			本引擎维护标准 以下是部分建议
+			
+			您可以在Github上提交pr或者私信邮箱来提交维护申请
+			
+			必须提供您的完整的,可独立运行的测试.c文件或者完整项目
+				即最小可复现示例（Minimal Reproducible Example）
+			
+			禁止使用任何cpp,但您可以保持兼容cpp
+			
+			对于用不到的枚举或者代码块,最好注释掉而不是删除,方便代码回溯错误或者供给给他人学习
+
+			标准如下
+
+				对于if
+					如果单行if很长,必须换行
+						例如
+							if ((index == message->message_index - 1)
+								|| message->message[index + 1].message != message_type
+								|| message->message[index + 1].metadata.draw.image_goal != image_old
+								|| message->message[index + 1].metadata.draw.image.image_resources != image_resource_old
+								|| message->message[index + 1].metadata.draw.color != message->message[index].metadata.draw.color)
+					
+					如果只有一行操作,那么不添加括号
+
+				for
+					如果没有其他特殊要求,使用index来作为循环变量
+					如果只有一行操作,那么不添加括号
+
+
+				对于case语句
+					每个case后方必须接一个break,哪怕case后面直接是return
+					如果case内有多行代码,必须用大括号括起来,以便于阅读
+					break和case必须单独占一行,以便于阅读
+					例如
+						switch (message_type)
+						{
+						case MOON_MESSAGE_DRAW_LINE:
+							graphic_mode = GL_LINES;
+							break;
+						case MOON_MESSAGE_DRAW_PIX:
+							graphic_mode = GL_POINTS;
+							break;
+						case MOON_MESSAGE_DRAW_TRI_FULL:
+							graphic_mode = GL_TRIANGLES;
+							break;
+						default:
+							MoonPrompt((char*)"无效的绘制命令");
+							return MOON_Error;
+								break;
+						}
+
+				函数
+					对于添加新的公开函数,描述必须如下,且必须以extern修饰
+						* 函數 xxx
+						* 作用 xxx
+						* 使用方法
+						* xxx();
+					公开函数必须以大写字母开头,且必须使用驼峰命名法,家族函数以_为功能后缀或者直接写名称
+						例如
+							MoonProjectRun
+							MoonVector_Dot
+
+					公开函数必须有描述,描述必须包含函数名,作用,使用方法,使用示例
+					公开函数必须有使用示例,使用示例必须包含完整的调用过程
+					公开函数内任何独立功能,比如更新数组循环,且与函数内其他部分没有耦合,最好用大括号括起来,以便于阅读
+					例如
+						{
+							MoonDrawOver();
+							MoonUtilityOver();
+						}
+
+						{
+							SDL_Quit();
+						}
+
+						{
+							glad_glDeleteProgram(shader_program_vectex);
+							glad_glDeleteProgram(shader_program_pixel);
+							glfwTerminate();
+						}
+
+						//释放消息队列
+						{
+							free(moon_engine_core.message_draw.message);
+							free(moon_engine_core.message_logic.message);
+						}
+
+			对于变量
+				任何变量,如果存在临时副本或者缓冲,必须以_buffer结尾
+				全局变量
+					必须以static开头
+					extern禁止修饰任何变量,包括静态变量,包括全局变量,包括结构体,包括联合体,包括枚举体等
+						跨文件传递变量,必须通过函数接口或者实体系统接口调用
+					全局变量的名称必须有意义,不要吝啬名字长度
+					返回小错误或者提示用MoonPrompt
+					遇到重大问题调用MoonProjectDead立即杀死项目
+
+				对于任何已知不会出现负数的变量,务必用unsigned修饰
+				所有bool类型全部以unsigned char表示
+				如果一次性声明变量很多
+					最好以如下方式组织代码,保持整齐
+					例如
+						float
+							vx1 = MoonLerp(-1.f, 1.f, x * w_buffer),
+							vy1 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h * n) * h_buffer),
+							vx2 = MoonLerp(-1.f, 1.f, (x + image_buffer_size.w) * w_buffer),
+							vy2 = MoonLerp(1.f, -1.f, (metadata->draw.text.coord.y + image_buffer_size.h * (n + 1)) * h_buffer),
+							uv_w = font_w,
+							apx = ch * font_w;
+
+						int a = 100,
+							b = 100,
+							c = 100;
+
+				变量名称最好有意义,哪怕是临时变量,非必要不使用单字母
+					除非它们组在一起没有歧义
+						例如
+							w h 一起
+							x y z 一起
+							r g b a 一起
+							alpha beta gamma作为临时操作变量等
+
 
 * 0.0.0.0
 * 1.0.0.0  2025.10.29  完成了基本框架的搭建																		.Completed the setup of the basic framework
@@ -1367,6 +1503,21 @@ Email:1993346266@qq.com
 * 2.2.17.0+					添加了
 *								MoonFindEntity_Id
 *							用于直接查询实体
+* 2.2.17.1		2026.9.14	添加了
+*								MOON_MESSAGE_CULL_FACE
+*							用于设置是否开启背面剔除
+* 2.2.18.0		2026.9.15	添加了
+*								MoonProjectSetEntityIndex
+* 							用于设置实体索引的数量
+* 2.2.18.1					将entityindex设置为了动态分配,不再是固定的数组,现在可以创建任意数量的实体
+*							您可以使用新添加的MoonProjectSetEntityIndex来设置实体索引的数量,如果您不调用该函数,则实体索引数量为默认值
+* 2.2.18.2					修改了MoonUtilityCoreLoad的参数
+*								由
+*									MoonUtilityCoreLoad(MOON_ENGINECORE* core)
+*								改为
+*									MoonUtilityCoreLoad()
+*							这只是内核函数的一个优化,对您的应用层代码完全没有影响
+* 2.2.18.3					将纹理和图元顶点设置为了动态分配
 *
 */
 
@@ -1496,5 +1647,18 @@ extern unsigned int MoonShaderTexture();
 * unsigned int shader = MoonShaderSolid();
 */
 extern unsigned int MoonShaderSolid();
+
+/*
+* 函數 MoonProjectSetEntityIndex
+* 作用 动态设置实体索引的数量
+* 使用方法
+* 在MoonProjectInit之前调用,即可设置实体索引的数量
+* 如果您不调用该函数,则实体索引数量为默认值
+* 默认值有三个
+*	997			min
+*	10007		mid
+*	1000003		max
+*/
+extern void MoonProjectSetEntityIndex(unsigned int num);
 
 #endif

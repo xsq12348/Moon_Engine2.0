@@ -27,7 +27,7 @@ extern void MoonUtilityLoad(MOON_ENGINECORE* core)
 	utility_core = core;
 }
 
-extern void MoonUtilityCoreLoad(MOON_ENGINECORE* core)
+extern void MoonUtilityCoreLoad()
 {
 	{
 		SDL_AudioSpec audio_spec;
@@ -376,12 +376,12 @@ extern int MoonTimeLoad(MOON_TIMELOAD* Timeload, int mode)
 
 extern void* MoonFindEntity(char* nameid)
 {
-	void* entity =	utility_core->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex;
+	void* entity =	utility_core->entityindex[(MoonHash(nameid) % utility_core->entityindex_number)].entityindex;
 	if (entity == MOON_NULL)
 	{
 		char text[255];
 		snprintf(text, 255, "[MoonFindEntity]空指针错误!来自名称[%s]的实体", nameid);
-		MoonProjectError(utility_core->entityindex[(MoonHash(nameid) % MOON_ENTITY_NUMBER)].entityindex, 1, text);
+		MoonProjectError(utility_core->entityindex[(MoonHash(nameid) % utility_core->entityindex_number)].entityindex, 1, text);
 		return MOON_NULL;
 	}
 	return entity;
@@ -389,12 +389,12 @@ extern void* MoonFindEntity(char* nameid)
 
 extern void* MoonFindEntity_Id(unsigned int id)
 {
-	void* entity = utility_core->entityindex[id % MOON_ENTITY_NUMBER].entityindex;
+	void* entity = utility_core->entityindex[id % utility_core->entityindex_number].entityindex;
 	if (entity == MOON_NULL)
 	{
 		char text[255];
 		snprintf(text, 255, "[MoonFindEntity_Id]空指针错误!来自ID[%u]的实体", id);
-		MoonProjectError(utility_core->entityindex[id % MOON_ENTITY_NUMBER].entityindex, 1, text);
+		MoonProjectError(utility_core->entityindex[id % utility_core->entityindex_number].entityindex, 1, text);
 		return MOON_NULL;
 	}
 	return entity;
@@ -403,7 +403,7 @@ extern void* MoonFindEntity_Id(unsigned int id)
 extern int MoonCreateEntityIndex(void* arrentity, char* nameid, size_t size_len, char* type_name)
 {
 	int index = MOON_NOTFOUND;
-	int hash = MoonHash(nameid) % MOON_ENTITY_NUMBER;
+	int hash = MoonHash(nameid) % utility_core->entityindex_number;
 	if (hash == MOON_FALSE)
 		printf("非法的名称[%s],无法通过这个字符串得到合法的索引", nameid);
 

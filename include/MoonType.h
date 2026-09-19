@@ -324,6 +324,7 @@ typedef struct
 			int (*function)();						//切换模块
 			int power;
 			int fps;
+			unsigned int cull_face;
 			//int dead;
 		};
 		unsigned char data[MOON_MESSAGE_BYTE_MAX];	//占位,消息最大为64byte
@@ -377,6 +378,7 @@ typedef enum
 	//MOON_MESSAGE_DRAW_SETDRAW,
 	MOON_MESSAGE_DRAW_OPEN,						//在消息队列注入自定义模块函数,一次性
 	MOON_MESSAGE_DRAW_UNIFORM,					//glad_glUniform
+	MOON_MESSAGE_CULL_FACE,						//设置剔除模式
 	MOON_MESSAGE_DRAW_IMAGE,					//绘制纹理图层
 	//MOON_MESSAGE_DRAW_IMAGE_ALPHA,
 	//MOON_MESSAGE_DRAW_IMAGE_ROUND,
@@ -388,7 +390,12 @@ typedef enum
 	//MOON_MESSAGE_DRAW_CIRCLE,
 	//MOON_MESSAGE_DRAW_BOX,
 	//MOON_MESSAGE_DRAW_BOX_FULL,
-	MOON_MESSAGE_DRAW_TRI_FULL,					//绘制三角形
+	MOON_MESSAGE_DRAW_TRI_FULL,					//绘制填充三角形
+
+	MOON_MESSAGE_DRAW_LINE_3D,					//绘制线 3D
+	MOON_MESSAGE_DRAW_PIX_3D,					//绘制点 3D
+	MOON_MESSAGE_DRAW_TRI_FULL_3D,				//绘制填充三角形 3D
+
 	MOON_MESSAGE_DRAW_TEXT,						//绘制默认字体
 	//MOON_MESSAGE_DRAW_ANIME_RUN,
 	//MOON_MESSAGE_DRAW_ANIME_MODE,

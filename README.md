@@ -8,7 +8,7 @@ MoonEngine是一个简单的框架/轻量化引擎
 
 作者:xsq12348
 Email:1993346266@qq.com
-> 基于 OpenGL 的消息式 2D 轻量化引擎
+> 基于 OpenGL 的消息式轻量化引擎
 
 ---
 

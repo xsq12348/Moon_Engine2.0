@@ -212,7 +212,8 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 
 extern void MoonProjectSetVertices(unsigned int num)
 {
-	moon_vertices = num;
+	if(!moon_vertices)
+		moon_vertices = num;
 }
 
 extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source,int x,int y,int width ,int height)

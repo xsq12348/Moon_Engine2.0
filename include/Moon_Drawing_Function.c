@@ -13,6 +13,7 @@ solid_color_shader, texture_shader,
 moon_vbo_solid, moon_vao_solid,
 moon_vbo_texture, moon_vao_texture,
 moon_vertex_index, moon_vertex_texture_index;
+static unsigned int moon_vertices;
 static void MoonVertexinitTemp(MOON_GRAPHIC_VECTER* vertex, unsigned int index_offset, float vx, float vy, float r, float g, float b, float a);					//构建图元顶点
 static inline void MoonTextureVertexinitTemp(MOON_TEXTURE_VECTER* vertex, unsigned int index_offset, float vx, float vy, float uv_x, float uv_y);				//构建纹理顶点
 static inline unsigned char MoonSetTemp(MOON_IMAGE** image_old, MOON_METADATA* metadata, int offset);															//全局设置
@@ -27,10 +28,18 @@ extern void MoonDrawLoad()
 	solid_color_shader = *shader_program_1;
 	texture_shader = *shader_program_2;
 
+	{
+		if (!moon_vertices)
+			moon_vertices = MOON_VERTICES_MAX;
+		MoonPrompt((char*)MOON_NULL);
+		printf("[MoonDrawLoad]函数成功,图元顶点数量为[%u]\n", moon_vertices);
+
+	}
+
 	//动态分配资源
 	{
 		{
-			MOON_GRAPHIC_VECTER* moon_vertex_buffer = (MOON_GRAPHIC_VECTER*)realloc(moon_vertex, sizeof(MOON_GRAPHIC_VECTER) * MOON_VERTICES_MAX);
+			MOON_GRAPHIC_VECTER* moon_vertex_buffer = (MOON_GRAPHIC_VECTER*)realloc(moon_vertex, sizeof(MOON_GRAPHIC_VECTER) * moon_vertices);
 			if (!moon_vertex_buffer)
 			{
 				MoonPrompt((char*)"[MoonDrawLoad]函数错误,动态分配图元顶点失败!");
@@ -42,7 +51,7 @@ extern void MoonDrawLoad()
 		}
 
 		{
-			MOON_TEXTURE_VECTER* moon_vertex_texture_buffer = (MOON_TEXTURE_VECTER*)realloc(moon_vertex_texture, sizeof(MOON_TEXTURE_VECTER) * MOON_VERTICES_MAX);
+			MOON_TEXTURE_VECTER* moon_vertex_texture_buffer = (MOON_TEXTURE_VECTER*)realloc(moon_vertex_texture, sizeof(MOON_TEXTURE_VECTER) * moon_vertices);
 			if (!moon_vertex_texture_buffer)
 			{
 				MoonPrompt((char*)"[MoonDrawLoad]函数错误,动态分配纹理顶点失败!");
@@ -63,7 +72,7 @@ extern void MoonDrawLoad()
 		glad_glBindVertexArray(moon_vao_texture);
 
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_texture);
-		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_TEXTURE_VECTER) * MOON_VERTICES_MAX, NULL, GL_DYNAMIC_DRAW);
+		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_TEXTURE_VECTER) * moon_vertices, NULL, GL_DYNAMIC_DRAW);
 
 		glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 		glad_glEnableVertexAttribArray(0);
@@ -82,7 +91,7 @@ extern void MoonDrawLoad()
 		glad_glBindVertexArray(moon_vao_solid);
 
 		glad_glBindBuffer(GL_ARRAY_BUFFER, moon_vbo_solid);
-		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_GRAPHIC_VECTER) * MOON_VERTICES_MAX, NULL, GL_DYNAMIC_DRAW);
+		glad_glBufferData(GL_ARRAY_BUFFER, sizeof(MOON_GRAPHIC_VECTER) * moon_vertices, NULL, GL_DYNAMIC_DRAW);
 
 		glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 		glad_glEnableVertexAttribArray(0);
@@ -199,6 +208,11 @@ extern void MoonShaderLoad(char** vertex_shader, char** pixel_shader, unsigned i
 	//刪除著色器對象
 	glad_glDeleteShader(vertex_shader_uint);
 	glad_glDeleteShader(pixel_shader_uint);
+}
+
+extern void MoonProjectSetVertices(unsigned int num)
+{
+	moon_vertices = num;
 }
 
 extern void MoonDrawArea(MOON_IMAGE* image_goal, MOON_IMAGE* image_source,int x,int y,int width ,int height)
@@ -1294,14 +1308,14 @@ static inline unsigned char MoonSetTemp(
 	}
 	else
 		//检查图元顶点
-		if (offset > 0 && moon_vertex_index >= (unsigned int)MOON_VERTICES_MAX - offset)
+		if (offset > 0 && moon_vertex_index >= (unsigned int)moon_vertices - offset)
 		{
 			MoonPrompt((char*)"[MoonSetTemp] 图形顶点溢出");
 			out_temp = MOON_FALSE;
 		}
 
 	//检查纹理顶点
-	if (moon_vertex_texture_index >= (unsigned int)MOON_VERTICES_MAX - 6)
+	if (moon_vertex_texture_index >= (unsigned int)moon_vertices - 6)
 	{
 		MoonPrompt((char*)"[MoonSetTemp] 纹理顶点溢出");
 		out_temp = MOON_FALSE;

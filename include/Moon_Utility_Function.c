@@ -39,7 +39,7 @@ extern void MoonUtilityCoreLoad()
 			moon_audio_dev = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &audio_spec);
 			if (moon_audio_dev == MOON_FALSE)
 			{
-				MoonPrompt((char*)"");
+				MoonPrompt((char*)MOON_NULL);
 				printf("[ProjectInit] 打开音频设备失败: %s\n", SDL_GetError());
 				MoonProjectDead();
 				return;
@@ -50,7 +50,7 @@ extern void MoonUtilityCoreLoad()
 			moon_audio_stream = SDL_CreateAudioStream(&audio_spec, NULL);
 			if (!moon_audio_stream)
 			{
-				MoonPrompt((char*)"");
+				MoonPrompt((char*)MOON_NULL);
 				printf("[ProjectInit] 创建音频流失败: %s\n", SDL_GetError());
 				SDL_CloseAudioDevice(moon_audio_dev);
 				MoonProjectDead();
@@ -61,7 +61,7 @@ extern void MoonUtilityCoreLoad()
 		{
 			if (!SDL_BindAudioStream(moon_audio_dev, moon_audio_stream))
 			{
-				MoonPrompt((char*)"");
+				MoonPrompt((char*)MOON_NULL);
 				printf("[ProjectInit] 绑定音频流失败: %s\n", SDL_GetError());
 				SDL_DestroyAudioStream(moon_audio_stream);
 				SDL_CloseAudioDevice(moon_audio_dev);
@@ -259,7 +259,7 @@ extern unsigned char MoonMusicInit_Wav(MOON_MUSIC* music, const char* File)
 
 	if (!SDL_LoadWAV(File, &file_spec, &raw_data, &raw_len)) 
 	{
-		MoonPrompt((char*)"");
+		MoonPrompt((char*)MOON_NULL);
 		printf("[MoonMusicInit] 加载失败: %s\n", SDL_GetError());
 		return MOON_FALSE;
 	}
@@ -676,7 +676,7 @@ extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsign
 	FILE* fp = fopen(file_name, "r");
 	if (fp == NULL)
 	{
-		MoonPrompt((char*)"");
+		MoonPrompt((char*)MOON_NULL);
 		printf("[FileLoad_TEXT]文件错误\n[%s]文件读取失败\n", file_name);
 		return MOON_FALSE;
 	}
@@ -691,7 +691,7 @@ extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsign
 			&& chbuffer[1] == 0xBB
 			&& chbuffer[2] == 0xBF)
 		{
-			MoonPrompt((char*)"");
+			MoonPrompt((char*)MOON_NULL);
 			printf("\n[FileLoad_TEXT]检测到BOM开头的的特殊字节码 0xEF 0xBB 0xBF\n");
 		}
 
@@ -717,7 +717,7 @@ extern unsigned char MoonFileLoad_TEXT(const char* file_name, char* text, unsign
 
 	if (text[text_size - 1] != '\0')
 	{
-		MoonPrompt((char*)"");
+		MoonPrompt((char*)MOON_NULL);
 		printf("\n[FileLoad_TEXT]函数错误\n[%s]文件,传入的[text_size]空间不足,已清空字符串\n", file_name);
 		for (unsigned int index = 0; index < text_size; index++)
 			text[index] = '\0';

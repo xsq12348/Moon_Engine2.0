@@ -108,16 +108,6 @@ typedef struct
 	unsigned int index;
 }MOON_ALLOC_REGISTRY;		//用于内部队列
 
-//--------------------------3D场景--------------------------//
-
-//场景顶点
-typedef struct MOON_SENCE
-{
-	MOON_POINT3D vertex;	//场景顶点数据
-	unsigned int index;		//场景顶点索引	
-	struct MOON_SENCE* next;
-}MOON_SENCE;
-
 /*
 * 函數 MoonWindow
 * 作用 創建窗口

@@ -211,9 +211,9 @@ typedef enum
 typedef struct MOON_LINKED
 {
 	struct MOON_LINKED* prev;		//链接的父节点
-	struct MOON_LINKED* next;			//链接的子节点
-	unsigned char assign;					//动态分配标志位, 若为TRUE则尝试free resource
-	void* resource;							//资源
+	struct MOON_LINKED* next;		//链接的子节点
+	unsigned char assign;			//动态分配标志位, 若为TRUE则尝试free resource
+	void* resource;					//资源
 }MOON_LINKED;
 
 //--------------------------uniform type--------------------------//

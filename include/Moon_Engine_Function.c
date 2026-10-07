@@ -1,7 +1,7 @@
 ﻿#include"Moon.h"
 #include"MoonCore.h"
 
-static unsigned char Moon_Engine_VSn[4] = { 2,2,18,3 };
+static unsigned char Moon_Engine_VSn[4] = { 2,2,19,0 };
 static MOON_TIMELOAD projectfps;
 static int fpsmax, fpsmax2;
 static MOON_IMAGE projectdoublebuffer;
@@ -105,22 +105,16 @@ extern MOON_HWND* MoonWindow(const char* name, int window_coord_x, int window_co
 extern void MoonProjectInit(const char* project_name, int x, int y, int width, int height, int fps, void (*ProjectSetting_1)())
 {
 	MoonPrompt((char*)"[ProjectInit]初始化函数进入成功");
-	printf("\n\033[1;33m    ████████████      \n  ████      ████████  \n  ██    ██████    ██  \n████  ██    ████    ███\n██████████████  ██  ███\n██  ██  ██  ██  ██  ███\n██  ██  ███████████████\n██    ████    ██  █████\n  ██    ██████    ██  \n  ████████      ████  \n      ████████████      \n\033[0m\n");
+	//printf("\n\033[1;33m    ████████████      \n  ████      ████████  \n  ██    ██████    ██  \n████  ██    ████    ███\n██████████████  ██  ███\n██  ██  ██  ██  ██  ███\n██  ██  ███████████████\n██    ████    ██  █████\n  ██    ██████    ██  \n  ████████      ████  \n      ████████████      \n\033[0m\n");
+	printf("\033[1;33m%s\n", "▌▌▌╗   ▌▌▌╗  ▌▌▌▌▌▌╗   ▌▌▌▌▌▌╗  ▌▌▌╗   ▌▌╗");
+	printf("%s\n",           "▌▌▌▌╗ ▌▌▌▌║ ▌▌╔═══▌▌╗ ▌▌╔═══▌▌╗ ▌▌▌▌╗  ▌▌║");
+	printf("%s\n",           "▌▌╔▌▌▌▌╔▌▌║ ▌▌║   ▌▌║ ▌▌║   ▌▌║ ▌▌╔▌▌╗ ▌▌║");
+	printf("%s\n",           "▌▌║╚▌▌╔╝▌▌║ ▌▌║   ▌▌║ ▌▌║   ▌▌║ ▌▌║╚▌▌╗▌▌║");
+	printf("%s\n",           "▌▌║ ╚═╝ ▌▌║ ╚▌▌▌▌▌▌╔╝ ╚▌▌▌▌▌▌╔╝ ▌▌║ ╚▌▌▌▌║");
+	printf("%s\n",           "╚═╝     ╚═╝  ╚═════╝   ╚═════╝  ╚═╝  ╚═══╝");
+	printf("%s\033[0m\n", "                                       ");
 	printf("MoonEngine[%d.%d.%d.%d]\n", Moon_Engine_VSn[0], Moon_Engine_VSn[1], Moon_Engine_VSn[2], Moon_Engine_VSn[3]);
-	/*
-	  ██████████
-  ████      ████████
-  ██    ██████    ██
-████  ██    ████    ██
-██████████████  ██  ██
-██  ██  ██  ██  ██  ██
-██  ██  ██████████████
-██    ████    ██  ████
-  ██    ██████    ██
-  ████████      ████
-	  ██████████
 
-	*/
 
 	if (!glfwInit())
 	{
@@ -819,7 +813,8 @@ extern unsigned int MoonVsn()
 extern void MoonPrompt(char* text)
 {
 	printf("\n\033[31m[MoonEngine]提示\033[0m\n");
-	printf("%s\n", text);
+	if(text)
+		printf("%s\n", text);
 }
 
 static MOON_PROJECTMODULE(MoonLogicPause)

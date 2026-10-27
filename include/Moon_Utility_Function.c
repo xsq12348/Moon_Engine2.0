@@ -1319,10 +1319,10 @@ extern MOON_VECTOR Moonvector_Copy(MOON_VECTOR* vector)
 	MOON_VECTOR vector_out = { 0 };
 	if (!vector || !vector->dim)
 		return vector_out;
-	vector_out.dim = vector->dim;
 	vector_out.vector = (float*)malloc(vector->dim * sizeof(float));
 	if (!vector_out.vector)
 		return vector_out;
+	vector_out.dim = vector->dim;
 	memcpy(vector_out.vector, vector->vector, vector->dim * sizeof(float));
 	return vector_out;
 }

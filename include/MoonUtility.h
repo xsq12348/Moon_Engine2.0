@@ -711,6 +711,6 @@ extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linked);
 * 使用方法
 * MOON_VECTOR* copy = MoonVector_Copy(&v1);
 */
-extern MOON_VECTOR Moonvector_Copy(MOON_VECTOR* vector);
+extern MOON_VECTOR MoonVector_Copy(MOON_VECTOR* vector);
 
 //------------------------------------编译器------------------------------------------------//

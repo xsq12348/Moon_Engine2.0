@@ -1314,7 +1314,7 @@ extern float MoonVector_Dot(MOON_VECTOR* vector_1, MOON_VECTOR* vector_2)
 	return dot;
 }
 
-extern MOON_VECTOR Moonvector_Copy(MOON_VECTOR* vector)
+extern MOON_VECTOR MoonVector_Copy(MOON_VECTOR* vector)
 {
 	MOON_VECTOR vector_out = { 0 };
 	if (!vector || !vector->dim)

@@ -705,4 +705,12 @@ extern MOON_LINKED_TYPE MoonLinkedCreate_Insert(MOON_LINKED* linked, MOON_LINKED
 */
 extern MOON_LINKED_TYPE MoonLinkedDelete(MOON_LINKED* linked);
 
+/*
+* 函數 MoonVector_Copy
+* 作用 复制向量，返回新分配的向量指针
+* 使用方法
+* MOON_VECTOR* copy = MoonVector_Copy(&v1);
+*/
+extern MOON_VECTOR Moonvector_Copy(MOON_VECTOR* vector);
+
 //------------------------------------编译器------------------------------------------------//
